@@ -42,6 +42,7 @@
             this.lvPrintList = new System.Windows.Forms.ListView();
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel63 = new System.Windows.Forms.Panel();
             this.panel50 = new System.Windows.Forms.Panel();
@@ -193,12 +194,13 @@
             this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             this.panel17 = new System.Windows.Forms.Panel();
             this.panel18 = new System.Windows.Forms.Panel();
-            this.buttonApply = new DevExpress.XtraEditors.SimpleButton();
             this.panel11 = new System.Windows.Forms.Panel();
             this.panel19 = new System.Windows.Forms.Panel();
             this.panel33 = new System.Windows.Forms.Panel();
             this.timerUpdateIOT = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.btnSendPallet01 = new System.Windows.Forms.Button();
+            this.btnSendPallet02 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.xtraTabControlTForm)).BeginInit();
@@ -418,6 +420,7 @@
             this.lvPrintList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader3,
             this.columnHeader4,
+            this.columnHeader6,
             this.columnHeader5});
             this.lvPrintList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvPrintList.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(163)));
@@ -441,7 +444,12 @@
             // columnHeader4
             // 
             this.columnHeader4.Text = "Mã định danh";
-            this.columnHeader4.Width = 536;
+            this.columnHeader4.Width = 222;
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "Mã Pallet";
+            this.columnHeader6.Width = 207;
             // 
             // columnHeader5
             // 
@@ -779,6 +787,7 @@
             // panel66
             // 
             this.panel66.BackColor = System.Drawing.Color.Gray;
+            this.panel66.Controls.Add(this.btnSendPallet02);
             this.panel66.Controls.Add(this.panel68);
             this.panel66.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel66.Location = new System.Drawing.Point(358, 3);
@@ -829,6 +838,7 @@
             // panel62
             // 
             this.panel62.BackColor = System.Drawing.Color.Gray;
+            this.panel62.Controls.Add(this.btnSendPallet01);
             this.panel62.Controls.Add(this.panel67);
             this.panel62.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel62.Location = new System.Drawing.Point(3, 3);
@@ -2581,29 +2591,6 @@
             this.panel18.Size = new System.Drawing.Size(131, 900);
             this.panel18.TabIndex = 1;
             // 
-            // buttonApply
-            // 
-            this.buttonApply.AllowGlyphSkinning = DevExpress.Utils.DefaultBoolean.True;
-            this.buttonApply.Appearance.BackColor = System.Drawing.Color.DodgerBlue;
-            this.buttonApply.Appearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.buttonApply.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonApply.Appearance.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.buttonApply.Appearance.GradientMode = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
-            this.buttonApply.Appearance.Options.UseBackColor = true;
-            this.buttonApply.Appearance.Options.UseBorderColor = true;
-            this.buttonApply.Appearance.Options.UseFont = true;
-            this.buttonApply.Appearance.Options.UseForeColor = true;
-            this.buttonApply.ImageLocation = DevExpress.XtraEditors.ImageLocation.MiddleLeft;
-            this.buttonApply.ImageToTextAlignment = DevExpress.XtraEditors.ImageAlignToText.LeftCenter;
-            this.buttonApply.Location = new System.Drawing.Point(11, 12);
-            this.buttonApply.LookAndFeel.SkinName = "The Asphalt World";
-            this.buttonApply.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.Style3D;
-            this.buttonApply.LookAndFeel.UseDefaultLookAndFeel = false;
-            this.buttonApply.Name = "buttonApply";
-            this.buttonApply.Size = new System.Drawing.Size(111, 46);
-            this.buttonApply.TabIndex = 52;
-            this.buttonApply.Click += new System.EventHandler(this.buttonOk_Click);
-            // 
             // panel11
             // 
             this.panel11.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -2631,12 +2618,37 @@
             // 
             // timerUpdateIOT
             // 
-            this.timerUpdateIOT.Interval = 500;            // 
+            this.timerUpdateIOT.Interval = 500;
+            // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            // 
+            // btnSendPallet01
+            // 
+            this.btnSendPallet01.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnSendPallet01.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSendPallet01.Location = new System.Drawing.Point(0, 0);
+            this.btnSendPallet01.Name = "btnSendPallet01";
+            this.btnSendPallet01.Size = new System.Drawing.Size(350, 111);
+            this.btnSendPallet01.TabIndex = 1;
+            this.btnSendPallet01.Text = "CHỐT PALLET TẠI 01";
+            this.btnSendPallet01.UseVisualStyleBackColor = true;
+            this.btnSendPallet01.Click += new System.EventHandler(this.btnSendPallet01_Click);
+            // 
+            // btnSendPallet02
+            // 
+            this.btnSendPallet02.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnSendPallet02.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSendPallet02.Location = new System.Drawing.Point(0, 0);
+            this.btnSendPallet02.Name = "btnSendPallet02";
+            this.btnSendPallet02.Size = new System.Drawing.Size(350, 111);
+            this.btnSendPallet02.TabIndex = 2;
+            this.btnSendPallet02.Text = "CHỐT PALLET TẠI 02";
+            this.btnSendPallet02.UseVisualStyleBackColor = true;
+            this.btnSendPallet02.Click += new System.EventHandler(this.btnSendPallet02_Click);
             // 
             // TForm
             // 
@@ -2823,7 +2835,6 @@
         private System.Windows.Forms.Panel panelConfig;
         private System.Windows.Forms.Panel panel17;
         private System.Windows.Forms.Panel panel18;
-        private DevExpress.XtraEditors.SimpleButton buttonApply;
         private System.Windows.Forms.Panel panel11;
         private System.Windows.Forms.Panel panel19;
         private System.Windows.Forms.Panel panel33;
@@ -2928,6 +2939,9 @@
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Panel panel72;
         private System.Windows.Forms.Label lblPalletCode;
+        private System.Windows.Forms.ColumnHeader columnHeader6;
+        private System.Windows.Forms.Button btnSendPallet02;
+        private System.Windows.Forms.Button btnSendPallet01;
     }
 }
 

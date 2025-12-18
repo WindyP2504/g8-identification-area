@@ -118,20 +118,8 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="11" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\11.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="dewpoint_6853894" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\dewpoint_6853894.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Kieu-xep-pallet-dang-column-400x4002" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Kieu-xep-pallet-dang-column-400x4002.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Exit" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Exit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Premium Vector _ Temperature icon symbol1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Premium Vector _ Temperature icon symbol1.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Indicator4" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Indicator4.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -142,20 +130,11 @@
   <data name="update" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\update.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="ax77-480x480" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ax77-480x480.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="illumination_1758460" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\illumination_1758460.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="settings_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\settings_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="logo-vtp-new-03-540x300" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\logo-vtp-new-03-540x300.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\1.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="BarcodeOff32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\BarcodeOff32x32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -169,9 +148,6 @@
   <data name="Indicator2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Indicator2.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="phat-trien-gio-hang-tren-tiktokshop" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\phat-trien-gio-hang-tren-tiktokshop.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Indicator6" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Indicator6.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -180,12 +156,6 @@
   </data>
   <data name="update-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\update-icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="circle_96722" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\circle_96722.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="qr-barcode-for-data-labeling-1257966228-0dcfa9a3fbad4721aa5717bf13953adf" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\qr-barcode-for-data-labeling-1257966228-0dcfa9a3fbad4721aa5717bf13953adf.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Exit_32x321" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Exit_32x32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -199,20 +169,8 @@
   <data name="export-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\export-icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Premium Vector _ Temperature icon symbol-1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Premium Vector _ Temperature icon symbol-1.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="may-in-ma-vach-godex-g500" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\may-in-ma-vach-godex-g500.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Kieu-xep-pallet-dang-column-400x4003" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Kieu-xep-pallet-dang-column-400x4003.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="CameraOn32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CameraOn32x32.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="ma-vach-la-gi-2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ma-vach-la-gi-2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Screenshot 2025-06-08 105513" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Screenshot 2025-06-08 105513.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -238,29 +196,11 @@
   <data name="Indicator8" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Indicator8.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Kieu-xep-pallet-dang-column-400x4004" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Kieu-xep-pallet-dang-column-400x4004.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Indicator1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Indicator1.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Premium Vector _ Temperature icon symbol" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Premium Vector _ Temperature icon symbol.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Kieu-xep-pallet-dang-column-400x4001" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Kieu-xep-pallet-dang-column-400x4001.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="circle_icon_125697" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\circle_icon_125697.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="simpleButtonHome.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\simpleButtonHome.Image.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Center2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Center2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\2.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Work_32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Work_32x32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -270,9 +210,6 @@
   </data>
   <data name="Work_32x321" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Work_32x32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Kieu-xep-pallet-dang-column-400x400" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Kieu-xep-pallet-dang-column-400x400.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="IoOff32x32" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\IoOff32x32.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

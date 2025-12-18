@@ -208,6 +208,11 @@
     <Compile Include="Device\WMS.cs" />
     <Compile Include="Helper\EZ520Godex\EZioApi.cs" />
     <Compile Include="Helper\EZ520Godex\GodexPrinter.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="TForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -233,12 +238,6 @@
     </Compile>
     <Compile Include="UI\BarcodeReader.Designer.cs">
       <DependentUpon>BarcodeReader.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\frmConfigTask.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\frmConfigTask.Designer.cs">
-      <DependentUpon>frmConfigTask.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\PrinterGodex.cs">
       <SubType>UserControl</SubType>
@@ -315,14 +314,9 @@
     <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="UI\APIrfid.resx">
       <DependentUpon>APIrfid.cs</DependentUpon>
     </EmbeddedResource>
@@ -331,9 +325,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\BarcodeReader.resx">
       <DependentUpon>BarcodeReader.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\frmConfigTask.resx">
-      <DependentUpon>frmConfigTask.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\PrinterGodex.resx">
       <DependentUpon>PrinterGodex.cs</DependentUpon>
