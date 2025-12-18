@@ -1,0 +1,480 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- <Import Project="..\packages\OpenCvSharp4.runtime.win.4.10.0.20240616\build\net48\OpenCvSharp4.runtime.win.props" Condition="Exists('..\packages\OpenCvSharp4.runtime.win.4.10.0.20240616\build\net48\OpenCvSharp4.runtime.win.props')" /> -->
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9217E292-1E6E-406E-B3A9-7F38D2F46B0D}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VTP_Induction</RootNamespace>
+    <AssemblyName>VTP_Induction</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>5</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>vn-11134216-7r98o-ltzq5rhgif4h6e.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Cyotek.Windows.Forms.ImageBox, Version=1.2.0.0, Culture=neutral, PublicKeyToken=58daa28b0b2de221, processorArchitecture=MSIL">
+      <HintPath>..\packages\CyotekImageBox.1.3.1\lib\net20\Cyotek.Windows.Forms.ImageBox.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.v15.1, Version=15.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.Printing.v15.1.Core, Version=15.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.Sparkline.v15.1.Core, Version=15.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.Utils.v15.1, Version=15.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.XtraEditors.v15.1, Version=15.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraGrid.v15.1, Version=15.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraLayout.v15.1, Version=15.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.XtraPrinting.v15.1, Version=15.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="MitsubishiPLC">
+      <HintPath>bin\x64\Debug\MitsubishiPLC.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Viettel Post Project\Cross Belt\InductionVTP_KV1\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Serilog">
+      <HintPath>bin\x64\Debug\Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.Console">
+      <HintPath>bin\x64\Debug\Serilog.Sinks.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.File">
+      <HintPath>bin\x64\Debug\Serilog.Sinks.File.dll</HintPath>
+    </Reference>
+    <Reference Include="SpPerfChart">
+      <HintPath>bin\x64\Debug\SpPerfChart.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Drawing.Common, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.7.0.0\lib\net462\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="tsclibnet">
+      <HintPath>..\..\..\Mr. Hai\TSC SDK\Windows Framework\SDK\DOTNET Framework\TSC C# SDK 20210323\x64\tsclibnet.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\OrderTaskModels.cs" />
+    <Compile Include="Common\CMDListCtrl.cs" />
+    <Compile Include="Common\DeviceEvent.cs" />
+    <Compile Include="Common\DeviceHandler.cs" />
+    <Compile Include="Common\GridViewClassData.cs" />
+    <Compile Include="Common\Log.cs" />
+    <Compile Include="Common\MacroFunc.cs" />
+    <Compile Include="Common\ThreadManager.cs" />
+    <Compile Include="Common\Util.cs" />
+    <Compile Include="Communication\BCRClass.cs" />
+    <Compile Include="Communication\DBHelper.cs" />
+    <Compile Include="Communication\HttpClass.cs" />
+    <Compile Include="Communication\JsonMsg.cs" />
+    <Compile Include="Communication\MakeLogFile.cs" />
+    <Compile Include="Communication\PubClass.cs" />
+    <Compile Include="Communication\ResultClass.cs" />
+    <Compile Include="CompSplashScreen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CompSplashScreen.Designer.cs">
+      <DependentUpon>CompSplashScreen.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Device\CDetector.cs" />
+    <Compile Include="Device\CDevice.cs" />
+    <Compile Include="Device\CIOInterface.cs" />
+    <Compile Include="Device\CPCLPrint.cs" />
+    <Compile Include="Device\CPLC.cs" />
+    <Compile Include="Device\CPLCMitsubishi.cs" />
+    <Compile Include="Device\CBarcode.cs" />
+    <Compile Include="Device\CPrinterApos.cs" />
+    <Compile Include="Device\CPrinterGodex.cs" />
+    <Compile Include="Device\CScale.cs" />
+    <Compile Include="Device\CPrinter.cs" />
+    <Compile Include="Device\Global.cs" />
+    <Compile Include="Device\IotWarehouse.cs" />
+    <Compile Include="Device\PLCSocketConnect.cs" />
+    <Compile Include="Device\WMS.cs" />
+    <Compile Include="Helper\EZ520Godex\EZioApi.cs" />
+    <Compile Include="Helper\EZ520Godex\GodexPrinter.cs" />
+    <Compile Include="TForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TForm.Designer.cs">
+      <DependentUpon>TForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\APIrfid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\APIrfid.Designer.cs">
+      <DependentUpon>APIrfid.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\APIwms.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\APIwms.Designer.cs">
+      <DependentUpon>APIwms.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\BarcodeReader.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\BarcodeReader.Designer.cs">
+      <DependentUpon>BarcodeReader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\frmConfigTask.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\frmConfigTask.Designer.cs">
+      <DependentUpon>frmConfigTask.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PrinterGodex.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\PrinterGodex.Designer.cs">
+      <DependentUpon>PrinterGodex.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ScaleRS232.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\ScaleRS232.Designer.cs">
+      <DependentUpon>ScaleRS232.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\CameraConfig.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\CameraConfig.Designer.cs">
+      <DependentUpon>CameraConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\frmConfig.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\frmConfig.Designer.cs">
+      <DependentUpon>frmConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\frmRobotWarning.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\frmRobotWarning.Designer.cs">
+      <DependentUpon>frmRobotWarning.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\panelCameraPicture.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\panelCameraPicture.Designer.cs">
+      <DependentUpon>panelCameraPicture.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\panelDevice.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\panelDevice.Designer.cs">
+      <DependentUpon>panelDevice.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\panelDeviceConfig.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\panelDeviceConfig.Designer.cs">
+      <DependentUpon>panelDeviceConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SQLConfig.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\SQLConfig.Designer.cs">
+      <DependentUpon>SQLConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TemperatureForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\TemperatureForm.Designer.cs">
+      <DependentUpon>TemperatureForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WaitForm1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WaitForm1.Designer.cs">
+      <DependentUpon>WaitForm1.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="CompSplashScreen.resx">
+      <DependentUpon>CompSplashScreen.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TForm.resx">
+      <DependentUpon>TForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\licenses.licx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="UI\APIrfid.resx">
+      <DependentUpon>APIrfid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\APIwms.resx">
+      <DependentUpon>APIwms.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\BarcodeReader.resx">
+      <DependentUpon>BarcodeReader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\frmConfigTask.resx">
+      <DependentUpon>frmConfigTask.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PrinterGodex.resx">
+      <DependentUpon>PrinterGodex.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ScaleRS232.resx">
+      <DependentUpon>ScaleRS232.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\CameraConfig.resx">
+      <DependentUpon>CameraConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\frmConfig.resx">
+      <DependentUpon>frmConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\frmRobotWarning.resx">
+      <DependentUpon>frmRobotWarning.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\panelCameraPicture.resx">
+      <DependentUpon>panelCameraPicture.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\panelDevice.resx">
+      <DependentUpon>panelDevice.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\panelDeviceConfig.resx">
+      <DependentUpon>panelDeviceConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\SQLConfig.resx">
+      <DependentUpon>SQLConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\TemperatureForm.resx">
+      <DependentUpon>TemperatureForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WaitForm1.resx">
+      <DependentUpon>WaitForm1.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logo-vtp-new-03-540x300.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BarcodeOn32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BarcodeOff32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\IoOn32x32.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\IoOff32x32.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\simpleButtonHome.Image.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\settings_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Work_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\vn-11134216-7r98o-ltzq5rhgif4h6e1.jpg" />
+    <None Include="Resources\circle_96722.png" />
+    <None Include="Resources\Kieu-xep-pallet-dang-column-400x400.jpg" />
+    <None Include="Resources\Kieu-xep-pallet-dang-column-400x4001.jpg" />
+    <None Include="Resources\Kieu-xep-pallet-dang-column-400x4002.jpg" />
+    <None Include="Resources\Kieu-xep-pallet-dang-column-400x4003.jpg" />
+    <None Include="Resources\export-icon.png" />
+    <None Include="Resources\Center2.png" />
+    <None Include="Resources\Screenshot 2025-06-08 105513.jpg" />
+    <None Include="Resources\Screenshot 2025-06-09 230244.jpg" />
+    <None Include="Resources\update.png" />
+    <None Include="Resources\update-icon.png" />
+    <None Include="Resources\circle_icon_125697.png" />
+    <None Include="Resources\Kieu-xep-pallet-dang-column-400x4004.jpg" />
+    <Content Include="Helper\EZ520Godex\EZio32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Helper\EZ520Godex\EZio64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\anh3.bmp" />
+    <Content Include="Images\G8.bmp" />
+    <None Include="printer.sdk.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\ax77-480x480.png" />
+    <None Include="Resources\z6747316927209_a77efe65e0d8d59c0e87db66fe7b80ac.jpg" />
+    <Content Include="vn-11134216-7r98o-ltzq5rhgif4h6e.ico" />
+    <None Include="Resources\vn-11134216-7r98o-ltzq5rhgif4h6e.jpg" />
+    <None Include="bin\Debug\DATA\IMGS\2024-06-28\020240628082248.jpg" />
+    <None Include="Resources\CameraOff32x32.bmp" />
+    <None Include="Resources\CameraOn32x32.bmp" />
+    <None Include="Resources\2.jpg" />
+    <None Include="Resources\1.jpg" />
+    <None Include="Resources\11.jpg" />
+    <Content Include="Resources\conveyor-belt.ico" />
+    <None Include="Resources\Indicator9.bmp" />
+    <None Include="Resources\Indicator1.bmp" />
+    <None Include="Resources\Indicator2.bmp" />
+    <None Include="Resources\Indicator3.bmp" />
+    <None Include="Resources\Indicator4.bmp" />
+    <None Include="Resources\Indicator5.bmp" />
+    <None Include="Resources\Indicator6.bmp" />
+    <None Include="Resources\Indicator7.bmp" />
+    <None Include="Resources\Indicator8.bmp" />
+    <None Include="Resources\Exit.png" />
+    <None Include="Resources\Exit_32x32.png" />
+    <None Include="Resources\Indicator91.bmp" />
+    <None Include="Resources\illumination_1758460.jpg" />
+    <None Include="Resources\dewpoint_6853894.jpg" />
+    <Content Include="Resources\invalid-selection.wav" />
+    <None Include="Resources\ma-vach-la-gi-2.png" />
+    <None Include="Resources\may-in-ma-vach-godex-g500.png" />
+    <None Include="Resources\phat-trien-gio-hang-tren-tiktokshop.png" />
+    <Content Include="Resources\pictureBox3.Image.png" />
+    <Content Include="Resources\pictureBox4.Image.png" />
+    <None Include="Resources\RobotOff32x32.png" />
+    <None Include="Resources\Premium Vector _ Temperature icon symbol-1.jpg" />
+    <None Include="Resources\qr-barcode-for-data-labeling-1257966228-0dcfa9a3fbad4721aa5717bf13953adf.jpg" />
+    <Content Include="Resources\short-success-sound-glockenspiel-treasure.wav" />
+    <Content Include="Resources\short-success.wav" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
