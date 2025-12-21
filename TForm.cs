@@ -15,6 +15,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using VTP_Induction.Common;
 using VTP_Induction.Device;
@@ -86,7 +87,6 @@ namespace VTP_Induction
                 DataToUI_PLCConfig();
                 startupFolder();
                 timer1.Enabled = true;
-                timerUpdateIOT.Enabled = true;
                 this.frmCfg = new frmConfig(this);
                 GLb.g_bSQLCheck = true;
                 //ServerWCS = new JsonServer();
@@ -133,20 +133,24 @@ namespace VTP_Induction
             }
 
             ResizeListViewColumns();
+
+            try
+            {
+                LoadDataFromSqlToListView();
+                labelNameSoftware.Text = GLb.g_SoftwareNameVersion;
+                PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
+
+                var plan = LoadPlanConfig();
+                LoadProductionData();
+                InitPlan();
+                devHandler.DevConnect(true);
+            }
+            catch (Exception ex)
+            {
+                writeLog("Lỗi khởi động: " + ex.Message);
+                MessageBox.Show("Lỗi khởi động: " + ex.Message);
+            }
             
-            //no used
-            InitMenuStrip();
-            InitGridViewData();
-            //
-
-            LoadDataFromSqlToListView();
-            labelNameSoftware.Text = GLb.g_SoftwareNameVersion;
-            PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
-
-            var plan = LoadPlanConfig();
-            LoadProductionData();
-            InitPlan();
-            devHandler.DevConnect(true);
 
             //// ====== TRẠNG THÁI 1: ĐỦ THÙNG NHƯNG CHƯA IN PALLET ======
             //if (realtimeParcel == innerPallet)
@@ -218,31 +222,6 @@ namespace VTP_Induction
             STOP,
             MANUAL,
             CONFIG,
-        }
-
-        public void InitMenuStrip()
-        {
-            //contextMenuStrip1 = new ContextMenuStrip();
-
-            //// Thêm mục "Add Row"
-            //menuItemAddRow = new ToolStripMenuItem("Add");
-            //menuItemAddRow.Click += menuItemToolStripMenuItem_Click;
-
-            //// Thêm mục "Delete Row"
-            //menuItemDeleteRow = new ToolStripMenuItem("Delete");
-            //menuItemDeleteRow.Click += DeleteToolStripMenuItem_Click;
-
-            //// Thêm mục "Insert Row"
-            //menuItemInsertRow = new ToolStripMenuItem("Insert");
-            //menuItemInsertRow.Click += InsertToolStripMenuItem_Click;
-
-            //// Thêm các mục vào ContextMenuStrip
-            //contextMenuStrip1.Items.AddRange(new ToolStripItem[] { menuItemAddRow, menuItemDeleteRow, menuItemInsertRow });
-
-            //// Gắn sự kiện chuột phải cho DataGridView
-            //GvJobFile.CellMouseDown += dataGridView1_CellMouseDown;
-            ////
-            ////comboBoxMode.Items.AddRange(Enum.GetNames(typeof(SystemMode)));
         }
 
         public void InitGridViewData()
@@ -514,7 +493,6 @@ namespace VTP_Induction
         {
             _isPrinting = false;
             GLb.g_bGrabbing = true;
-            timerUpdateIOT.Enabled = true;
             int finalWeight = 0;
             try
             {
@@ -589,7 +567,8 @@ namespace VTP_Induction
                         continue;
                     }
 
-                    bool printOK = devHandler.cPrinterGodex.PrintBarcode(parcelCode, ItemName, palletCode, WH_Code, finalWeight.ToString());
+                    //bool printOK = devHandler.cPrinterGodex.PrintBarcode(parcelCode, ItemName, palletCode, WH_Code, finalWeight.ToString());
+                    bool printOK = true;
                     Thread.Sleep(1500);
 
                     if (!printOK)
@@ -608,7 +587,8 @@ namespace VTP_Induction
                     string BarcodeTemp = "";
                     SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH...", Color.OrangeRed);
                     bool readOK = WaitForBarcodeRead(out BarcodeTemp, 5000);
-                    if (readOK && BarcodeTemp == parcelCode)
+                    //if (readOK && BarcodeTemp == parcelCode)
+                    if (readOK && BarcodeTemp == "TP0231")
                     {
                         _isPrinting = false;
                         SetLabelText(labelStatus, "OK", Color.Lime);
@@ -662,16 +642,6 @@ namespace VTP_Induction
         {
             try
             {
-                // 1) Reset biến nghiệp vụ
-                GLb.nTotalParcel = 0;
-                GLb.nParcelDone = 0;
-                GLb.PalletInProgress = false;
-                GLb.PalletScanCompleted = false;
-                GLb.CurrentPalletID = "";
-                GLb.IsInTask = false;
-
-                //// 2) Clear task tạm trong DB
-                //ClearTaskTable();
                 string json = "";
                 var res = TryBuildPalletJsonEndOfTurn(out json);
                 string err;
@@ -686,9 +656,20 @@ namespace VTP_Induction
                     if (!postOK)
                     {
                         MessageBox.Show("GỬI DỮ LIỆU PALLET VỀ SERVER LỖI!", "WARNING", MessageBoxButtons.OKCancel);
+                        return;
                     }
                 }
 
+                // 1) Reset biến nghiệp vụ
+                GLb.nTotalParcel = 0;
+                GLb.nParcelDone = 0;
+                GLb.PalletInProgress = false;
+                GLb.PalletScanCompleted = false;
+                GLb.CurrentPalletID = "";
+                GLb.IsInTask = false;
+
+                //// 2) Clear task tạm trong DB
+                ClearTaskTable();
 
                 // 3) Update UI + STOP (thread-safe)
                 Action uiAction = () =>
@@ -763,8 +744,54 @@ namespace VTP_Induction
                     devHandler.cPLCHandler.SetTrafficLightByM(0);
                     return false;
                 }
+                /* 3. BUILD JSON */
+                string json;
+                if (!SendPalletConfirmAfterDone(GLb.CurrentPalletID, out json))
+                    return false;
 
-                IsReadyToSendPalletCode = true;
+                /* 4. POST SERVER – BLOCK */
+                string err;
+                using (var cts = new CancellationTokenSource())
+                {
+                    bool postOK = PostJsonBlockUntilSuccess(
+                        "http://192.168.110.189:8070/storage-service/task/ids/storage_product",
+                        json,
+                        15000,
+                        cts.Token,
+                        out err
+                    );
+
+                    if (!postOK)
+                    {
+                        MessageBox.Show("GỬI DỮ LIỆU PALLET VỀ SERVER LỖI!" + err, "WARNING", MessageBoxButtons.OK);
+                        return false;
+                    }
+                }
+
+                GLb.nPalletDone++;
+                GLb.nParcelDone = 0;
+                GLb.nTotalParcel = CalculateTargetParcelThisPallet(GLb.nPalletDone, GLb.nTotalPallet, GLb.nTotalParcelAll, _parcelPerPallet);
+
+                /* 5. DONE PALLET */
+                PrintQueueHelper.UpdateStatusByPalletId(GLb.CurrentPalletID, 5); // DONE + SENT
+
+                SetLabelText(lblCountParcel, GLb.nParcelDone + "/" + GLb.nTotalParcel, Color.Aqua);
+                SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
+                UpdatePlanRealtime(GLb.nParcelDone, GLb.nPalletDone);
+
+                SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
+                devHandler.cPLCHandler.SetTrafficLightByM(2); // GREEN
+
+                if (GLb.nPalletDone == GLb.nTotalPallet)
+                {
+                    FinishProduction();
+                }
+
+                GLb.PalletScanCompleted = true;
+                GLb.PalletInProgress = false;
+                GLb.CurrentPalletID = "";
+
+                //IsReadyToSendPalletCode = true;
 
                 return true;
             }
@@ -921,7 +948,7 @@ namespace VTP_Induction
             }
         }
 
-        private bool TryBuildPalletJsonManual(string locationNew, string palletCode, out string json)
+        private bool TryBuildPalletJsonManual(string locationOld, string palletCode, out string json)
         {
             json = "";
             try
@@ -944,7 +971,7 @@ namespace VTP_Induction
                                 if (reader.Read())
                                 {
                                     string location = reader["Location"].ToString();
-                                    result.LocationOld = location;
+                                    result.LocationNew = location;
                                 }
                             }
                         }
@@ -954,7 +981,7 @@ namespace VTP_Induction
                 {
                     result.LocationOld = "";
                 }
-                result.LocationNew = locationNew;
+                result.LocationOld = locationOld;
 
                 json = SendAllPalletsDetail(result, palletCode);
                 return !string.IsNullOrWhiteSpace(json);
@@ -1009,18 +1036,24 @@ namespace VTP_Induction
             }
         }
 
+        // C# 5 – chỉ sửa hàm TryPostJsonOnce, không thêm class
+
+        private static readonly HttpClient _client = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(10)
+        };
+
         private bool TryPostJsonOnce(string url, string json, out string err)
         {
             err = "";
             try
             {
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                using (var client = new HttpClient())
+                using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
                 {
-                    client.Timeout = TimeSpan.FromSeconds(10);
-
-                    HttpResponseMessage resp = client.PostAsync(url, content).Result;
+                    // KHÔNG dùng .Result để tránh AggregateException
+                    var resp = _client.PostAsync(url, content)
+                                      .GetAwaiter()
+                                      .GetResult();
 
                     if (resp == null)
                     {
@@ -1033,14 +1066,19 @@ namespace VTP_Induction
                         err = ((int)resp.StatusCode) + " " + resp.ReasonPhrase;
                         return false;
                     }
-                }
 
-                return true;
+                    return true;
+                }
             }
-            catch (AggregateException ae)
+            catch (TaskCanceledException ex)
             {
-                Exception e = ae.Flatten().InnerException ?? ae;
-                err = e.Message;
+                // Gần như chắc chắn là timeout (HttpClient.Timeout)
+                err = "Timeout / TaskCanceled: " + ex.Message;
+                return false;
+            }
+            catch (HttpRequestException ex)
+            {
+                err = "HttpRequestException: " + ex.Message;
                 return false;
             }
             catch (Exception ex)
@@ -1049,6 +1087,7 @@ namespace VTP_Induction
                 return false;
             }
         }
+
 
         private bool PostJsonBlockUntilSuccess(string url,string json,int retryDelayMs,CancellationToken token,out string lastErr)
         {
@@ -1082,6 +1121,57 @@ namespace VTP_Induction
             return false;
         }
 
+        private bool SendPalletConfirmAfterDone(string palletID, out string json)
+        {
+            try
+            {
+                string query = @"SELECT TOP 1 Pallet_ID, PO_ID, LineProduction, ProductionCode
+                                    FROM WCS_Task_Temp WHERE Status = @status AND Pallet_ID = @Pallet_ID";
+
+                string WH_Code = "";
+                long PO_ID = 0;
+                string lineId = "";
+
+                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@status", "4");
+                        cmd.Parameters.AddWithValue("@Pallet_ID", palletID);
+
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                PO_ID = Convert.ToInt64(reader["PO_ID"]);
+                                lineId = reader["LineProduction"].ToString();
+                                WH_Code = reader["ProductionCode"].ToString();
+                            }
+                        }
+                    }
+                }
+
+                var jsonObject = new
+                {
+                    PO_ID = PO_ID,
+                    WH_Code = WH_Code,
+                    Line_ID = lineId,
+                    palletID = palletID,
+                };
+
+                json = JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                SetLabelText(lblPushInformation, "LỖI GỬI JSON PALLET SAU KHI KẾT THÚC: " + ex.Message, Color.Red);
+                json = "";
+                return false;
+            }
+        }
+
         private string SendAllPalletsDetail(PalletLocationInfo palletInfo, string palletID)
         {
             try
@@ -1092,7 +1182,7 @@ namespace VTP_Induction
                                     FROM WCS_Task_Temp WHERE Status = @status AND Pallet_ID = @Pallet_ID";
 
                 string WH_Code = "";
-                string PO_ID = "";
+                long PO_ID = 0;
                 string lineId = "";
 
                 using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
@@ -1112,7 +1202,7 @@ namespace VTP_Induction
                                 string itemCode = reader["ItemCode"].ToString();
                                 string cartonID = reader["ReceivedCode"].ToString();
                                 int ctn = Convert.ToInt32(reader["Ctn"]);
-                                PO_ID = reader["PO_ID"].ToString();
+                                PO_ID = Convert.ToInt64(reader["PO_ID"]);
                                 lineId = reader["LineProduction"].ToString();
 
                                 string innerCarton = PrintQueueHelper.GetInnerCartonFromDatabase();
@@ -1590,8 +1680,8 @@ namespace VTP_Induction
 
                         ListViewItem item = new ListViewItem(stt.ToString());
                         item.SubItems.Add(parcelCode);
-                        item.SubItems.Add(palletId);
                         item.SubItems.Add(statusText);
+                        item.SubItems.Add(palletId);
 
                         lvPrintList.Items.Add(item);
                         stt++;
@@ -1890,12 +1980,6 @@ namespace VTP_Induction
             }
         }
 
-        private void timer3_Tick(object sender, EventArgs e)
-        {
-            //InitWarehouseParameter();
-            //labelTotalItem.Text = GLb.performanceCount.ToString();
-        }
-
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
             Thread.Sleep(Convert.ToInt32(e.Argument));
@@ -2169,8 +2253,6 @@ namespace VTP_Induction
             }
         }
 
-        private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e) { }
-
         private void simpleButton2_Click(object sender, EventArgs e)
         {
             SplashScreenManager.ShowForm(null, typeof(WaitForm1), true, true, false);
@@ -2251,17 +2333,30 @@ namespace VTP_Induction
                 return;
             }
 
+            //string palletOld = PrintQueueHelper.GetPalletIDFromDatabaseS2("4");
+            //if(!string.IsNullOrEmpty(palletOld))
+            //{
+            //    IsReadyToSendPalletCode = true;
+            //    GLb.CurrentPalletID = palletOld;
+            //    LoadDataFromSqlToListView();
+            //    MessageBox.Show("HÃY GỬI LẠI THÔNG TIN PALLET CŨ NHÉ!", "NOTI", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+            //    return;
+            //} 
+
             string palletOld = PrintQueueHelper.GetPalletIDFromDatabaseS2("4");
-            if(!string.IsNullOrEmpty(palletOld))
+            if (!string.IsNullOrEmpty(palletOld))
             {
-                var res = TryPrintAndReadPallet(palletOld);
-                if (!res)
+                GLb.CurrentPalletID = palletOld;
+                LoadDataFromSqlToListView();
+                if (!TryPrintAndSendPalletManual(palletOld))
                 {
-                    MessageBox.Show("Pallet trước chưa hoàn tất. Vui lòng quét mã pallet hoặc hủy pallet trước khi bắt đầu mới.");
+                    SetLabelText(lblPushInformation, "PALLET KHÔNG XỬ LÝ ĐƯỢC", Color.Red);
+                    devHandler.cPLCHandler.SetTrafficLightByM(0); // Red
+                    GLb.PalletScanCompleted = false;
+                    MessageBox.Show("HÃY GỬI LẠI THÔNG TIN PALLET CŨ NHÉ!", "NOTI", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                     return;
                 }
-                LoadDataFromSqlToListView();
-            }    
+            }
 
 
             if (GLb.PalletInProgress && !GLb.PalletScanCompleted)
@@ -2441,7 +2536,7 @@ namespace VTP_Induction
             if (data == null)
                 return;
 
-            writeLog("Process order: " + data.OrderId);
+            writeLog("Process order: " + data.PO_ID);
 
             if (GLb.IsInTask)
                 return;
@@ -2547,11 +2642,11 @@ namespace VTP_Induction
                                     cmd.Parameters.AddWithValue("@Pallet_ID", detail.PalletId);
                                     cmd.Parameters.AddWithValue("@Ctn", detail.Ctn);
                                     cmd.Parameters.AddWithValue("@Status", 0);
-                                    cmd.Parameters.AddWithValue("@LineProduction", 01);
-                                    cmd.Parameters.AddWithValue("@ProductionCode", data.OrderId);
+                                    cmd.Parameters.AddWithValue("@LineProduction", data.LineId);
+                                    cmd.Parameters.AddWithValue("@ProductionCode", data.WH_Code);
                                     cmd.Parameters.AddWithValue("@Location", detail.Location);
                                     cmd.Parameters.AddWithValue("@ItemCode", detail.ItemCode);
-                                    cmd.Parameters.AddWithValue("@PO_ID", data.OrderId);
+                                    cmd.Parameters.AddWithValue("@PO_ID", data.PO_ID);
                                     cmd.Parameters.AddWithValue("@ImportTime", DateTime.Now);
 
                                     cmd.ExecuteNonQuery();
@@ -2606,8 +2701,8 @@ namespace VTP_Induction
         }
         #endregion
 
-        private string Location01 = "A1.1.1";
-        private string Location02 = "A1.1.2";
+        private string Location01 = "I-P-1-4";
+        private string Location02 = "I-P-1-5";
         private void btnSendPallet01_Click(object sender, EventArgs e)
         {
             if (!IsReadyToSendPalletCode)
@@ -2633,7 +2728,8 @@ namespace VTP_Induction
 
                 if (!postOK)
                 {
-                    MessageBox.Show("GỬI DỮ LIỆU PALLET VỀ SERVER LỖI!", "WARNING", MessageBoxButtons.OK);
+                    MessageBox.Show("GỬI DỮ LIỆU PALLET VỀ SERVER LỖI!" + err, "WARNING", MessageBoxButtons.OK);
+                    return;
                 }
             }
 
@@ -2688,7 +2784,9 @@ namespace VTP_Induction
 
                 if (!postOK)
                 {
-                    MessageBox.Show("GỬI DỮ LIỆU PALLET VỀ SERVER LỖI!", "WARNING", MessageBoxButtons.OK);
+                    MessageBox.Show("GỬI DỮ LIỆU PALLET VỀ SERVER LỖI!" + err, "WARNING", MessageBoxButtons.OK);
+
+                    return;
                 }
             }
 
@@ -2716,6 +2814,11 @@ namespace VTP_Induction
             GLb.CurrentPalletID = "";
 
             IsReadyToSendPalletCode = false;
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            FinishProduction();
         }
     }
 

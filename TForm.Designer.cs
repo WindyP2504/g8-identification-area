@@ -42,8 +42,8 @@
             this.lvPrintList = new System.Windows.Forms.ListView();
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel63 = new System.Windows.Forms.Panel();
             this.panel50 = new System.Windows.Forms.Panel();
             this.lblPushInformation = new System.Windows.Forms.Label();
@@ -72,10 +72,12 @@
             this.panel61 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.panel66 = new System.Windows.Forms.Panel();
+            this.btnSendPallet02 = new System.Windows.Forms.Button();
             this.panel68 = new System.Windows.Forms.Panel();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.panel62 = new System.Windows.Forms.Panel();
+            this.btnSendPallet01 = new System.Windows.Forms.Button();
             this.panel67 = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
             this.panel55 = new System.Windows.Forms.Panel();
@@ -191,16 +193,12 @@
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.TimerInsp = new System.Windows.Forms.Timer(this.components);
-            this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             this.panel17 = new System.Windows.Forms.Panel();
             this.panel18 = new System.Windows.Forms.Panel();
             this.panel11 = new System.Windows.Forms.Panel();
             this.panel19 = new System.Windows.Forms.Panel();
             this.panel33 = new System.Windows.Forms.Panel();
-            this.timerUpdateIOT = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.btnSendPallet01 = new System.Windows.Forms.Button();
-            this.btnSendPallet02 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.xtraTabControlTForm)).BeginInit();
@@ -420,8 +418,8 @@
             this.lvPrintList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader3,
             this.columnHeader4,
-            this.columnHeader6,
-            this.columnHeader5});
+            this.columnHeader5,
+            this.columnHeader6});
             this.lvPrintList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvPrintList.Font = new System.Drawing.Font("Tahoma", 17.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(163)));
             this.lvPrintList.ForeColor = System.Drawing.SystemColors.Info;
@@ -446,15 +444,15 @@
             this.columnHeader4.Text = "Mã định danh";
             this.columnHeader4.Width = 222;
             // 
-            // columnHeader6
-            // 
-            this.columnHeader6.Text = "Mã Pallet";
-            this.columnHeader6.Width = 207;
-            // 
             // columnHeader5
             // 
             this.columnHeader5.Text = "Trạng thái";
             this.columnHeader5.Width = 241;
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "Mã Pallet";
+            this.columnHeader6.Width = 207;
             // 
             // panel63
             // 
@@ -513,6 +511,7 @@
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox3.TabIndex = 0;
             this.pictureBox3.TabStop = false;
+            this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
             // 
             // panel46
             // 
@@ -796,6 +795,19 @@
             this.panel66.Size = new System.Drawing.Size(350, 148);
             this.panel66.TabIndex = 1;
             // 
+            // btnSendPallet02
+            // 
+            this.btnSendPallet02.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnSendPallet02.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSendPallet02.Location = new System.Drawing.Point(0, 0);
+            this.btnSendPallet02.Name = "btnSendPallet02";
+            this.btnSendPallet02.Size = new System.Drawing.Size(350, 111);
+            this.btnSendPallet02.TabIndex = 2;
+            this.btnSendPallet02.Text = "CHỐT PALLET TẠI 02";
+            this.btnSendPallet02.UseVisualStyleBackColor = true;
+            this.btnSendPallet02.Visible = false;
+            this.btnSendPallet02.Click += new System.EventHandler(this.btnSendPallet02_Click);
+            // 
             // panel68
             // 
             this.panel68.Controls.Add(this.label9);
@@ -846,6 +858,19 @@
             this.panel62.Name = "panel62";
             this.panel62.Size = new System.Drawing.Size(350, 148);
             this.panel62.TabIndex = 0;
+            // 
+            // btnSendPallet01
+            // 
+            this.btnSendPallet01.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnSendPallet01.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSendPallet01.Location = new System.Drawing.Point(0, 0);
+            this.btnSendPallet01.Name = "btnSendPallet01";
+            this.btnSendPallet01.Size = new System.Drawing.Size(350, 111);
+            this.btnSendPallet01.TabIndex = 1;
+            this.btnSendPallet01.Text = "CHỐT PALLET TẠI 01";
+            this.btnSendPallet01.UseVisualStyleBackColor = true;
+            this.btnSendPallet01.Visible = false;
+            this.btnSendPallet01.Click += new System.EventHandler(this.btnSendPallet01_Click);
             // 
             // panel67
             // 
@@ -2555,12 +2580,6 @@
             this.timer2.Enabled = true;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // timer3
-            // 
-            this.timer3.Enabled = true;
-            this.timer3.Interval = 5000;
-            this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
-            // 
             // backgroundWorker1
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
@@ -2569,10 +2588,6 @@
             // TimerInsp
             // 
             this.TimerInsp.Tick += new System.EventHandler(this.TimerInsp_Tick);
-            // 
-            // backgroundWorker2
-            // 
-            this.backgroundWorker2.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker2_DoWork);
             // 
             // panel17
             // 
@@ -2616,39 +2631,11 @@
             this.panel33.Size = new System.Drawing.Size(1538, 265);
             this.panel33.TabIndex = 0;
             // 
-            // timerUpdateIOT
-            // 
-            this.timerUpdateIOT.Interval = 500;
-            // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
-            // 
-            // btnSendPallet01
-            // 
-            this.btnSendPallet01.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnSendPallet01.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSendPallet01.Location = new System.Drawing.Point(0, 0);
-            this.btnSendPallet01.Name = "btnSendPallet01";
-            this.btnSendPallet01.Size = new System.Drawing.Size(350, 111);
-            this.btnSendPallet01.TabIndex = 1;
-            this.btnSendPallet01.Text = "CHỐT PALLET TẠI 01";
-            this.btnSendPallet01.UseVisualStyleBackColor = true;
-            this.btnSendPallet01.Click += new System.EventHandler(this.btnSendPallet01_Click);
-            // 
-            // btnSendPallet02
-            // 
-            this.btnSendPallet02.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnSendPallet02.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSendPallet02.Location = new System.Drawing.Point(0, 0);
-            this.btnSendPallet02.Name = "btnSendPallet02";
-            this.btnSendPallet02.Size = new System.Drawing.Size(350, 111);
-            this.btnSendPallet02.TabIndex = 2;
-            this.btnSendPallet02.Text = "CHỐT PALLET TẠI 02";
-            this.btnSendPallet02.UseVisualStyleBackColor = true;
-            this.btnSendPallet02.Click += new System.EventHandler(this.btnSendPallet02_Click);
             // 
             // TForm
             // 
@@ -2794,7 +2781,6 @@
         private System.Windows.Forms.Panel panelDevPara;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.ComponentModel.BackgroundWorker backgroundWorker2;
         private System.Windows.Forms.Panel panelPLC;
         private System.Windows.Forms.Panel panel27;
         private System.Windows.Forms.Panel panel22;
@@ -2841,7 +2827,6 @@
         private System.Windows.Forms.Panel panel29;
         private System.Windows.Forms.Panel panelDev1;
         private System.Windows.Forms.Button buttonInsp;
-        private System.Windows.Forms.Timer timerUpdateIOT;
         private System.Windows.Forms.Panel panel58;
         private System.Windows.Forms.Panel panel60;
         private DevExpress.XtraEditors.GroupControl groupControl1;

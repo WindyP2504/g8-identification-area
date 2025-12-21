@@ -163,19 +163,19 @@ namespace VTP_Induction
                     return;
                 }
 
-                if (data == null || data.OrderId <= 0)
+                if (data == null || data.PO_ID <= 0)
                 {
                     await WriteJsonAsync(res, 400, new { ok = false, message = "order_id invalid" });
                     return;
                 }
 
                 int lineCount = (data.InforDetail == null) ? 0 : data.InforDetail.Count;
-                if (Log != null) Log(string.Format("Received order_id={0}, lines={1}", data.OrderId, lineCount));
+                if (Log != null) Log(string.Format("Received order_id={0}, lines={1}", data.PO_ID, lineCount));
 
                 // Bắn event cho UI xử lý
                 if (OrderReceived != null) OrderReceived(data);
 
-                await WriteJsonAsync(res, 200, new { ok = true, order_id = data.OrderId, received_at = DateTime.Now });
+                await WriteJsonAsync(res, 200, new { ok = true, order_id = data.PO_ID, received_at = DateTime.Now });
             }
             catch (Exception ex)
             {

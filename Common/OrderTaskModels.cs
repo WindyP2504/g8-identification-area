@@ -3,8 +3,14 @@ using Newtonsoft.Json;
 
 public class OrderTaskRequest
 {
-    [JsonProperty("order_id")]
-    public long OrderId { get; set; }
+    [JsonProperty("PO_ID")]
+    public long PO_ID { get; set; }
+
+    [JsonProperty("WH_Code")]
+    public string WH_Code { get; set; }
+
+    [JsonProperty("Line_ID")]
+    public string LineId { get; set; }
 
     [JsonProperty("info_detail")]
     public List<InforDetail> InforDetail { get; set; }
