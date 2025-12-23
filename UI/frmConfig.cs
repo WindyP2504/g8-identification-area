@@ -22,24 +22,6 @@ namespace VTP_Induction.UI
         private BindingList<DataDetectorPosConfig> recordsDataDetectorPosConfig = new BindingList<DataDetectorPosConfig>();
         private TForm parentForm;
 
-        private string sHisory
-        {
-            get
-            {
-                string strHistory = "";
-                strHistory += "Viettel Post DWS:" + "\r\n";
-                strHistory += ">>Version 2024.22.08.01" + "\r\n";
-                strHistory += "first drawn up" + "\r\n";
-                strHistory += ">>Version 2024.07.20.123" + "\r\n";
-
-
-                strHistory += "Fix RFID" + "\r\n";
-                strHistory += ">>Version 2022.11.15.128" + "\r\n";
-                strHistory += "add Log, add manual control conveyor with auto, manual mode" + "\r\n";
-
-                return strHistory;
-            }
-        }
         public frmConfig(TForm form)
         {
             parentForm = form;
@@ -49,8 +31,6 @@ namespace VTP_Induction.UI
             InitDeviceCfgs();
             DataToUI();
             GLb.g_SoftwareNameVersion = textBoxSoftwareName.Text;
-
-
         }
         public void InitDeviceCfgs()
         {
@@ -93,33 +73,33 @@ namespace VTP_Induction.UI
                     flowLayoutPanelDetector.Controls.Add(rpPrinterGodex);
                 }
 
-                Globals.TWMSConfig WMScfg = GLb.g_tDevCfg.tWMS;
-                Globals.RFIDConfig RFIDcfg = GLb.g_tDevCfg.tRFID;
+                //Globals.TWMSConfig WMScfg = GLb.g_tDevCfg.tWMS;
+                //Globals.RFIDConfig RFIDcfg = GLb.g_tDevCfg.tRFID;
 
-                APIwms rpWMS = new APIwms(WMScfg, WMScfg.sDevGroup);
+                //APIwms rpWMS = new APIwms(WMScfg, WMScfg.sDevGroup);
 
-                if (rpWMS != null)
-                {
-                    rpWMS.dataChangedEvent += new DataChangedNow(dataChangedHandler);
+                //if (rpWMS != null)
+                //{
+                //    rpWMS.dataChangedEvent += new DataChangedNow(dataChangedHandler);
 
-                    flowLayoutPanelWMS.Controls.Add(rpWMS);
-                }
+                //    flowLayoutPanelWMS.Controls.Add(rpWMS);
+                //}
 
-                APIrfid rpRFID = new APIrfid(RFIDcfg, RFIDcfg.sDevGroup);
+                //APIrfid rpRFID = new APIrfid(RFIDcfg, RFIDcfg.sDevGroup);
 
-                if (rpWMS != null)
-                {
-                    rpWMS.dataChangedEvent += new DataChangedNow(dataChangedHandler);
+                //if (rpWMS != null)
+                //{
+                //    rpWMS.dataChangedEvent += new DataChangedNow(dataChangedHandler);
 
-                    flowLayoutPanelWMS.Controls.Add(rpWMS);
-                }
+                //    flowLayoutPanelWMS.Controls.Add(rpWMS);
+                //}
 
-                if (rpRFID != null)
-                {
-                    rpRFID.dataChangedEvent += new DataChangedNow(dataChangedHandler);
+                //if (rpRFID != null)
+                //{
+                //    rpRFID.dataChangedEvent += new DataChangedNow(dataChangedHandler);
 
-                    flowLayoutPanelWMS.Controls.Add(rpRFID);
-                }
+                //    flowLayoutPanelWMS.Controls.Add(rpRFID);
+                //}
 
                 Globals.TSQLConfig tSQL = GLb.g_tSQLConfig;
                 SQLConfig rpSQLConfig = new SQLConfig(tSQL);
@@ -193,22 +173,22 @@ namespace VTP_Induction.UI
 
                 }
 
-                foreach (var control in flowLayoutPanelWMS.Controls)
-                {
-                    APIwms apiwmsControl = control as APIwms;
-                    if (apiwmsControl != null)
-                    {
-                        apiwmsControl.DataToUI();
-                    }
-                }
-                foreach (var control in flowLayoutPanelWMS.Controls)
-                {
-                    APIrfid apiRFIDControl = control as APIrfid;
-                    if (apiRFIDControl != null)
-                    {
-                        apiRFIDControl.DataToUI();
-                    }
-                }
+                //foreach (var control in flowLayoutPanelWMS.Controls)
+                //{
+                //    APIwms apiwmsControl = control as APIwms;
+                //    if (apiwmsControl != null)
+                //    {
+                //        apiwmsControl.DataToUI();
+                //    }
+                //}
+                //foreach (var control in flowLayoutPanelWMS.Controls)
+                //{
+                //    APIrfid apiRFIDControl = control as APIrfid;
+                //    if (apiRFIDControl != null)
+                //    {
+                //        apiRFIDControl.DataToUI();
+                //    }
+                //}
 
                 foreach (var control in flowLayoutPanelDB.Controls)
                 {
@@ -226,6 +206,14 @@ namespace VTP_Induction.UI
                 txtPalletNumber.Text = GLb.g_tSysCfg.nPalletNumber.ToString();
                 txtParcelNumber.Text = GLb.g_tSysCfg.nParcelNumber.ToString();
                 txtParcelType.Text = GLb.g_tSysCfg.sParcelType;
+                checkBoxPrintPallet.Checked = GLb.g_tSysCfg.bPrintPallet;
+
+                txtPos1.Text = GLb.g_tSysCfg.sPositions[0].ToString();
+                txtPos2.Text = GLb.g_tSysCfg.sPositions[1].ToString();
+                txtPos3.Text = GLb.g_tSysCfg.sPositions[2].ToString();
+                txtPos4.Text = GLb.g_tSysCfg.sPositions[3].ToString();
+                txtPos5.Text = GLb.g_tSysCfg.sPositions[4].ToString();
+                txtPos6.Text = GLb.g_tSysCfg.sPositions[5].ToString();
 
                 bRet = true;
 
@@ -271,22 +259,22 @@ namespace VTP_Induction.UI
                     }
                 }
 
-                foreach (var control in flowLayoutPanelWMS.Controls)
-                {
-                    APIwms apiwmsControl = control as APIwms;
-                    if (apiwmsControl != null)
-                    {
-                        apiwmsControl.UIToData();
-                    }
-                }
-                foreach (var control in flowLayoutPanelWMS.Controls)
-                {
-                    APIrfid apiRFIDControl = control as APIrfid;
-                    if (apiRFIDControl != null)
-                    {
-                        apiRFIDControl.UIToData();
-                    }
-                }
+                //foreach (var control in flowLayoutPanelWMS.Controls)
+                //{
+                //    APIwms apiwmsControl = control as APIwms;
+                //    if (apiwmsControl != null)
+                //    {
+                //        apiwmsControl.UIToData();
+                //    }
+                //}
+                //foreach (var control in flowLayoutPanelWMS.Controls)
+                //{
+                //    APIrfid apiRFIDControl = control as APIrfid;
+                //    if (apiRFIDControl != null)
+                //    {
+                //        apiRFIDControl.UIToData();
+                //    }
+                //}
 
                 foreach (var control in flowLayoutPanelDB.Controls)
                 {
@@ -305,7 +293,14 @@ namespace VTP_Induction.UI
                 GLb.g_tSysCfg.nParcelNumber = int.Parse(txtParcelNumber.Text);
                 GLb.g_tSysCfg.nPalletNumber = int.Parse(txtPalletNumber.Text);
                 GLb.g_tSysCfg.sParcelType = txtParcelType.Text;
+                GLb.g_tSysCfg.bPrintPallet = checkBoxPrintPallet.Checked;
 
+                GLb.g_tSysCfg.sPositions[0] = txtPos1.Text;
+                GLb.g_tSysCfg.sPositions[1] = txtPos2.Text;
+                GLb.g_tSysCfg.sPositions[2] = txtPos3.Text;
+                GLb.g_tSysCfg.sPositions[3] = txtPos4.Text;
+                GLb.g_tSysCfg.sPositions[4] = txtPos5.Text;
+                GLb.g_tSysCfg.sPositions[5] = txtPos6.Text;
 
                 bRet = true;
             }

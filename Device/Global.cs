@@ -1031,6 +1031,10 @@ namespace VTP_Induction.Device
             public int nPalletNumber = 0;
             public string sParcelType = "";
 
+            public bool bPrintPallet = false;
+
+            public string[] sPositions = { "","","","","","" };
+
             public TBootUp()
             {
                 //for (int i = 0; i < 500; i++)
