@@ -51,3 +51,13 @@ public class InforDetail
     [JsonProperty("Inner_Pallet")]
     public int Inner_Pallet{ get; set; }
 }
+
+public class DonePalletRequest
+{
+    public long PO_ID { get; set; }
+    public string Line_ID { get; set; }
+    public string Pallet_ID { get; set; }
+    public string Location { get; set; }
+    public string From_System { get; set; }
+}
+

@@ -14,18 +14,15 @@ namespace VTP_Induction
         private CancellationTokenSource _cts;
 
         public event Action<OrderTaskRequest> OrderReceived;
+        public event Action<DonePalletRequest> PoReceived;
         public event Action<string> Log;
 
-        public WcsHttpServer(int port, string path)
+        public WcsHttpServer(int port)
         {
             _listener = new HttpListener();
 
-            if (string.IsNullOrWhiteSpace(path)) path = "/ids/orderTask/";
-            if (!path.StartsWith("/")) path = "/" + path;
-            if (!path.EndsWith("/")) path = path + "/";
-
-            // Listen tất cả IP: http://<mypc-ip>:8500/ids/orderTask/
-            _listener.Prefixes.Add(string.Format("http://+:{0}{1}", port, path));
+            _listener.Prefixes.Add("http://+:" + port + "/ids/orderTask/");
+            _listener.Prefixes.Add("http://+:" + port + "/ids/confirm_product/");
         }
 
         public void Start()
@@ -97,24 +94,22 @@ namespace VTP_Induction
 
         private async Task HandleRequestAsync(HttpListenerContext ctx)
         {
+            HttpListenerRequest req = ctx.Request;
+            HttpListenerResponse res = ctx.Response;
+
+            string path = req.Url.AbsolutePath.TrimEnd('/').ToLower();
+
             try
             {
-                var req = ctx.Request;
-                var res = ctx.Response;
-
-                // Chỉ nhận POST
                 if (!string.Equals(req.HttpMethod, "POST", StringComparison.OrdinalIgnoreCase))
                 {
                     await WriteJsonAsync(res, 405, new { code = 1001, desc = "Only POST is allowed" });
                     return;
                 }
 
-                // Đọc body
                 string body;
                 using (var reader = new StreamReader(req.InputStream, req.ContentEncoding ?? Encoding.UTF8))
-                {
                     body = await reader.ReadToEndAsync();
-                }
 
                 if (string.IsNullOrWhiteSpace(body))
                 {
@@ -122,50 +117,105 @@ namespace VTP_Induction
                     return;
                 }
 
-                // Parse JSON
-                OrderTaskRequest data;
-                try
+                if (path == "/ids/ordertask")
                 {
-                    data = JsonConvert.DeserializeObject<OrderTaskRequest>(body);
-                }
-                catch (Exception exJson)
-                {
-                    WriteJsonSync(res, 400, new { code = 1001, desc = "Invalid JSON" });
-                    Log("Invalid JSON: " + exJson.Message);
+                    await HandleOrderTask(body, res);
                     return;
                 }
-
-                if (data == null || data.PO_ID <= 0)
+                else if (path == "/ids/confirm_product")
                 {
-                    await WriteJsonAsync(res, 400, new { code = 1001, desc = "order_id invalid" });
+                    await HandlePoOnly(body, res);
                     return;
                 }
-
-                int lineCount = (data.InforDetail == null) ? 0 : data.InforDetail.Count;
-                if (Log != null) Log(string.Format("Received order_id={0}, lines={1}", data.PO_ID, lineCount));
-
-                // Bắn event cho UI xử lý
-                if (OrderReceived != null) OrderReceived(data);
-
-                await WriteJsonAsync(res, 200, new { code = 1000, desc = "SUCCESS"});
+                else
+                {
+                    await WriteJsonAsync(res, 404, new { code = 1001, desc = "Not found" });
+                    return;
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                // C# 5: KHÔNG await trong catch => ghi sync
-                try
-                {
-                    WriteJsonSync(ctx.Response, 500, new { code = 1001, desc = "Server error"});
-                }
-                catch { }
-
-                if (Log != null) Log("HandleRequest error: " + ex.Message);
+                WriteJsonSync(res, 500, new { code = 1001, desc = "Server error" });
             }
             finally
             {
-                // C# 5: không await trong finally
-                try { ctx.Response.Close(); } catch { }
+                try { res.Close(); } catch { }
             }
         }
+
+        private async Task HandlePoOnly(string body, HttpListenerResponse res)
+        {
+            DonePalletRequest data;
+
+            try
+            {
+                data = JsonConvert.DeserializeObject<DonePalletRequest>(body);
+            }
+            catch (Exception exJson)
+            {
+                WriteJsonSync(res, 400, new { code = 1001, desc = "Invalid JSON" });
+                Log("Invalid JSON: " + exJson.Message);
+                return; 
+            }
+
+            if (data == null || data.PO_ID <= 0)
+            {
+                await WriteJsonAsync(res, 400, new { code = 1001, desc = "PO_ID invalid" });
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(data.Line_ID) ||
+                string.IsNullOrWhiteSpace(data.Pallet_ID))
+            {
+                await WriteJsonAsync(res, 400, new { code = 1001, desc = "Line_ID or Pallet_ID invalid" });
+                return;
+            }
+
+            if (Log != null)
+                Log("PO=" + data.PO_ID
+                    + ", Line=" + data.Line_ID
+                    + ", Pallet=" + data.Pallet_ID
+                    + ", Location=" + data.Location
+                    + ", From=" + data.From_System);
+
+            if (PoReceived != null)
+                PoReceived(data);
+
+            await WriteJsonAsync(res, 200, new { code = 1000, desc = "SUCCESS" });
+        }
+
+        private async Task HandleOrderTask(string body, HttpListenerResponse res)
+        {
+            OrderTaskRequest data;
+
+            try
+            {
+                data = JsonConvert.DeserializeObject<OrderTaskRequest>(body);
+            }
+            catch (Exception exJson)
+            {
+                WriteJsonSync(res, 400, new { code = 1001, desc = "Invalid JSON" });
+                Log("Invalid JSON: " + exJson.Message);
+                return;
+            }
+
+            if (data == null || data.PO_ID <= 0)
+            {
+                await WriteJsonAsync(res, 400, new { code = 1001, desc = "order_id invalid" });
+                return;
+            }
+
+            int lineCount = (data.InforDetail == null) ? 0 : data.InforDetail.Count;
+
+            if (Log != null)
+                Log("Received order_id=" + data.PO_ID + ", lines=" + lineCount);
+
+            if (OrderReceived != null)
+                OrderReceived(data);
+
+            await WriteJsonAsync(res, 200, new { code = 1000, desc = "SUCCESS" });
+        }
+
 
         private static async Task WriteJsonAsync(HttpListenerResponse res, int statusCode, object obj)
         {

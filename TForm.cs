@@ -1,5 +1,6 @@
 ﻿using DevExpress.Internal;
 using DevExpress.Utils;
+using DevExpress.Xpo.DB.Helpers;
 using DevExpress.XtraSplashScreen;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -115,7 +116,8 @@ namespace VTP_Induction
             {
                 try
                 {
-                    _server = new WcsHttpServer(8500, "/ids/orderTask/");
+                    _server = new WcsHttpServer(8500);
+
                     _server.Log += msg =>
                     {
                         if (this.InvokeRequired)
@@ -130,6 +132,14 @@ namespace VTP_Induction
                             this.BeginInvoke(new Action(() => HandleOrder(data)));
                         else
                             HandleOrder(data);
+                    };
+
+                    _server.PoReceived += data =>
+                    {
+                        if (this.InvokeRequired)
+                            this.BeginInvoke(new Action(() => HandleDonePallet(data)));
+                        else
+                            HandleDonePallet(data);
                     };
 
                     _server.Start();
@@ -649,7 +659,7 @@ namespace VTP_Induction
                 GLb.IsInTask = false;
 
                 //// 2) Clear task tạm trong DB
-                ClearTaskTable();
+                //ClearTaskTable();
 
                 // 3) Update UI + STOP (thread-safe)
                 Action uiAction = () =>
@@ -1608,6 +1618,32 @@ namespace VTP_Induction
             }
         }
 
+        private void ClearAllTable()
+        {
+            try
+            {
+                string query = @"DELETE FROM dbo.WCS_Task_Temp; DELETE FROM dbo.WCS_PLAN_CONFIG_Temp; DELETE FROM dbo.WCS_Parcels_Prod; DELETE FROM dbo.WCS_PLAN_CONFIG_Temp;";
+
+                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Lỗi xóa lệnh sản xuất đã xong: " + ex.Message,
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+
         private void LoadDataFromSqlToListView()
         {
             lvPrintList.Items.Clear();
@@ -2504,9 +2540,6 @@ namespace VTP_Induction
 
                     using (SqlTransaction tran = conn.BeginTransaction())
                     {
-                        int totalParcel = data.InforDetail.Sum(d => d.CartonList.Count);
-                        int totalPallet = data.InforDetail.Select(d => d.PalletId).Where(p => !string.IsNullOrWhiteSpace(p)).Distinct().Count();
-
                         foreach (var item in data.InforDetail)
                         {
                             using (var cmd = new SqlCommand(@"
@@ -2599,7 +2632,7 @@ namespace VTP_Induction
                                     cmd.Parameters.Add("@Location", System.Data.SqlDbType.NVarChar, 50)
                                        .Value = item.Location;
 
-                                    cmd.Parameters.Add("@Status", System.Data.SqlDbType.Int)
+                                    cmd.Parameters.Add("@Status", System.Data.SqlDbType.NVarChar, 50)
                                        .Value = 0;
 
                                     cmd.Parameters.Add("@Line_ID", System.Data.SqlDbType.NVarChar, 50)
@@ -2612,9 +2645,103 @@ namespace VTP_Induction
                                 }
                             }
                         }
+                        var first = data.InforDetail.First();
+
+                        int totalParcel = first.CartonList.Count;
+                        int totalPallet = 1;
+
+                        // 1) Insert Plan
+                        using (SqlCommand cmdPlan = new SqlCommand(@"INSERT INTO dbo.WCS_PLAN_CONFIG_Temp (
+                                                                        Line_ID, 
+                                                                        Item_Code,
+                                                                        Inner_Pallet,
+                                                                        Inner_Carton,
+                                                                        TotalParcel,
+                                                                        TotalPallet,
+                                                                        RealtimeParcel,
+                                                                        RealTimePallet,
+Ctn,
+Position
+                                                                    ) VALUES (
+                                                                        @Line_ID,
+                                                                        @Item_Code,
+                                                                        @Inner_Pallet,
+                                                                        @Inner_Carton,
+                                                                        @TotalParcel,
+                                                                        @TotalPallet,
+                                                                        0,
+                                                                        0,
+@Ctn,
+@Position);", conn, tran))
+                        {
+                            cmdPlan.Parameters.AddWithValue("@Line_ID", data.FromSystem ?? "LINE_01");
+                            cmdPlan.Parameters.AddWithValue("@Item_Code", first.ItemCode ?? string.Empty);
+                            cmdPlan.Parameters.AddWithValue("@Inner_Pallet", first.Inner_Pallet);
+                            cmdPlan.Parameters.AddWithValue("@Inner_Carton", first.Inner_Carton);
+                            cmdPlan.Parameters.AddWithValue("@TotalParcel", totalParcel);
+                            cmdPlan.Parameters.AddWithValue("@TotalPallet", totalPallet);
+                            cmdPlan.Parameters.AddWithValue("@Ctn", first.Ctn);
+                            cmdPlan.Parameters.AddWithValue("@Position", first.Location);
+                            cmdPlan.ExecuteNonQuery();
+                        }
+
+                        var detail = data.InforDetail.FirstOrDefault();
+
+                        if (detail.CartonList == null)
+                            return;
+
+                        foreach (var carton in detail.CartonList)
+                        {
+                            string parcelCode, receivedCode;
+                            ParseCartonCode(carton, out parcelCode, out receivedCode);
+
+                            using (SqlCommand cmd = new SqlCommand(@"INSERT INTO dbo.WCS_Task_Temp (
+                                    ParcelCode,
+                                    ReceivedCode,
+                                    Pallet_ID,
+                                    Ctn,
+                                    Status,
+                                    LineProduction,
+                                    WH_Code,
+                                    [Location],
+                                    ItemCode,
+                                    PO_ID,
+                                    ImportTime,
+Task_ID
+                                ) VALUES (
+                                    @ParcelCode,
+                                    @ReceivedCode,
+                                    @Pallet_ID,
+                                    @Ctn,
+                                    @Status,
+                                    @LineProduction,
+                                    @WH_Code,
+                                    @Location,
+                                    @ItemCode,
+                                    @PO_ID,
+                                    @ImportTime,
+@Task_ID);", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@ParcelCode", parcelCode);
+                                cmd.Parameters.AddWithValue("@ReceivedCode", receivedCode);
+                                cmd.Parameters.AddWithValue("@Pallet_ID", detail.PalletId);
+                                cmd.Parameters.AddWithValue("@Ctn", detail.Ctn);
+                                cmd.Parameters.AddWithValue("@Status", 0);
+                                cmd.Parameters.AddWithValue("@LineProduction", data.LineId);
+                                cmd.Parameters.AddWithValue("@WH_Code", data.WH_Code);
+                                cmd.Parameters.AddWithValue("@Location", detail.Location);
+                                cmd.Parameters.AddWithValue("@ItemCode", detail.ItemCode);
+                                cmd.Parameters.AddWithValue("@PO_ID", data.PO_ID);
+                                cmd.Parameters.AddWithValue("@ImportTime", DateTime.Now);
+                                cmd.Parameters.AddWithValue("@Task_ID", data.Task_ID);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
                         tran.Commit();
                     }
                 }
+
+                
                 // Refresh UI
                 if (InvokeRequired)
                     BeginInvoke(new Action(() => LoadDataFromSqlToListView()));
@@ -2630,6 +2757,164 @@ namespace VTP_Induction
                 MessageBox.Show("Lỗi xử lý lệnh sản xuất: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void HandleDonePallet(DonePalletRequest data)
+        {
+            ClearTaskTable();
+            using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
+            {
+                conn.Open();
+                LoadNextPalletToTemp(conn);
+            }
+
+            if (InvokeRequired)
+                BeginInvoke(new Action(() => LoadDataFromSqlToListView()));
+            else
+                LoadDataFromSqlToListView();
+
+            LoadProductionData();
+            InitPlan();
+        }
+
+        public void LoadNextPalletToTemp(SqlConnection conn)
+        {
+            using (var tran = conn.BeginTransaction())
+            {
+                PalletProd pallet = GetNextPallet(conn, tran);
+                if (pallet == null)
+                {
+                    tran.Commit();
+                    return;
+                }
+
+                // 3. Insert PLAN_CONFIG_TEMP
+                InsertPlanConfigTemp(conn, tran, pallet);
+
+                // 4. Insert TASK_TEMP theo parcel của pallet
+                InsertTaskTempByPallet(conn, tran, pallet);
+
+                tran.Commit();
+            }
+        }
+
+        private PalletProd GetNextPallet(SqlConnection conn, SqlTransaction tran)
+        {
+            using (var cmd = new SqlCommand(@"
+        SELECT TOP 1 *
+        FROM dbo.WCS_Pallet_Prod
+        WHERE Pallet_ID NOT IN (
+            SELECT DISTINCT Pallet_ID
+            FROM dbo.WCS_Parcels_Prod
+            WHERE Status = 'DONE'
+        )
+        ORDER BY Id;", conn, tran))
+            {
+                using (var rd = cmd.ExecuteReader())
+                {
+                    if (!rd.Read()) return null;
+
+                    return new PalletProd
+                    {
+                        Pallet_ID = rd["Pallet_ID"].ToString(),
+                        Location = rd["Location"].ToString(),
+                        Item_Code = rd["Item_Code"].ToString(),
+                        Inner_Carton = Convert.ToInt32(rd["Inner_Carton"]),
+                        Inner_Pallet = Convert.ToInt32(rd["Inner_Pallet"]),
+                        PO_ID = Convert.ToInt64(rd["PO_ID"]),
+                        WH_Code = rd["WH_Code"].ToString(),
+                        Line_ID = rd["Line_ID"].ToString()
+                    };
+                }
+            }
+        }
+        private void InsertPlanConfigTemp(SqlConnection conn, SqlTransaction tran, PalletProd p)
+        {
+            using (var cmd = new SqlCommand(@"
+        INSERT INTO dbo.WCS_PLAN_CONFIG_Temp
+        (
+            Line_ID,
+            Item_Code,
+            Inner_Pallet,
+            Inner_Carton,
+            TotalParcel,
+            TotalPallet,
+            RealtimeParcel,
+            RealTimePallet
+        )
+        SELECT
+            @Line_ID,
+            @Item_Code,
+            @Inner_Pallet,
+            @Inner_Carton,
+            COUNT(*),
+            1,
+            0,
+            0
+        FROM dbo.WCS_Parcels_Prod
+        WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+            {
+                cmd.Parameters.AddWithValue("@Line_ID", p.Line_ID);
+                cmd.Parameters.AddWithValue("@Item_Code", p.Item_Code);
+                cmd.Parameters.AddWithValue("@Inner_Pallet", p.Inner_Pallet);
+                cmd.Parameters.AddWithValue("@Inner_Carton", p.Inner_Carton);
+                cmd.Parameters.AddWithValue("@Pallet_ID", p.Pallet_ID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+        private void InsertTaskTempByPallet(SqlConnection conn, SqlTransaction tran, PalletProd p)
+        {
+            using (var cmd = new SqlCommand(@"
+        INSERT INTO dbo.WCS_Task_Temp
+        (
+            ParcelCode,
+            ReceivedCode,
+            Pallet_ID,
+            Ctn,
+            Status,
+            LineProduction,
+            ProductionCode,
+            [Location],
+            ItemCode,
+            PO_ID,
+            ImportTime
+        )
+        SELECT
+            ParcelCode,
+            ReceivedCode,
+            Pallet_ID,
+            Ctn,
+            'NEW',
+            @Line_ID,
+            @WH_Code,
+            Location,
+            Item_Code,
+            PO_ID,
+            GETDATE()
+        FROM dbo.WCS_Parcels_Prod
+        WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+            {
+                cmd.Parameters.AddWithValue("@Line_ID", p.Line_ID);
+                cmd.Parameters.AddWithValue("@WH_Code", p.WH_Code);
+                cmd.Parameters.AddWithValue("@Pallet_ID", p.Pallet_ID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        class PalletProd
+        {
+            public string Pallet_ID;
+            public string Location;
+            public string Item_Code;
+            public int Inner_Carton;
+            public int Inner_Pallet;
+            public long PO_ID;
+            public string WH_Code;
+            public string Line_ID;
+        }
+
+
 
         private void ParseCartonCode(string cartonRaw, out string parcelCode, out string receivedCode)
         {
