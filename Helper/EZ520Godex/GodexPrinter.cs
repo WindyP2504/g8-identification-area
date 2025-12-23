@@ -710,6 +710,11 @@ namespace EzioDll
             EZioApi.OpenUSB(PortName);
         }
 
+        public bool bOpenUSB(string PortName)
+        {
+            return EZioApi.OpenUSB(PortName) == 1;
+        }
+
         public int SetBaudrate(int nBaud)
         {
             return EZioApi.setbaudrate(nBaud);

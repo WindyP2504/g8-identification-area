@@ -69,8 +69,16 @@
             this.panel40 = new System.Windows.Forms.Panel();
             this.TLP_Position = new System.Windows.Forms.TableLayoutPanel();
             this.plPos03 = new System.Windows.Forms.Panel();
+            this.panel55 = new System.Windows.Forms.Panel();
+            this.lblRealPos3 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.plPos02 = new System.Windows.Forms.Panel();
+            this.panel54 = new System.Windows.Forms.Panel();
+            this.lblRealPos2 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.plPos01 = new System.Windows.Forms.Panel();
+            this.panel53 = new System.Windows.Forms.Panel();
+            this.lblRealPos1 = new System.Windows.Forms.Label();
             this.lbPosLb1 = new System.Windows.Forms.Label();
             this.panel65 = new System.Windows.Forms.Panel();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -187,14 +195,7 @@
             this.panel19 = new System.Windows.Forms.Panel();
             this.panel33 = new System.Windows.Forms.Panel();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.panel53 = new System.Windows.Forms.Panel();
-            this.panel54 = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.panel55 = new System.Windows.Forms.Panel();
-            this.label5 = new System.Windows.Forms.Label();
-            this.lblRealPos1 = new System.Windows.Forms.Label();
-            this.lblRealPos2 = new System.Windows.Forms.Label();
-            this.lblRealPos3 = new System.Windows.Forms.Label();
+            this.timerBlink = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.panel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.xtraTabControlTForm)).BeginInit();
@@ -222,8 +223,11 @@
             this.panel40.SuspendLayout();
             this.TLP_Position.SuspendLayout();
             this.plPos03.SuspendLayout();
+            this.panel55.SuspendLayout();
             this.plPos02.SuspendLayout();
+            this.panel54.SuspendLayout();
             this.plPos01.SuspendLayout();
+            this.panel53.SuspendLayout();
             this.panel65.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.panel7.SuspendLayout();
@@ -285,9 +289,6 @@
             this.panel29.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.panel53.SuspendLayout();
-            this.panel54.SuspendLayout();
-            this.panel55.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -715,7 +716,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(103, 42);
             this.label4.TabIndex = 8;
-            this.label4.Text = "SỐ KIỆN/ THÙNG";
+            this.label4.Text = "SỐ THÙNG";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panel40
@@ -760,6 +761,42 @@
             this.plPos03.Size = new System.Drawing.Size(294, 148);
             this.plPos03.TabIndex = 2;
             // 
+            // panel55
+            // 
+            this.panel55.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
+            this.panel55.Controls.Add(this.lblRealPos3);
+            this.panel55.Controls.Add(this.label5);
+            this.panel55.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel55.Location = new System.Drawing.Point(10, 10);
+            this.panel55.Name = "panel55";
+            this.panel55.Size = new System.Drawing.Size(272, 126);
+            this.panel55.TabIndex = 1;
+            // 
+            // lblRealPos3
+            // 
+            this.lblRealPos3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblRealPos3.Font = new System.Drawing.Font("Tahoma", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRealPos3.ForeColor = System.Drawing.Color.DarkOrange;
+            this.lblRealPos3.Location = new System.Drawing.Point(0, 58);
+            this.lblRealPos3.Name = "lblRealPos3";
+            this.lblRealPos3.Size = new System.Drawing.Size(272, 68);
+            this.lblRealPos3.TabIndex = 2;
+            this.lblRealPos3.Text = "Real Pos 3";
+            this.lblRealPos3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label5
+            // 
+            this.label5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
+            this.label5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label5.Font = new System.Drawing.Font("Tahoma", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.Color.White;
+            this.label5.Location = new System.Drawing.Point(0, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(272, 58);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "VỊ TRÍ 03";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // plPos02
             // 
             this.plPos02.BackColor = System.Drawing.Color.DarkGray;
@@ -772,6 +809,42 @@
             this.plPos02.Size = new System.Drawing.Size(294, 148);
             this.plPos02.TabIndex = 1;
             // 
+            // panel54
+            // 
+            this.panel54.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
+            this.panel54.Controls.Add(this.lblRealPos2);
+            this.panel54.Controls.Add(this.label2);
+            this.panel54.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel54.Location = new System.Drawing.Point(10, 10);
+            this.panel54.Name = "panel54";
+            this.panel54.Size = new System.Drawing.Size(272, 126);
+            this.panel54.TabIndex = 1;
+            // 
+            // lblRealPos2
+            // 
+            this.lblRealPos2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblRealPos2.Font = new System.Drawing.Font("Tahoma", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRealPos2.ForeColor = System.Drawing.Color.DarkOrange;
+            this.lblRealPos2.Location = new System.Drawing.Point(0, 58);
+            this.lblRealPos2.Name = "lblRealPos2";
+            this.lblRealPos2.Size = new System.Drawing.Size(272, 68);
+            this.lblRealPos2.TabIndex = 2;
+            this.lblRealPos2.Text = "Real Pos 2";
+            this.lblRealPos2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label2
+            // 
+            this.label2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
+            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label2.Font = new System.Drawing.Font("Tahoma", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.Location = new System.Drawing.Point(0, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(272, 58);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "VỊ TRÍ 02";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // plPos01
             // 
             this.plPos01.BackColor = System.Drawing.Color.Lime;
@@ -783,6 +856,29 @@
             this.plPos01.Padding = new System.Windows.Forms.Padding(10);
             this.plPos01.Size = new System.Drawing.Size(294, 148);
             this.plPos01.TabIndex = 0;
+            // 
+            // panel53
+            // 
+            this.panel53.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
+            this.panel53.Controls.Add(this.lblRealPos1);
+            this.panel53.Controls.Add(this.lbPosLb1);
+            this.panel53.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel53.Location = new System.Drawing.Point(10, 10);
+            this.panel53.Name = "panel53";
+            this.panel53.Size = new System.Drawing.Size(272, 126);
+            this.panel53.TabIndex = 0;
+            // 
+            // lblRealPos1
+            // 
+            this.lblRealPos1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblRealPos1.Font = new System.Drawing.Font("Tahoma", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRealPos1.ForeColor = System.Drawing.Color.DarkOrange;
+            this.lblRealPos1.Location = new System.Drawing.Point(0, 58);
+            this.lblRealPos1.Name = "lblRealPos1";
+            this.lblRealPos1.Size = new System.Drawing.Size(272, 68);
+            this.lblRealPos1.TabIndex = 1;
+            this.lblRealPos1.Text = "Real Pos 1";
+            this.lblRealPos1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lbPosLb1
             // 
@@ -1254,8 +1350,6 @@
             this.RCSbutton.TabIndex = 49;
             this.RCSbutton.Tag = "Show";
             this.RCSbutton.Text = "RCS";
-            this.RCSbutton.Click += new System.EventHandler(this.simpleButton3_Click);
-            this.RCSbutton.DoubleClick += new System.EventHandler(this.simpleButton3_DoubleClick);
             // 
             // panel12
             // 
@@ -2425,7 +2519,6 @@
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            this.pictureBox1.DoubleClick += new System.EventHandler(this.pictureBox1_DoubleClick);
             // 
             // timer1
             // 
@@ -2494,100 +2587,10 @@
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
-            // panel53
+            // timerBlink
             // 
-            this.panel53.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.panel53.Controls.Add(this.lblRealPos1);
-            this.panel53.Controls.Add(this.lbPosLb1);
-            this.panel53.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel53.Location = new System.Drawing.Point(10, 10);
-            this.panel53.Name = "panel53";
-            this.panel53.Size = new System.Drawing.Size(272, 126);
-            this.panel53.TabIndex = 0;
-            // 
-            // panel54
-            // 
-            this.panel54.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.panel54.Controls.Add(this.lblRealPos2);
-            this.panel54.Controls.Add(this.label2);
-            this.panel54.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel54.Location = new System.Drawing.Point(10, 10);
-            this.panel54.Name = "panel54";
-            this.panel54.Size = new System.Drawing.Size(272, 126);
-            this.panel54.TabIndex = 1;
-            // 
-            // label2
-            // 
-            this.label2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label2.Font = new System.Drawing.Font("Tahoma", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(272, 58);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "VỊ TRÍ 01";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // panel55
-            // 
-            this.panel55.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.panel55.Controls.Add(this.lblRealPos3);
-            this.panel55.Controls.Add(this.label5);
-            this.panel55.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel55.Location = new System.Drawing.Point(10, 10);
-            this.panel55.Name = "panel55";
-            this.panel55.Size = new System.Drawing.Size(272, 126);
-            this.panel55.TabIndex = 1;
-            // 
-            // label5
-            // 
-            this.label5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.label5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label5.Font = new System.Drawing.Font("Tahoma", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(0, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(272, 58);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "VỊ TRÍ 01";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblRealPos1
-            // 
-            this.lblRealPos1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblRealPos1.Font = new System.Drawing.Font("Tahoma", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblRealPos1.ForeColor = System.Drawing.Color.DarkOrange;
-            this.lblRealPos1.Location = new System.Drawing.Point(0, 58);
-            this.lblRealPos1.Name = "lblRealPos1";
-            this.lblRealPos1.Size = new System.Drawing.Size(272, 68);
-            this.lblRealPos1.TabIndex = 1;
-            this.lblRealPos1.Text = "Real Pos 1";
-            this.lblRealPos1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblRealPos2
-            // 
-            this.lblRealPos2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblRealPos2.Font = new System.Drawing.Font("Tahoma", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblRealPos2.ForeColor = System.Drawing.Color.DarkOrange;
-            this.lblRealPos2.Location = new System.Drawing.Point(0, 58);
-            this.lblRealPos2.Name = "lblRealPos2";
-            this.lblRealPos2.Size = new System.Drawing.Size(272, 68);
-            this.lblRealPos2.TabIndex = 2;
-            this.lblRealPos2.Text = "Real Pos 2";
-            this.lblRealPos2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblRealPos3
-            // 
-            this.lblRealPos3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblRealPos3.Font = new System.Drawing.Font("Tahoma", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblRealPos3.ForeColor = System.Drawing.Color.DarkOrange;
-            this.lblRealPos3.Location = new System.Drawing.Point(0, 58);
-            this.lblRealPos3.Name = "lblRealPos3";
-            this.lblRealPos3.Size = new System.Drawing.Size(272, 68);
-            this.lblRealPos3.TabIndex = 2;
-            this.lblRealPos3.Text = "Real Pos 3";
-            this.lblRealPos3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.timerBlink.Interval = 500;
+            this.timerBlink.Tick += new System.EventHandler(this.timerBlink_Tick);
             // 
             // TForm
             // 
@@ -2630,8 +2633,11 @@
             this.panel40.ResumeLayout(false);
             this.TLP_Position.ResumeLayout(false);
             this.plPos03.ResumeLayout(false);
+            this.panel55.ResumeLayout(false);
             this.plPos02.ResumeLayout(false);
+            this.panel54.ResumeLayout(false);
             this.plPos01.ResumeLayout(false);
+            this.panel53.ResumeLayout(false);
             this.panel65.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.panel7.ResumeLayout(false);
@@ -2696,9 +2702,6 @@
             this.panel29.PerformLayout();
             this.panel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.panel53.ResumeLayout(false);
-            this.panel54.ResumeLayout(false);
-            this.panel55.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -2870,6 +2873,7 @@
         private System.Windows.Forms.Label lblRealPos1;
         private System.Windows.Forms.Label lblRealPos3;
         private System.Windows.Forms.Label lblRealPos2;
+        private System.Windows.Forms.Timer timerBlink;
     }
 }
 

@@ -8,35 +8,6 @@ using System.Threading.Tasks;
 
 namespace VTP_Induction
 {
-    public class HttpClass
-    {
-        public static string Post3(string url, int timeout)
-        {
-            string result = "";
-            try
-            {
-                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-                httpWebRequest.Method = "POST";
-                httpWebRequest.Timeout = timeout;
-                HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                Stream responseStream = httpWebResponse.GetResponseStream();
-                using (StreamReader streamReader = new StreamReader(responseStream, Encoding.UTF8))
-                {
-                    result = streamReader.ReadToEnd();
-                }
-            }
-            catch (WebException ex)
-            {
-                result = ((ex.Status != WebExceptionStatus.Timeout) ? ("[Exception][Other]||" + ex.Message) : ("[Exception][TimeOut]||" + ex.Message));
-            }
-            catch (Exception ex2)
-            {
-                result = "[Exception][Other]||" + ex2.Message;
-            }
-            return result;
-        }
-    }
-
     public sealed class WcsHttpServer : IDisposable
     {
         private readonly HttpListener _listener;
@@ -134,7 +105,7 @@ namespace VTP_Induction
                 // Chỉ nhận POST
                 if (!string.Equals(req.HttpMethod, "POST", StringComparison.OrdinalIgnoreCase))
                 {
-                    await WriteJsonAsync(res, 405, new { ok = false, message = "Only POST is allowed" });
+                    await WriteJsonAsync(res, 405, new { code = 1001, desc = "Only POST is allowed" });
                     return;
                 }
 
@@ -147,7 +118,7 @@ namespace VTP_Induction
 
                 if (string.IsNullOrWhiteSpace(body))
                 {
-                    await WriteJsonAsync(res, 400, new { ok = false, message = "Empty body" });
+                    await WriteJsonAsync(res, 400, new { code = 1001, desc = "Empty body" });
                     return;
                 }
 
@@ -159,13 +130,14 @@ namespace VTP_Induction
                 }
                 catch (Exception exJson)
                 {
-                    WriteJsonSync(res, 400, new { ok = false, message = "Invalid JSON", detail = exJson.Message });
+                    WriteJsonSync(res, 400, new { code = 1001, desc = "Invalid JSON" });
+                    Log("Invalid JSON: " + exJson.Message);
                     return;
                 }
 
                 if (data == null || data.PO_ID <= 0)
                 {
-                    await WriteJsonAsync(res, 400, new { ok = false, message = "order_id invalid" });
+                    await WriteJsonAsync(res, 400, new { code = 1001, desc = "order_id invalid" });
                     return;
                 }
 
@@ -175,14 +147,14 @@ namespace VTP_Induction
                 // Bắn event cho UI xử lý
                 if (OrderReceived != null) OrderReceived(data);
 
-                await WriteJsonAsync(res, 200, new { ok = true, order_id = data.PO_ID, received_at = DateTime.Now });
+                await WriteJsonAsync(res, 200, new { code = 1000, desc = "SUCCESS"});
             }
             catch (Exception ex)
             {
                 // C# 5: KHÔNG await trong catch => ghi sync
                 try
                 {
-                    WriteJsonSync(ctx.Response, 500, new { ok = false, message = "Server error", detail = ex.Message });
+                    WriteJsonSync(ctx.Response, 500, new { code = 1001, desc = "Server error"});
                 }
                 catch { }
 

@@ -75,7 +75,7 @@ namespace VTP_Induction.Device
             public CommType commType = CommType.RS232;
 
             public string PortName = string.Empty;
-            public int BaudRate = 115200;
+            public int BaudRate = 9600;
             public int DataBit = 8;
             public Parity parity = Parity.None;
             public StopBits stopbit = StopBits.One;
@@ -169,8 +169,6 @@ namespace VTP_Induction.Device
             //cfg.isRemoteMode = GLb.g_tDevCfg.tRS232Barcode[Index].isRemoteMode;
 
             CommDeInit();
-
-
         }
         public void CommDeInit()
         {
@@ -182,13 +180,14 @@ namespace VTP_Induction.Device
             bool bRet = false;
             try
             {
-                Disconnect();
+                if(p_bConnection)
+                    Disconnect();
                 CommInit();
                 isReading = true;
                 string sLog = "{ Barcode: " + m_sName + "::Connect ";
                 //serialPort.DataReceived += SerialPort_DataReceived;
                 serialPort = new SerialPort(cfg.PortName, cfg.BaudRate, cfg.parity, cfg.DataBit, cfg.stopbit);
-                serialPort.ReadTimeout = 15000;
+                serialPort.ReadTimeout = 10000;
                 try
                 {
                     serialPort.DataReceived += SerialPort_DataReceived;
@@ -231,9 +230,9 @@ namespace VTP_Induction.Device
             string sLog = "{" + m_sName + "::Disconnect} ";
             try
             {
-                //  if ( serialPort.IsOpen)
-                //serialPort.Close();
-                // isReading = false;
+                if (serialPort.IsOpen)
+                    serialPort.Close();
+                isReading = false;
             }
             catch
             {

@@ -53,10 +53,11 @@ namespace VTP_Induction.Device
         {
             try
             {
+                p_bConnection = false;
                 if (m_ptDeviceConfig.connectType.Equals(Globals.TPrinterConnectType.USB))
                 {
                     if (m_ptDeviceConfig.sUsbName != null)
-                        Printer.OpenUSB(m_ptDeviceConfig.sUsbName);
+                        p_bConnection = Printer.bOpenUSB(m_ptDeviceConfig.sUsbName);
                     else
                         Printer.Open(PortType.USB);
                 }
@@ -76,13 +77,11 @@ namespace VTP_Induction.Device
                 {
                     Printer.Open(m_ptDeviceConfig.sDriver);
                 }
-                p_bConnection = true;
-                return true;
+                return p_bConnection;
             }
             catch
             {
-                p_bConnection = false;
-                return false;
+                return p_bConnection;
             }
         }
 

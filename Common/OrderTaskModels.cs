@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 public class OrderTaskRequest
 {
+    [JsonProperty("Task_ID")]
+    public string Task_ID { get; set; }
+
     [JsonProperty("PO_ID")]
     public long PO_ID { get; set; }
 

@@ -165,9 +165,9 @@
         m10DywfODjoMXrjleuvyba/b1++svDMwFDJ0dzhyeOQu++7kvaR7L+9n3J9/sOkh+mHhI6lH5Y+VHtf9
         qPdj64jlyJlR19G+J0FPHoyxxp7/lP7Th/H8p+Sn5ROqE42TZpOnp9ynbj5b/Wz8eerz+emCn6V/rn6h
         ++K7Xxx/6ZtZNTP+kv9y4dfiV/Kvjrxe9rp71n/28ZvkN/NzhW/l3x59x3jX+z7s/cR85gfsh4qPeh+7
-        Pnl/eriQvLDwG/eE8/s6uL5TAAAACXBIWXMAAC4iAAAuIgGq4t2SAAAAV0lEQVRYR8XIsQ0AMAjAMP5/
-        mnKA5zSSl8y1n3GWOEucJc4SZ4mzxFniLHGWOEucJc4SZ4mzxFniLHGWOEucJc4SZ4mzxFniLHGWOEuc
-        Jc4SZ4mzxBmZfbe1/C49l6/MAAAAAElFTkSuQmCC
+        Pnl/eriQvLDwG/eE8/s6uL5TAAAACXBIWXMAAC4iAAAuIgGq4t2SAAAATklEQVRYR8XIIQEAMAwEsfdv
+        uhNwPAMh2bb7LKEltISW0BJaQktoCS2hJbSEltASWkJLaAktoSW0hJbQElpCS2gJLaEltISW0BJaQktQ
+        D7e1/C6N6b4IAAAAAElFTkSuQmCC
 </value>
   </data>
   <data name="buttonSTART.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -217,11 +217,11 @@
         m10DywfODjoMXrjleuvyba/b1++svDMwFDJ0dzhyeOQu++7kvaR7L+9n3J9/sOkh+mHhI6lH5Y+VHtf9
         qPdj64jlyJlR19G+J0FPHoyxxp7/lP7Th/H8p+Sn5ROqE42TZpOnp9ynbj5b/Wz8eerz+emCn6V/rn6h
         ++K7Xxx/6ZtZNTP+kv9y4dfiV/Kvjrxe9rp71n/28ZvkN/NzhW/l3x59x3jX+z7s/cR85gfsh4qPeh+7
-        Pnl/eriQvLDwG/eE8/s6uL5TAAAACXBIWXMAAC4iAAAuIgGq4t2SAAAA10lEQVRIS72Wyw3CMBAFc6AC
-        qqAWiqEXiqEWqqACDmYnUiTz5E9ib3ak8SXrXSkvTrIYL/OWUloiBNav+TSvpSJPgXXzYz7MS6nYQ8gH
-        br7Ne2nDrKDDct3zBR2iuuYLOqCmS76gjXtO5QvacK9D+YI2OuLhfEGbjLg7X9DNM3bzBd3kYTVf0GIv
-        i/mCFnr7ly9owVmu+ZrFi2cYNjDsloY+NGHHIuzgh73aQl/e1ZxagjbqGfYBDvvFCP2JGsqpJegQnMqp
-        JeSDXHJqCayuObUE95zqpuUHnqiB0yETkD4AAAAASUVORK5CYII=
+        Pnl/eriQvLDwG/eE8/s6uL5TAAAACXBIWXMAAC4iAAAuIgGq4t2SAAAAx0lEQVRIS92Uyw0CMQwF50AF
+        VEEtFEMvFEMtVEEFHBYZ6R2INs7P6wORJidLI2WSADyAy7ZtZGDL9jdwB87lQDQSihdwA07lYBSlUDyB
+        azkcQU0owvu2hEZo3x6hCOk7IhRLfWeEYqrvitAY7rsqFN19o4Si2TdaKKp9jxIau32PFIqfvhlC8e37
+        l8K0I029NGnPIu3hp31tu508VoTVTh4zwmYnjxFhdyePHuFwJ4+WcKqTR0241MmjFIZ08pAwtJOHrfBO
+        Hh+eqIHTTRwM+AAAAABJRU5ErkJggg==
 </value>
   </data>
   <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -241,6 +241,9 @@
   </metadata>
   <metadata name="contextMenuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>549, 20</value>
+  </metadata>
+  <metadata name="timerBlink.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>685, 14</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>44</value>
