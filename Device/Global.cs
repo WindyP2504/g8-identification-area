@@ -98,9 +98,11 @@ namespace VTP_Induction.Device
         public string fileNameSaveImage = "";
         public int iParcelCount = 0;
 
-        public  bool PalletInProgress = false;
-        public  string CurrentPalletID = "";
-        public  bool PalletScanCompleted = false;
+        public bool PalletInProgress = false;
+        public string CurrentPalletID = "";
+        public bool PalletScanCompleted = false;
+        public string CurrentWH_Code = "";
+        public string CurrentItemCode = "";
 
 
         public TAxisIO[] g_tInputCfg;

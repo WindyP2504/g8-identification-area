@@ -1,9 +1,5 @@
-﻿using DevExpress.Internal;
-using DevExpress.Utils;
-using DevExpress.Xpo.DB.Helpers;
-using DevExpress.XtraSplashScreen;
+﻿using DevExpress.XtraSplashScreen;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,10 +9,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -334,26 +328,54 @@ namespace VTP_Induction
         {
             PlanConfig config = new PlanConfig();
 
-            string query = "SELECT TOP 1 Ctn, Line_ID, Item_Code, Inner_Pallet, TotalParcel, TotalPallet, RealTimeParcel, RealTimePallet, Position " +
-                "FROM dbo.WCS_PLAN_CONFIG_Temp ORDER BY id ASC";
+            string query = @"
+SELECT TOP 1
+    Ctn,
+    Item_Code,
+    Inner_Pallet,
+    TotalParcel,
+    TotalPallet,
+    RealtimeParcel,
+    RealTimePallet,
+    Position
+FROM dbo.WCS_PLAN_CONFIG_Temp
+ORDER BY Id ASC";
 
             using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(query, conn);
-                SqlDataReader reader = cmd.ExecuteReader();
 
-                if (reader.Read())
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    config.ParcelQuantity = Convert.ToInt32(reader["Ctn"]);
-                    config.ProductionName = reader["Item_Code"].ToString();
-                    config.TotalParcel = reader["TotalParcel"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TotalParcel"]);
-                    config.PalletQuantity = reader["TotalPallet"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TotalPallet"]);
-                    config.ParcelRealTimeNumber = reader["RealTimeParcel"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RealTimeParcel"]);
-                    config.PalletRealTimeNumber = reader["RealTimePallet"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RealTimePallet"]);
-                    config.Position = reader["Position"].ToString().Trim();
+                    if (reader.Read())
+                    {
+                        // INT → NULL = 0
+                        config.ParcelQuantity =
+                            reader["Ctn"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Ctn"]);
+
+                        config.TotalParcel =
+                            reader["TotalParcel"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TotalParcel"]);
+
+                        config.PalletQuantity =
+                            reader["TotalPallet"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TotalPallet"]);
+
+                        config.ParcelRealTimeNumber =
+                            reader["RealtimeParcel"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RealtimeParcel"]);
+
+                        config.PalletRealTimeNumber =
+                            reader["RealTimePallet"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RealTimePallet"]);
+
+                        // STRING → NULL = ""
+                        config.ProductionName =
+                            reader["Item_Code"] == DBNull.Value ? string.Empty : reader["Item_Code"].ToString();
+
+                        config.Position =
+                            reader["Position"] == DBNull.Value ? string.Empty : reader["Position"].ToString().Trim();
+                    }
                 }
             }
+
             return config;
         }
 
@@ -366,7 +388,6 @@ namespace VTP_Induction
             GLb.nTotalParcelAll = plan.TotalParcel;
             GLb.nTotalPallet = plan.PalletQuantity;
             _parcelPerPallet = plan.ParcelQuantity;
-            //GLb.nTotalParcel = CalculateTargetParcelThisPallet(GLb.nPalletDone,GLb.nTotalPallet,GLb.nTotalParcelAll,plan.ParcelQuantity);
             GLb.nTotalParcel = plan.ParcelQuantity;
 
             //UI Update
@@ -544,9 +565,9 @@ namespace VTP_Induction
                     SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
 
                     string parcelCode = PrintQueueHelper.GetNextParcelCode(lvPrintList);
-                    string palletCode = PrintQueueHelper.GetPalletIDFromDatabase(parcelCode);
-                    string ItemName = PrintQueueHelper.GetItemNameFromDatabase(parcelCode);
-                    string WH_Code = PrintQueueHelper.GetWH_CodeFromDatabase(palletCode);
+                    string palletCode = GLb.CurrentPalletID;
+                    string ItemName = GLb.CurrentItemCode;
+                    string WH_Code = GLb.CurrentWH_Code;
 
                     SetLabelText(lblPalletCode,"MÃ PALLET: " + palletCode, Color.LightYellow);
                     if (string.IsNullOrEmpty(parcelCode))
@@ -607,9 +628,13 @@ namespace VTP_Induction
 
                     if (GLb.nParcelDone >= GLb.nTotalParcel || (isLastParcel && GLb.nParcelDone > 0))
                     {
-                        if (!TryPrintAndSendPalletManual(palletCode))
-                        {     
-                            SetLabelText(lblPushInformation, "PALLET KHÔNG XỬ LÝ ĐƯỢC", Color.Red);
+                        try
+                        {
+                            TryPrintAndSendPalletManual(palletCode);
+                        }
+                        catch (Exception e)
+                        {
+                            SetLabelText(lblPushInformation, "PALLET KHÔNG XỬ LÝ ĐƯỢC: " + e.Message, Color.Red);
                             devHandler.cPLCHandler.SetTrafficLightByM(0); // Red
                             GLb.PalletScanCompleted = false;
                         }
@@ -633,7 +658,7 @@ namespace VTP_Induction
             try
             {
                 string json = "";
-                var res = TryBuildPalletJsonEndOfTurn(out json);
+                var res = TryBuildPalletJsonEndOfTurn(GLb.CurrentPalletID, out json);
                 string err;
                 using (var cts = new CancellationTokenSource())
                 {
@@ -706,99 +731,100 @@ namespace VTP_Induction
             }
         }
 
-        private bool IsReadyToSendPalletCode = false;
-
-        private bool TryPrintAndSendPalletManual(string palletCode)
+        private void TryPrintAndSendPalletManual(string palletCode)
         {
             if (string.IsNullOrWhiteSpace(palletCode))
-                return false;
+                throw new Exception("MÃ PALLET KHÔNG HỢP LỆ");
 
             const int MAX_READ_TRY = 3;
 
             try
             {
+                /* ================= INIT PALLET ================= */
                 GLb.PalletInProgress = true;
                 GLb.PalletScanCompleted = false;
-                GLb.CurrentPalletID = palletCode;
 
+                /* ================= PRINT + SCAN ================= */
                 if (GLb.g_tSysCfg.bPrintPallet)
                 {
-                    /* 1. IN PALLET */
                     SetLabelText(lblPushInformation, "IN MÃ PALLET: " + palletCode, Color.Orange);
-                    if (!TryPrintPalletSafe(palletCode))
-                        return false;
 
-                    /* 2. QUÉT PALLET */
+                    if (!TryPrintPalletSafe(palletCode))
+                        throw new Exception("IN PALLET LỖI");
+
                     string readCode;
                     if (!TryReadPalletSafe(palletCode, MAX_READ_TRY, out readCode))
-                    {
-                        SetLabelText(lblPushInformation, "LỖI ĐỌC MÃ PALLET", Color.Red);
-                        devHandler.cPLCHandler.SetTrafficLightByM(0);
-                        return false;
-                    }
+                        throw new Exception("LỖI ĐỌC MÃ PALLET");
                 }
 
+                /* ================= UPDATE STATUS: WAIT → SEND ================= */
                 PrintQueueHelper.UpdateStatusByPalletId(palletCode, 4);
 
-                /* 3. BUILD JSON */
+                /* ================= BUILD JSON ================= */
                 string json;
-                if (!SendPalletConfirmAfterDone(GLb.CurrentPalletID, out json))
-                    return false;
+                if (!TryBuildPalletJsonEndOfTurn(palletCode, out json))
+                    throw new Exception("LỖI BUILD JSON PALLET");
 
-                /* 4. POST SERVER – BLOCK */
-                //string err;
-                //using (var cts = new CancellationTokenSource())
-                //{
-                //    bool postOK = PostJsonBlockUntilSuccess(
-                //        baseUrl + ":8070/storage-service/task/ids/storage_product",
-                //        json,
-                //        30000,
-                //        cts.Token,
-                //        out err
-                //    );
+                /* ================= POST SERVER (BLOCK) ================= */
+                string err;
+                using (var cts = new CancellationTokenSource())
+                {
+                    bool ok = PostJsonBlockUntilSuccess(
+                        baseUrl + ":8060/identify-service/ids/pallet_identify_done",
+                        json,
+                        30000,
+                        cts.Token,
+                        out err
+                    );
 
-                //    if (!postOK)
-                //    {
-                //        MessageBox.Show("GỬI DỮ LIỆU PALLET VỀ SERVER LỖI!" + err, "WARNING", MessageBoxButtons.OK);
-                //        return false;
-                //    }
-                //}
+                    if (!ok)
+                        throw new Exception("GỬI PALLET LỖI: " + err);
+                }
+
+                /* ================= UPDATE DONE ================= */
+                PrintQueueHelper.UpdateStatusByPalletId(palletCode, 5);
 
                 GLb.nPalletDone++;
                 GLb.nParcelDone = 0;
-                //GLb.nTotalParcel = CalculateTargetParcelThisPallet(GLb.nPalletDone, GLb.nTotalPallet, GLb.nTotalParcelAll, _parcelPerPallet);
 
-                /* 5. DONE PALLET */
-                PrintQueueHelper.UpdateStatusByPalletId(GLb.CurrentPalletID, 5); // DONE + SENT
-
-                SetLabelText(lblCountParcel, GLb.nParcelDone + "/" + GLb.nTotalParcel, Color.Aqua);
-                SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
                 UpdatePlanRealtime(GLb.nParcelDone, GLb.nPalletDone);
 
-                SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
-                devHandler.cPLCHandler.SetTrafficLightByM(1); // GREEN
-
-                if (GLb.nPalletDone == GLb.nTotalPallet)
+                /* ================= UI + RESET ================= */
+                Action ui = () =>
                 {
-                    if (!FinishProduction())
+                    try
                     {
-                        return false;
+                        buttonSTOP_Click(null, null);
+                        SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
+                        SetLabelText(lblCountParcel, "0/" + GLb.nTotalParcel, Color.Aqua);
+                        SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
+                        devHandler.cPLCHandler.SetTrafficLightByM(1);
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        SetLabelText(lblPushInformation, "LỖI UI: " + ex.Message, Color.Red);
+                        devHandler.cPLCHandler.SetTrafficLightByM(0);
+                    }
+                    finally
+                    {
+                        /* RESET STATE – 1 CHỖ DUY NHẤT */
+                        GLb.PalletInProgress = false;
+                        GLb.PalletScanCompleted = false;
+                        GLb.nParcelDone = 0;
+                        GLb.nTotalParcel = 0;
+                    }
+                };
 
-                GLb.PalletScanCompleted = true;
-                GLb.PalletInProgress = false;
-                GLb.CurrentPalletID = "";
-
-                //IsReadyToSendPalletCode = true;
-
-                return true;
+                if (InvokeRequired) BeginInvoke(ui);
+                else ui();
             }
             catch (Exception ex)
             {
-                SetLabelText(lblPushInformation, "LỖI PALLET: " + ex.Message, Color.Red);
+                SetLabelText(lblPushInformation, ex.Message, Color.Red);
                 devHandler.cPLCHandler.SetTrafficLightByM(0);
-                return false;
+                GLb.PalletInProgress = false;
+                GLb.PalletScanCompleted = false;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -811,78 +837,91 @@ namespace VTP_Induction
 
             try
             {
+                /* ================= INIT PALLET ================= */
                 GLb.PalletInProgress = true;
                 GLb.PalletScanCompleted = false;
-                GLb.CurrentPalletID = palletCode;
 
+                /* ================= PRINT + SCAN ================= */
                 if (GLb.g_tSysCfg.bPrintPallet)
                 {
-                    /* 1. IN PALLET */
                     SetLabelText(lblPushInformation, "IN MÃ PALLET: " + palletCode, Color.Orange);
+
                     if (!TryPrintPalletSafe(palletCode))
                         return false;
 
-                    /* 2. QUÉT PALLET */
                     string readCode;
                     if (!TryReadPalletSafe(palletCode, MAX_READ_TRY, out readCode))
-                    {
-                        SetLabelText(lblPushInformation, "LỖI ĐỌC MÃ PALLET", Color.Red);
                         return false;
-                    }
                 }
 
+                /* ================= UPDATE STATUS: WAIT → SEND ================= */
                 PrintQueueHelper.UpdateStatusByPalletId(palletCode, 4);
 
-                /* 3. BUILD JSON */
+                /* ================= BUILD JSON ================= */
                 string json;
-                if (!SendPalletConfirmAfterDone(GLb.CurrentPalletID, out json))
+                if (!TryBuildPalletJsonEndOfTurn(palletCode, out json))
                     return false;
 
-                /* 4. POST SERVER – BLOCK */
-                //string err;
-                //using (var cts = new CancellationTokenSource())
-                //{
-                //    bool postOK = TryPostJsonOnce(baseUrl + ":8070/storage-service/task/ids/storage_product",json, out err);
+                /* ================= POST SERVER (BLOCK) ================= */
+                string err;
+                using (var cts = new CancellationTokenSource())
+                {
+                    bool ok = TryPostJsonOnce(
+                        baseUrl + ":8060/identify-service/ids/pallet_identify_done",
+                        json,
+                        out err
+                    );
 
-                //    if (!postOK)
-                //    {
-                //        writeLog("GỬI DỮ LIỆU PALLET VỀ SERVER LỖI: " + err);
-                //        return false;
-                //    }
-                //}
+                    if (!ok)
+                        return false;
+                }
+
+                /* ================= UPDATE DONE ================= */
+                PrintQueueHelper.UpdateStatusByPalletId(palletCode, 5);
 
                 GLb.nPalletDone++;
                 GLb.nParcelDone = 0;
-                //GLb.nTotalParcel = CalculateTargetParcelThisPallet(GLb.nPalletDone, GLb.nTotalPallet, GLb.nTotalParcelAll, _parcelPerPallet);
 
-                /* 5. DONE PALLET */
-                PrintQueueHelper.UpdateStatusByPalletId(GLb.CurrentPalletID, 5); // DONE + SENT
-
-                SetLabelText(lblCountParcel, GLb.nParcelDone + "/" + GLb.nTotalParcel, Color.Aqua);
-                SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
                 UpdatePlanRealtime(GLb.nParcelDone, GLb.nPalletDone);
 
-                SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
-
-                if (GLb.nPalletDone == GLb.nTotalPallet)
+                /* ================= UI + RESET ================= */
+                Action ui = () =>
                 {
-                    if (!FinishProduction())
+                    try
                     {
-                        return false;
+                        buttonSTOP_Click(null, null);
+
+                        SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
+                        SetLabelText(lblCountParcel, "0/" + GLb.nTotalParcel, Color.Aqua);
+                        SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
+                        devHandler.cPLCHandler.SetTrafficLightByM(1);
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        SetLabelText(lblPushInformation, "LỖI UI: " + ex.Message, Color.Red);
+                        devHandler.cPLCHandler.SetTrafficLightByM(0);
+                    }
+                    finally
+                    {
+                        /* RESET STATE – 1 CHỖ DUY NHẤT */
+                        GLb.PalletInProgress = false;
+                        GLb.PalletScanCompleted = false;
+                        GLb.nParcelDone = 0;
+                        GLb.nTotalParcel = 0;
+                    }
+                };
 
-                GLb.PalletScanCompleted = true;
-                GLb.PalletInProgress = false;
-                GLb.CurrentPalletID = "";
-
-                //IsReadyToSendPalletCode = true;
+                if (InvokeRequired) BeginInvoke(ui);
+                else ui();
 
                 return true;
             }
             catch (Exception ex)
             {
-                SetLabelText(lblPushInformation, "LỖI PALLET: " + ex.Message, Color.Red);
+                SetLabelText(lblPushInformation, ex.Message, Color.Red);
+                devHandler.cPLCHandler.SetTrafficLightByM(0);
+                GLb.PalletInProgress = false;
+                GLb.PalletScanCompleted = false;
                 return false;
             }
         }
@@ -935,55 +974,11 @@ namespace VTP_Induction
             return false;
         }
 
-        private bool TryBuildPalletJsonManual(string locationOld, string palletCode, out string json)
-        {
-            json = "";
-            try
-            {
-                PalletLocationInfo result = new PalletLocationInfo();
-
-                string query = @"SELECT TOP 1 LineProduction, Location FROM WCS_Task_Temp WHERE Pallet_ID = @PalletID";
-                try
-                {
-                    using (
-                        SqlConnection conn = new SqlConnection(Globals.getInstance().g_tSQLConfig.SqlString)
-                    )
-                    {
-                        conn.Open();
-                        using (SqlCommand cmd = new SqlCommand(query, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@PalletID", palletCode);
-                            using (SqlDataReader reader = cmd.ExecuteReader())
-                            {
-                                if (reader.Read())
-                                {
-                                    string location = reader["Location"].ToString();
-                                    result.LocationNew = location;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch //(Exception ex)
-                {
-                    result.LocationOld = "";
-                }
-                result.LocationOld = locationOld;
-
-                json = SendAllPalletsDetail(result, palletCode);
-                return !string.IsNullOrWhiteSpace(json);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private bool TryBuildPalletJsonEndOfTurn(out string json)
+        private bool TryBuildPalletJsonEndOfTurn(string palletId, out string json)
         {
             try
             {
-                string query = @"SELECT TOP 1 Task_ID, PO_ID, LineProduction, WH_Code FROM WCS_Task_Temp";
+                string query = @"SELECT TOP 1 Task_ID, PO_ID, Line_ID, WH_Code FROM WCS_Pallet_Prod Where Pallet_ID = @PalletId";
                 string wh_Code = "";
                 long po_ID = 0;
                 string lineId = "";
@@ -993,13 +988,14 @@ namespace VTP_Induction
                     conn.Open();
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
+                        cmd.Parameters.AddWithValue("@PalletId", palletId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
                                 taskId = reader["Task_ID"].ToString().Trim();
                                 po_ID =  Convert.ToInt64(reader["PO_ID"]);
-                                lineId = reader["LineProduction"].ToString();
+                                lineId = reader["Line_ID"].ToString();
                                 wh_Code = reader["WH_Code"].ToString();
                             }
                         }
@@ -1012,7 +1008,7 @@ namespace VTP_Induction
                     PO_ID = po_ID,
                     WH_Code = wh_Code,
                     Line_ID = lineId,
-                    status = 8,
+                    palletID = palletId,
                 };
 
                 json = JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
@@ -1025,8 +1021,6 @@ namespace VTP_Induction
                 return false;
             }
         }
-
-        // C# 5 – chỉ sửa hàm TryPostJsonOnce, không thêm class
 
         private static readonly HttpClient _client = new HttpClient
         {
@@ -1078,7 +1072,6 @@ namespace VTP_Induction
             }
         }
 
-
         private bool PostJsonBlockUntilSuccess(string url,string json,int retryDelayMs,CancellationToken token,out string lastErr)
         {
             lastErr = "";
@@ -1096,11 +1089,7 @@ namespace VTP_Induction
                 // Log + UI cảnh báo
                 this.BeginInvoke((Action)(() =>
                 {
-                    SetLabelText(
-                        lblPushInformation,
-                        "KHÔNG GỬI ĐƯỢC SERVER – TẠM DỪNG DÂY CHUYỀN",
-                        Color.Yellow
-                    );
+                    SetLabelText(lblPushInformation, "KHÔNG GỬI ĐƯỢC SERVER – TẠM DỪNG DÂY CHUYỀN", Color.Yellow);
                     //devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
                 }));
 
@@ -1109,129 +1098,6 @@ namespace VTP_Induction
 
             lastErr = "Cancelled";
             return false;
-        }
-
-        private bool SendPalletConfirmAfterDone(string palletID, out string json)
-        {
-            try
-            {
-                string query = @"SELECT TOP 1 Pallet_ID, PO_ID, LineProduction, WH_Code
-                                    FROM WCS_Task_Temp WHERE Status = @status AND Pallet_ID = @Pallet_ID";
-
-                string WH_Code = "";
-                long PO_ID = 0;
-                string lineId = "";
-
-                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@status", "4");
-                        cmd.Parameters.AddWithValue("@Pallet_ID", palletID);
-
-
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                PO_ID = Convert.ToInt64(reader["PO_ID"]);
-                                lineId = reader["LineProduction"].ToString();
-                                WH_Code = reader["WH_Code"].ToString();
-                            }
-                        }
-                    }
-                }
-
-                var jsonObject = new
-                {
-                    PO_ID = PO_ID,
-                    WH_Code = WH_Code,
-                    Line_ID = lineId,
-                    palletID = palletID,
-                };
-
-                json = JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                SetLabelText(lblPushInformation, "LỖI GỬI JSON PALLET SAU KHI KẾT THÚC: " + ex.Message, Color.Red);
-                json = "";
-                return false;
-            }
-        }
-
-        private string SendAllPalletsDetail(PalletLocationInfo palletInfo, string palletID)
-        {
-            try
-            {
-                List<object> itemList = new List<object>();
-
-                string query = "SELECT ParcelCode, Ctn, ItemCode, Pallet_ID, PO_ID, ReceivedCode, LineProduction " +
-                    "FROM WCS_Task_Temp WHERE Status = @status AND Pallet_ID = @Pallet_ID";
-
-                string WH_Code = "";
-                long PO_ID = 0;
-                string lineId = "";
-
-                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@status", "4");
-                        cmd.Parameters.AddWithValue("@Pallet_ID", palletID);
-         
-
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            int stt = 1;
-                            while (reader.Read())
-                            {
-                                string itemCode = reader["ItemCode"].ToString();
-                                string cartonID = reader["ReceivedCode"].ToString();
-                                int ctn = Convert.ToInt32(reader["Ctn"]);
-                                PO_ID = Convert.ToInt64(reader["PO_ID"]);
-                                lineId = reader["LineProduction"].ToString();
-
-                                string innerCarton = PrintQueueHelper.GetInnerCartonFromDatabase();
-                                WH_Code = PrintQueueHelper.GetWH_CodeFromDatabase(palletID);
-
-                                itemList.Add(new
-                                    {
-                                        STT = stt++,
-                                        Item_Code = itemCode,
-                                        Carton_ID = cartonID,
-                                        Ctn = ctn,
-                                        Qty = ctn * Convert.ToInt32(innerCarton),
-                                        Pcs = 0,
-                                    }
-                                );
-                            }
-                        }
-                    }
-                }
-
-                var jsonObject = new
-                {
-                    PO_ID = PO_ID,
-                    WH_Code = WH_Code,
-                    Line_ID = lineId,
-                    palletID = palletID,
-                    Location_Old = palletInfo.LocationOld,
-                    Location_New = palletInfo.LocationNew,
-                    //Item_Information = itemList,
-                };
-
-                string json = JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
-                return json;
-            }
-            catch (Exception ex)
-            {
-                SetLabelText(lblPushInformation, "LỖI GỬI JSON TOÀN BỘ: " + ex.Message, Color.Red);
-                return "";
-            }
         }
 
         private void WaitForZeroWeight()
@@ -1335,10 +1201,7 @@ namespace VTP_Induction
             }
         }
 
-        private bool IsStableWeight(out int finalWeight, int standardWeight, int allowedDiff, int durationSec = 2,
-            int intervalMs = 200, // nên 200–300ms
-            int stabilityJitter = 15 // độ lệch cho phép giữa các lần đọc
-        )
+        private bool IsStableWeight(out int finalWeight, int standardWeight, int allowedDiff, int durationSec = 2,int intervalMs = 200, int stabilityJitter = 15)
         {
             finalWeight = 0;
 
@@ -1547,28 +1410,6 @@ namespace VTP_Induction
             return bSuccessRead ? 1 : 0;
         }
 
-        private void UpdateNewPalletCtn(int value)
-        {
-            try
-            {
-                string query = @"UPDATE dbo.WCS_PLAN_CONFIG_Temp SET Ctn = @Ctn WHERE id = (SELECT MAX(id) FROM dbo.WCS_PLAN_CONFIG_Temp);";
-
-                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Ctn", value);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi cập nhật ParcelNumberRealtime: " + ex.Message);
-            }
-        }
-
         private void UpdatePlanRealtime(int parcelDone, int palletDone)
         {
             try
@@ -1592,116 +1433,90 @@ namespace VTP_Induction
             }
         }
 
-        private void ClearTaskTable()
-        {
-            try
-            {
-                string query = @"DELETE FROM dbo.WCS_Task_Temp; DELETE FROM dbo.WCS_PLAN_CONFIG_Temp;";
-
-                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Lỗi xóa lệnh sản xuất đã xong: " + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
-            }
-        }
-
-        private void ClearAllTable()
-        {
-            try
-            {
-                string query = @"DELETE FROM dbo.WCS_Task_Temp; DELETE FROM dbo.WCS_PLAN_CONFIG_Temp; DELETE FROM dbo.WCS_Parcels_Prod; DELETE FROM dbo.WCS_PLAN_CONFIG_Temp;";
-
-                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Lỗi xóa lệnh sản xuất đã xong: " + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
-            }
-        }
-
         private void LoadDataFromSqlToListView()
         {
             lvPrintList.Items.Clear();
             GLb.IsInTask = false;
 
-            string query = @"SELECT ParcelCode, Pallet_ID, Status FROM dbo.WCS_Task_Temp";
+            LoadCurrentPalletIdFromDb();
+
+            if(string.IsNullOrWhiteSpace(GLb.CurrentPalletID))
+                AppendText("[INFO] KHÔNG TÌM THẤY PALLET ĐANG XỬ LÝ TRONG CSDL\r");
+
+            string query = @"SELECT ParcelCode, Pallet_ID, Status FROM dbo.WCS_Parcels_Prod
+                            WHERE Pallet_ID = @Pallet_ID AND Status <> -1 ORDER BY Id ASC;";
 
             using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    int stt = 1;
 
-                    while (reader.Read())
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.Add("@Pallet_ID", SqlDbType.NVarChar, 50).Value = GLb.CurrentPalletID;
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        if (!GLb.IsInTask)
+                        int stt = 1;
+
+                        while (reader.Read())
+                        {
                             GLb.IsInTask = true;
 
-                        string parcelCode = reader["ParcelCode"].ToString();
-                        int status = Convert.ToInt32(reader["Status"]);
-                        var palletId = reader["Pallet_ID"].ToString();
+                            string parcelCode = reader["ParcelCode"] == DBNull.Value ? "" : reader["ParcelCode"].ToString();
+                            string palletIdDb = reader["Pallet_ID"] == DBNull.Value ? "" : reader["Pallet_ID"].ToString();
+                            int status = reader["Status"] == DBNull.Value ? -1 : Convert.ToInt32(reader["Status"]);
 
-                        string statusText;
-                        switch (status)
-                        {
-                            case 0:
-                                statusText = "Chờ in";
-                                break;
-                            case 1:
-                                statusText = "Đã in";
-                                break;
-                            case 2:
-                                statusText = "Đã lên bảng kê";
-                                break;
-                            case 3:
-                                statusText = "Chờ in Palet";
-                                break;
-                            case 4:
-                                statusText = "Chờ gửi Palet";
-                                break;
-                            case 5:
-                                statusText = "Hoàn tất Palet";
-                                break;
-                            default:
-                                statusText = "Không xác định";
-                                break;
+                            string statusText;
+                            switch (status)
+                            {
+                                case 0: statusText = "Chờ in"; break;
+                                case 1: statusText = "Đã in"; break;
+                                case 2: statusText = "Đã lên bảng kê"; break;
+                                case 3: statusText = "Chờ in Palet"; break;
+                                case 4: statusText = "Chờ gửi Palet"; break;
+                                case 5: statusText = "Hoàn tất Palet"; break;
+                                default: statusText = "Không xác định"; break;
+                            }
+
+                            ListViewItem item = new ListViewItem(stt.ToString());
+                            item.SubItems.Add(parcelCode);
+                            item.SubItems.Add(statusText);
+                            item.SubItems.Add(palletIdDb);
+
+                            lvPrintList.Items.Add(item);
+                            stt++;
                         }
-
-                        ListViewItem item = new ListViewItem(stt.ToString());
-                        item.SubItems.Add(parcelCode);
-                        item.SubItems.Add(statusText);
-                        item.SubItems.Add(palletId);
-
-                        lvPrintList.Items.Add(item);
-                        stt++;
                     }
+                }
+            }
+        }
+        private void LoadCurrentPalletIdFromDb()
+        {
+            GLb.CurrentPalletID = "";
+
+            string sql = @"
+SELECT TOP 1 Pallet_ID
+FROM dbo.WCS_Pallet_Prod
+WHERE Status = 'PROCESSING'
+ORDER BY Id ASC;
+
+IF (@@ROWCOUNT = 0)
+BEGIN
+    SELECT TOP 1 Pallet_ID
+    FROM dbo.WCS_Pallet_Prod
+    WHERE Status = 'WAIT'
+    ORDER BY Id ASC;
+END";
+
+            using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    object o = cmd.ExecuteScalar();
+                    if (o != null && o != DBNull.Value)
+                        GLb.CurrentPalletID = o.ToString();
                 }
             }
         }
@@ -2270,41 +2085,6 @@ namespace VTP_Induction
             }
         }
 
-        private void panel2_Paint(object sender, PaintEventArgs e) { }
-
-        private void panel49_Paint(object sender, PaintEventArgs e) { }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            //scaledemo = "150";
-            //using (StreamWriter sw = new StreamWriter(g_sHomeDir))
-            //{
-            //    // Lưu header của cột
-            //    for (int i = 0; i < GvJobFile.Columns.Count; i++)
-            //    {
-            //        sw.Write(GvJobFile.Columns[i].HeaderText);
-            //        if (i < GvJobFile.Columns.Count - 1) sw.Write(",");
-            //    }
-            //    sw.WriteLine();
-
-            //    // Lưu dữ liệu các hàng
-            //    foreach (DataGridViewRow row in GvJobFile.Rows)
-            //    {
-            //        if (!row.IsNewRow) // Bỏ qua hàng trống
-            //        {
-            //            for (int i = 0; i < GvJobFile.Columns.Count; i++)
-            //            {
-            //                sw.Write(row.Cells[i].Value);
-            //                if (i < GvJobFile.Columns.Count - 1) sw.Write(",");
-            //            }
-            //            sw.WriteLine();
-            //        }
-            //    }
-            //}
-            //InitGridViewData();
-            //MessageBox.Show("Data saved successfully!");
-        }
-
         private void labelNameSoftware_Click(object sender, EventArgs e)
         {
             //scaledemo = "0";
@@ -2321,48 +2101,38 @@ namespace VTP_Induction
             Log.LogWrite(Globals.LogLv.Information, "Click START button ");
             AppendText("Click START button \r");
 
-            if (!devHandler.cPrinterGodex.m_bConnection)
-            {
-                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            //if (!devHandler.cPrinterGodex.m_bConnection)
+            //{
+            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
 
-            if (!devHandler.cBarcode.m_bConnection)
-            {
-                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            //if (!devHandler.cBarcode.m_bConnection)
+            //{
+            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
 
-            if (!devHandler.cPLCHandler.m_bConnection)
-            {
-                var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-                if(res == DialogResult.Cancel)
-                {
-                    return;
-                }
-            }
+            //if (!devHandler.cPLCHandler.m_bConnection)
+            //{
+            //    var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+            //    if(res == DialogResult.Cancel)
+            //    {
+            //        return;
+            //    }
+            //}
 
-            if (!devHandler.cScale.m_bConnection)
-            {
-                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            //if (!devHandler.cScale.m_bConnection)
+            //{
+            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
 
             if (GLb.IsInTask == false)
             {
                 MessageBox.Show("KHÔNG CÓ LỆNH SẢN XUẤT. CHỜ PHẢN HỒI HỆ THỐNG!");
                 return;
             }
-
-            //string palletOld = PrintQueueHelper.GetPalletIDFromDatabaseS2("4");
-            //if(!string.IsNullOrEmpty(palletOld))
-            //{
-            //    IsReadyToSendPalletCode = true;
-            //    GLb.CurrentPalletID = palletOld;
-            //    LoadDataFromSqlToListView();
-            //    MessageBox.Show("HÃY GỬI LẠI THÔNG TIN PALLET CŨ NHÉ!", "NOTI", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-            //    return;
-            //} 
 
             string palletOld = PrintQueueHelper.GetPalletIDFromDatabaseS2("4");
             if (!string.IsNullOrEmpty(palletOld))
@@ -2378,13 +2148,6 @@ namespace VTP_Induction
                 }
             }
 
-
-            //if (GLb.PalletInProgress && !GLb.PalletScanCompleted)
-            //{
-            //    MessageBox.Show("Pallet trước chưa hoàn tất. Vui lòng quét mã pallet hoặc hủy pallet trước khi bắt đầu mới.");
-            //    return;
-            //}
-
             PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
 
             LoadProductionData();
@@ -2392,10 +2155,7 @@ namespace VTP_Induction
 
             AppendText("TẢI LÊN KẾ HOẠCH SẢN XUẤT \r ");
 
-            //StartUpdateSqlIotWareHouse();
-
             TimerInsp.Enabled = true;
-            //timer1.Enabled = true;
             this.buttonSTART.Enabled = false;
 
             if (this.buttonSTART.Tag.ToString() == "Start")
@@ -2415,7 +2175,7 @@ namespace VTP_Induction
             {
                 AppendText("PALLET CHƯA HOÀN TẤT – HỆ THỐNG SẼ YÊU CẦU QUÉT TIẾP KHI START");
             }
-            devHandler.cPLCHandler.SetTrafficLightByM(9); //Yellow
+
             GLb.g_bGrabbing = false;
 
             ScaleRaw = "0";
@@ -2435,7 +2195,7 @@ namespace VTP_Induction
             buttonInsp.Image = Properties.Resources.Indicator9;
             SetButton(BtnState.STOP);
 
-            devHandler.cPLCHandler.SetTrafficLightByM(-1); //Red
+            devHandler.cPLCHandler.SetTrafficLightByM(-1);
 
             Log.LogWrite(Globals.LogLv.Information, "STOP SYSTEM");
             writeLog("[SYSTEM] System is STOP");
@@ -2505,235 +2265,145 @@ namespace VTP_Induction
 
         private void HandleOrder(OrderTaskRequest data)
         {
-            if (data == null)
+            if (data == null || data.InforDetail == null || data.InforDetail.Count == 0)
                 return;
 
             writeLog("XỬ LÝ LỆNH SẢN XUẤT: " + data.PO_ID);
-            AppendText("XỬ LÝ LỆNH SẢN XUẤT: " + data.PO_ID + "\r");
 
-            if (GLb.IsInTask)
-                return;
-
-            var result = MessageBox.Show(
+            if (MessageBox.Show(
                 "Có tiếp nhận lệnh sản xuất mới không?",
-                "Xác nhận tiếp nhận lệnh",
+                "Xác nhận",
                 MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            if (result != DialogResult.Yes)
+                MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
-
-            if (data.InforDetail == null || data.InforDetail.Count == 0)
-            {
-                MessageBox.Show("Lệnh sản xuất không có dữ liệu chi tiết.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
 
             try
             {
-                ClearTaskTable();
-
                 using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
                 {
                     conn.Open();
 
                     using (SqlTransaction tran = conn.BeginTransaction())
                     {
+                        /* =====================================================
+                         * 1. INSERT TẤT CẢ PALLET (WAIT)
+                         * =====================================================*/
                         foreach (var item in data.InforDetail)
                         {
-                            using (var cmd = new SqlCommand(@"
-                                INSERT INTO dbo.WCS_Pallet_Prod
-                                (
-                                    Pallet_ID,
-                                    Location,
-                                    Item_Code,
-                                    Ctn,
-                                    Qty,
-                                    Pcs,
-                                    Inner_Carton,
-                                    Inner_Pallet,
-                                    PO_ID,
-                                    WH_Code,
-                                    Line_ID,
-                                    Task_ID,
-                                    From_System
-                                )
-                                VALUES
-                                (
-                                    @Pallet_ID,
-                                    @Location,
-                                    @Item_Code,
-                                    @Ctn,
-                                    @Qty,
-                                    @Pcs,
-                                    @Inner_Carton,
-                                    @Inner_Pallet,
-                                    @PO_ID,
-                                    @WH_Code,
-                                    @Line_ID,
-                                    @Task_ID,
-                                    @From_System
+                            using (SqlCommand cmd = new SqlCommand(@"
+                                INSERT INTO dbo.WCS_Pallet_Prod (
+                                    Pallet_ID, Location, Item_Code,
+                                    Ctn, Qty, Pcs,
+                                    Inner_Carton, Inner_Pallet,
+                                    PO_ID, WH_Code, Line_ID, Task_ID,
+                                    From_System, Status
+                                ) VALUES (
+                                    @Pallet_ID, @Location, @Item_Code,
+                                    @Ctn, @Qty, @Pcs,
+                                    @Inner_Carton, @Inner_Pallet,
+                                    @PO_ID, @WH_Code, @Line_ID, @Task_ID,
+                                    @From_System, 'WAIT'
                                 );", conn, tran))
                             {
-                                cmd.Parameters.Add("@Pallet_ID", System.Data.SqlDbType.NVarChar, -1).Value = (object)(item.PalletId ?? (string)null) ?? DBNull.Value;
-                                cmd.Parameters.Add("@Location", System.Data.SqlDbType.NVarChar, 50).Value = (object)(item.Location ?? string.Empty);
-                                cmd.Parameters.Add("@Item_Code", System.Data.SqlDbType.NVarChar, 50).Value = (object)(item.ItemCode ?? string.Empty);
-
-                                cmd.Parameters.Add("@Ctn", System.Data.SqlDbType.Int).Value = item.Ctn;
-                                cmd.Parameters.Add("@Qty", System.Data.SqlDbType.Int).Value = item.Qty;
-                                cmd.Parameters.Add("@Pcs", System.Data.SqlDbType.Int).Value = item.Pcs;
-
-                                cmd.Parameters.Add("@Inner_Carton", System.Data.SqlDbType.Int).Value = item.Inner_Carton;
-                                cmd.Parameters.Add("@Inner_Pallet", System.Data.SqlDbType.Int).Value = item.Inner_Pallet;
-
-                                cmd.Parameters.Add("@PO_ID", System.Data.SqlDbType.BigInt).Value = data.PO_ID;
-                                cmd.Parameters.Add("@WH_Code", System.Data.SqlDbType.NVarChar, 50).Value = (object)(data.WH_Code ?? (string)null) ?? DBNull.Value;
-
-                                cmd.Parameters.Add("@Line_ID", System.Data.SqlDbType.NVarChar, 50).Value = (object)(data.LineId ?? "LINE_01");
-                                cmd.Parameters.Add("@Task_ID", System.Data.SqlDbType.NVarChar, 50).Value = (object)(data.Task_ID ?? (string)null) ?? DBNull.Value;
-
-                                cmd.Parameters.Add("@From_System", System.Data.SqlDbType.NVarChar, -1).Value = (object)(data.FromSystem ?? (string)null) ?? DBNull.Value;
+                                cmd.Parameters.AddWithValue("@Pallet_ID", item.PalletId);
+                                cmd.Parameters.AddWithValue("@Location", item.Location ?? "");
+                                cmd.Parameters.AddWithValue("@Item_Code", item.ItemCode ?? "");
+                                cmd.Parameters.AddWithValue("@Ctn", item.Ctn);
+                                cmd.Parameters.AddWithValue("@Qty", item.Qty);
+                                cmd.Parameters.AddWithValue("@Pcs", item.Pcs);
+                                cmd.Parameters.AddWithValue("@Inner_Carton", item.Inner_Carton);
+                                cmd.Parameters.AddWithValue("@Inner_Pallet", item.Inner_Pallet);
+                                cmd.Parameters.AddWithValue("@PO_ID", data.PO_ID);
+                                cmd.Parameters.AddWithValue("@WH_Code", data.WH_Code ?? "");
+                                cmd.Parameters.AddWithValue("@Line_ID", data.LineId ?? "LINE_01");
+                                cmd.Parameters.AddWithValue("@Task_ID", data.Task_ID ?? "");
+                                cmd.Parameters.AddWithValue("@From_System", data.FromSystem ?? "");
 
                                 cmd.ExecuteNonQuery();
                             }
 
+                            /* =====================================================
+                             * 2. INSERT PARCEL (-1)
+                             * =====================================================*/
                             foreach (var carton in item.CartonList)
                             {
                                 string parcelCode, receivedCode;
                                 ParseCartonCode(carton, out parcelCode, out receivedCode);
 
-                                using (var cmd = new SqlCommand(@"
-                                INSERT INTO dbo.WCS_Parcels_Prod
-                                (
-                                    ParcelCode,
-                                    Pallet_ID,
-                                    Location,
-                                    Status,
-                                    Line_ID,
-                                    ReceivedCode
-                                )
-                                VALUES
-                                (
-                                    @ParcelCode,
-                                    @Pallet_ID,
-                                    @Location,
-                                    @Status,
-                                    @Line_ID,
-                                    @ReceivedCode
-                                );", conn, tran))
+                                using (SqlCommand cmd = new SqlCommand(@"
+                                    INSERT INTO dbo.WCS_Parcels_Prod (
+                                        ParcelCode, Pallet_ID, Location,
+                                        Status, Line_ID, ReceivedCode
+                                    ) VALUES (
+                                        @ParcelCode, @Pallet_ID, @Location,
+                                        -1, @Line_ID, @ReceivedCode
+                                    );", conn, tran))
                                 {
-                                    cmd.Parameters.Add("@ParcelCode", System.Data.SqlDbType.NVarChar, -1)
-                                       .Value = parcelCode;
-
-                                    cmd.Parameters.Add("@Pallet_ID", System.Data.SqlDbType.NVarChar, -1)
-                                       .Value = item.PalletId;
-
-                                    cmd.Parameters.Add("@Location", System.Data.SqlDbType.NVarChar, 50)
-                                       .Value = item.Location;
-
-                                    cmd.Parameters.Add("@Status", System.Data.SqlDbType.NVarChar, 50)
-                                       .Value = 0;
-
-                                    cmd.Parameters.Add("@Line_ID", System.Data.SqlDbType.NVarChar, 50)
-                                       .Value = data.LineId;
-
-                                    cmd.Parameters.Add("@ReceivedCode", System.Data.SqlDbType.NVarChar, -1)
-                                       .Value = carton;
+                                    cmd.Parameters.AddWithValue("@ParcelCode", parcelCode);
+                                    cmd.Parameters.AddWithValue("@Pallet_ID", item.PalletId);
+                                    cmd.Parameters.AddWithValue("@Location", item.Location ?? "");
+                                    cmd.Parameters.AddWithValue("@Line_ID", data.LineId ?? "LINE_01");
+                                    cmd.Parameters.AddWithValue("@ReceivedCode", carton);
 
                                     cmd.ExecuteNonQuery();
                                 }
                             }
                         }
-                        var first = data.InforDetail.First();
 
-                        int totalParcel = first.CartonList.Count;
-                        int totalPallet = 1;
-
-                        // 1) Insert Plan
-                        using (SqlCommand cmdPlan = new SqlCommand(@"INSERT INTO dbo.WCS_PLAN_CONFIG_Temp (
-                                                                        Line_ID, 
-                                                                        Item_Code,
-                                                                        Inner_Pallet,
-                                                                        Inner_Carton,
-                                                                        TotalParcel,
-                                                                        TotalPallet,
-                                                                        RealtimeParcel,
-                                                                        RealTimePallet,
-Ctn,
-Position
-                                                                    ) VALUES (
-                                                                        @Line_ID,
-                                                                        @Item_Code,
-                                                                        @Inner_Pallet,
-                                                                        @Inner_Carton,
-                                                                        @TotalParcel,
-                                                                        @TotalPallet,
-                                                                        0,
-                                                                        0,
-@Ctn,
-@Position);", conn, tran))
+                        if (!GLb.IsInTask)
                         {
-                            cmdPlan.Parameters.AddWithValue("@Line_ID", data.FromSystem ?? "LINE_01");
-                            cmdPlan.Parameters.AddWithValue("@Item_Code", first.ItemCode ?? string.Empty);
-                            cmdPlan.Parameters.AddWithValue("@Inner_Pallet", first.Inner_Pallet);
-                            cmdPlan.Parameters.AddWithValue("@Inner_Carton", first.Inner_Carton);
-                            cmdPlan.Parameters.AddWithValue("@TotalParcel", totalParcel);
-                            cmdPlan.Parameters.AddWithValue("@TotalPallet", totalPallet);
-                            cmdPlan.Parameters.AddWithValue("@Ctn", first.Ctn);
-                            cmdPlan.Parameters.AddWithValue("@Position", first.Location);
-                            cmdPlan.ExecuteNonQuery();
-                        }
+                            /* =====================================================
+                            * 3. CHỌN 1 PALLET ĐẦU TIÊN → PROCESSING
+                            * =====================================================*/
+                            var palletRun = data.InforDetail.First();
+                            GLb.CurrentPalletID = palletRun.PalletId;
+                            GLb.CurrentItemCode = palletRun.ItemCode;
+                            GLb.CurrentWH_Code = data.WH_Code;
 
-                        var detail = data.InforDetail.FirstOrDefault();
-
-                        if (detail.CartonList == null)
-                            return;
-
-                        foreach (var carton in detail.CartonList)
-                        {
-                            string parcelCode, receivedCode;
-                            ParseCartonCode(carton, out parcelCode, out receivedCode);
-
-                            using (SqlCommand cmd = new SqlCommand(@"INSERT INTO dbo.WCS_Task_Temp (
-                                    ParcelCode,
-                                    ReceivedCode,
-                                    Pallet_ID,
-                                    Ctn,
-                                    Status,
-                                    LineProduction,
-                                    WH_Code,
-                                    [Location],
-                                    ItemCode,
-                                    PO_ID,
-                                    ImportTime,
-Task_ID
-                                ) VALUES (
-                                    @ParcelCode,
-                                    @ReceivedCode,
-                                    @Pallet_ID,
-                                    @Ctn,
-                                    @Status,
-                                    @LineProduction,
-                                    @WH_Code,
-                                    @Location,
-                                    @ItemCode,
-                                    @PO_ID,
-                                    @ImportTime,
-@Task_ID);", conn, tran))
+                            using (SqlCommand cmd = new SqlCommand(@"
+                            UPDATE dbo.WCS_Pallet_Prod
+                            SET Status = 'PROCESSING'
+                            WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                             {
-                                cmd.Parameters.AddWithValue("@ParcelCode", parcelCode);
-                                cmd.Parameters.AddWithValue("@ReceivedCode", receivedCode);
-                                cmd.Parameters.AddWithValue("@Pallet_ID", detail.PalletId);
-                                cmd.Parameters.AddWithValue("@Ctn", detail.Ctn);
-                                cmd.Parameters.AddWithValue("@Status", 0);
-                                cmd.Parameters.AddWithValue("@LineProduction", data.LineId);
-                                cmd.Parameters.AddWithValue("@WH_Code", data.WH_Code);
-                                cmd.Parameters.AddWithValue("@Location", detail.Location);
-                                cmd.Parameters.AddWithValue("@ItemCode", detail.ItemCode);
-                                cmd.Parameters.AddWithValue("@PO_ID", data.PO_ID);
-                                cmd.Parameters.AddWithValue("@ImportTime", DateTime.Now);
-                                cmd.Parameters.AddWithValue("@Task_ID", data.Task_ID);
+                                cmd.Parameters.AddWithValue("@Pallet_ID", palletRun.PalletId);
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            using (SqlCommand cmd = new SqlCommand(@"
+                            UPDATE dbo.WCS_Parcels_Prod
+                            SET Status = 0
+                            WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@Pallet_ID", palletRun.PalletId);
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            /* =====================================================
+                             * 4. INSERT PLAN (CHỈ 1 PALLET)
+                             * =====================================================*/
+                            using (SqlCommand cmd = new SqlCommand(@"
+                            INSERT INTO dbo.WCS_PLAN_CONFIG_Temp (
+                                Line_ID, Item_Code,
+                                Inner_Pallet, Inner_Carton,
+                                TotalParcel, TotalPallet,
+                                RealtimeParcel, RealTimePallet,
+                                Ctn, Position
+                            ) VALUES (
+                                @Line_ID, @Item_Code,
+                                @Inner_Pallet, @Inner_Carton,
+                                @TotalParcel, 1,
+                                0, 0,
+                                @Ctn, @Position
+                            );", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@Line_ID", data.LineId ?? "LINE_01");
+                                cmd.Parameters.AddWithValue("@Item_Code", palletRun.ItemCode ?? "");
+                                cmd.Parameters.AddWithValue("@Inner_Pallet", palletRun.Inner_Pallet);
+                                cmd.Parameters.AddWithValue("@Inner_Carton", palletRun.Inner_Carton);
+                                cmd.Parameters.AddWithValue("@TotalParcel", palletRun.CartonList.Count);
+                                cmd.Parameters.AddWithValue("@Ctn", palletRun.Ctn);
+                                cmd.Parameters.AddWithValue("@Position", palletRun.Location ?? "");
+
                                 cmd.ExecuteNonQuery();
                             }
                         }
@@ -2741,180 +2411,207 @@ Task_ID
                     }
                 }
 
-                
-                // Refresh UI
-                if (InvokeRequired)
-                    BeginInvoke(new Action(() => LoadDataFromSqlToListView()));
-                else
-                    LoadDataFromSqlToListView();
+                GLb.IsInTask = true;
 
-                LoadProductionData();
-                InitPlan();
+                BeginInvoke(new Action(() =>
+                {
+                    LoadDataFromSqlToListView();
+                    LoadProductionData();
+                    InitPlan();
+                }));
             }
             catch (Exception ex)
             {
-                writeLog("Lỗi xử lý lệnh sản xuất: " + ex.Message);
-                MessageBox.Show("Lỗi xử lý lệnh sản xuất: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                writeLog("Lỗi HandleOrder: " + ex.Message);
+                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void HandleDonePallet(DonePalletRequest data)
         {
-            ClearTaskTable();
-            using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
+            if (data == null || string.IsNullOrEmpty(GLb.CurrentPalletID))
+                return;
+
+            try
             {
-                conn.Open();
-                LoadNextPalletToTemp(conn);
-            }
-
-            if (InvokeRequired)
-                BeginInvoke(new Action(() => LoadDataFromSqlToListView()));
-            else
-                LoadDataFromSqlToListView();
-
-            LoadProductionData();
-            InitPlan();
-        }
-
-        public void LoadNextPalletToTemp(SqlConnection conn)
-        {
-            using (var tran = conn.BeginTransaction())
-            {
-                PalletProd pallet = GetNextPallet(conn, tran);
-                if (pallet == null)
+                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
                 {
-                    tran.Commit();
-                    return;
-                }
+                    conn.Open();
 
-                // 3. Insert PLAN_CONFIG_TEMP
-                InsertPlanConfigTemp(conn, tran, pallet);
-
-                // 4. Insert TASK_TEMP theo parcel của pallet
-                InsertTaskTempByPallet(conn, tran, pallet);
-
-                tran.Commit();
-            }
-        }
-
-        private PalletProd GetNextPallet(SqlConnection conn, SqlTransaction tran)
-        {
-            using (var cmd = new SqlCommand(@"
-        SELECT TOP 1 *
-        FROM dbo.WCS_Pallet_Prod
-        WHERE Pallet_ID NOT IN (
-            SELECT DISTINCT Pallet_ID
-            FROM dbo.WCS_Parcels_Prod
-            WHERE Status = 'DONE'
-        )
-        ORDER BY Id;", conn, tran))
-            {
-                using (var rd = cmd.ExecuteReader())
-                {
-                    if (!rd.Read()) return null;
-
-                    return new PalletProd
+                    using (SqlTransaction tran = conn.BeginTransaction())
                     {
-                        Pallet_ID = rd["Pallet_ID"].ToString(),
-                        Location = rd["Location"].ToString(),
-                        Item_Code = rd["Item_Code"].ToString(),
-                        Inner_Carton = Convert.ToInt32(rd["Inner_Carton"]),
-                        Inner_Pallet = Convert.ToInt32(rd["Inner_Pallet"]),
-                        PO_ID = Convert.ToInt64(rd["PO_ID"]),
-                        WH_Code = rd["WH_Code"].ToString(),
-                        Line_ID = rd["Line_ID"].ToString()
-                    };
+                        string donePalletId = GLb.CurrentPalletID;
+                        string nextPalletId = null;
+
+                        /* =====================================================
+                         * 1. XOÁ PARCEL CỦA PALLET HIỆN TẠI
+                         *    (TRIGGER → WCS_Parcels_His)
+                         * =====================================================*/
+                        using (SqlCommand cmd = new SqlCommand(@"
+DELETE FROM dbo.WCS_Parcels_Prod
+WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Pallet_ID", donePalletId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        /* =====================================================
+                         * 2. XOÁ PALLET HIỆN TẠI
+                         *    (TRIGGER → WCS_Pallet_His)
+                         * =====================================================*/
+                        using (SqlCommand cmd = new SqlCommand(@"
+DELETE FROM dbo.WCS_Pallet_Prod
+WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Pallet_ID", donePalletId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        /* =====================================================
+                         * 3. LẤY PALLET TIẾP THEO (FIFO)
+                         * =====================================================*/
+                        using (SqlCommand cmd = new SqlCommand(@"
+SELECT TOP 1 Pallet_ID
+FROM dbo.WCS_Pallet_Prod
+WHERE Status = 'WAIT'
+ORDER BY Id ASC;", conn, tran))
+                        {
+                            object o = cmd.ExecuteScalar();
+                            if (o != null)
+                                nextPalletId = o.ToString();
+                        }
+
+                        GLb.CurrentPalletID = nextPalletId;
+
+                        /* =====================================================
+                         * 4. KHÔNG CÒN PALLET → CLEAR PLAN
+                         * =====================================================*/
+                        if (string.IsNullOrEmpty(nextPalletId))
+                        {
+                            using (SqlCommand cmd = new SqlCommand(
+                                "DELETE FROM dbo.WCS_PLAN_CONFIG_Temp;", conn, tran))
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                            GLb.IsInTask = false;
+                            tran.Commit();
+                            return;
+                        }
+
+                        /* =====================================================
+                         * 5. LOAD INFO PALLET MỚI
+                         * =====================================================*/
+                        string itemCode = "", location = "", lineId = "";
+                        int innerPallet = 0, innerCarton = 0, ctn = 0, totalParcel = 0;
+
+                        using (SqlCommand cmd = new SqlCommand(@"
+SELECT Item_Code, Location, Inner_Pallet, Inner_Carton, Ctn, Line_ID
+FROM dbo.WCS_Pallet_Prod
+WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
+                            using (SqlDataReader rd = cmd.ExecuteReader())
+                            {
+                                if (rd.Read())
+                                {
+                                    itemCode = rd["Item_Code"].ToString();
+                                    location = rd["Location"].ToString();
+                                    innerPallet = Convert.ToInt32(rd["Inner_Pallet"]);
+                                    innerCarton = Convert.ToInt32(rd["Inner_Carton"]);
+                                    ctn = Convert.ToInt32(rd["Ctn"]);
+                                    lineId = rd["Line_ID"].ToString();
+                                }
+                            }
+                        }
+
+                        using (SqlCommand cmd = new SqlCommand(@"
+SELECT COUNT(*)
+FROM dbo.WCS_Parcels_Prod
+WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
+                            totalParcel = (int)cmd.ExecuteScalar();
+                        }
+
+                        /* =====================================================
+                         * 6. GHI ĐÈ CONFIG_PLAN_Temp
+                         * =====================================================*/
+                        using (SqlCommand cmd = new SqlCommand(@"
+DELETE FROM dbo.WCS_PLAN_CONFIG_Temp;
+
+INSERT INTO dbo.WCS_PLAN_CONFIG_Temp (
+    Line_ID, Item_Code,
+    Inner_Pallet, Inner_Carton,
+    TotalParcel, TotalPallet,
+    RealtimeParcel, RealTimePallet,
+    Ctn, Position
+) VALUES (
+    @Line_ID, @Item_Code,
+    @Inner_Pallet, @Inner_Carton,
+    @TotalParcel, 1,
+    0, 0,
+    @Ctn, @Position
+);", conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Line_ID", lineId ?? "LINE_01");
+                            cmd.Parameters.AddWithValue("@Item_Code", itemCode);
+                            cmd.Parameters.AddWithValue("@Inner_Pallet", innerPallet);
+                            cmd.Parameters.AddWithValue("@Inner_Carton", innerCarton);
+                            cmd.Parameters.AddWithValue("@TotalParcel", totalParcel);
+                            cmd.Parameters.AddWithValue("@Ctn", ctn);
+                            cmd.Parameters.AddWithValue("@Position", location);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        /* =====================================================
+                         * 7. PALLET MỚI → PROCESSING
+                         * =====================================================*/
+                        using (SqlCommand cmd = new SqlCommand(@"
+UPDATE dbo.WCS_Pallet_Prod
+SET Status = 'PROCESSING'
+WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        /* =====================================================
+                         * 8. PARCEL: -1 → 0
+                         * =====================================================*/
+                        using (SqlCommand cmd = new SqlCommand(@"
+UPDATE dbo.WCS_Parcels_Prod
+SET Status = 0
+WHERE Pallet_ID = @Pallet_ID
+  AND Status = -1;", conn, tran))
+                        {
+                            cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        tran.Commit();
+                    }
                 }
+
+                /* =====================================================
+                 * 9. REFRESH UI
+                 * =====================================================*/
+                Action ui = () =>
+                {
+                    LoadDataFromSqlToListView();
+                    LoadProductionData();
+                    InitPlan();
+                };
+
+                if (InvokeRequired)
+                    BeginInvoke(ui);
+                else
+                    ui();
             }
-        }
-        private void InsertPlanConfigTemp(SqlConnection conn, SqlTransaction tran, PalletProd p)
-        {
-            using (var cmd = new SqlCommand(@"
-        INSERT INTO dbo.WCS_PLAN_CONFIG_Temp
-        (
-            Line_ID,
-            Item_Code,
-            Inner_Pallet,
-            Inner_Carton,
-            TotalParcel,
-            TotalPallet,
-            RealtimeParcel,
-            RealTimePallet
-        )
-        SELECT
-            @Line_ID,
-            @Item_Code,
-            @Inner_Pallet,
-            @Inner_Carton,
-            COUNT(*),
-            1,
-            0,
-            0
-        FROM dbo.WCS_Parcels_Prod
-        WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+            catch (Exception ex)
             {
-                cmd.Parameters.AddWithValue("@Line_ID", p.Line_ID);
-                cmd.Parameters.AddWithValue("@Item_Code", p.Item_Code);
-                cmd.Parameters.AddWithValue("@Inner_Pallet", p.Inner_Pallet);
-                cmd.Parameters.AddWithValue("@Inner_Carton", p.Inner_Carton);
-                cmd.Parameters.AddWithValue("@Pallet_ID", p.Pallet_ID);
-
-                cmd.ExecuteNonQuery();
+                MessageBox.Show("LỖI XỬ LÝ PALLET DONE: " + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private void InsertTaskTempByPallet(SqlConnection conn, SqlTransaction tran, PalletProd p)
-        {
-            using (var cmd = new SqlCommand(@"
-        INSERT INTO dbo.WCS_Task_Temp
-        (
-            ParcelCode,
-            ReceivedCode,
-            Pallet_ID,
-            Ctn,
-            Status,
-            LineProduction,
-            ProductionCode,
-            [Location],
-            ItemCode,
-            PO_ID,
-            ImportTime
-        )
-        SELECT
-            ParcelCode,
-            ReceivedCode,
-            Pallet_ID,
-            Ctn,
-            'NEW',
-            @Line_ID,
-            @WH_Code,
-            Location,
-            Item_Code,
-            PO_ID,
-            GETDATE()
-        FROM dbo.WCS_Parcels_Prod
-        WHERE Pallet_ID = @Pallet_ID;", conn, tran))
-            {
-                cmd.Parameters.AddWithValue("@Line_ID", p.Line_ID);
-                cmd.Parameters.AddWithValue("@WH_Code", p.WH_Code);
-                cmd.Parameters.AddWithValue("@Pallet_ID", p.Pallet_ID);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        class PalletProd
-        {
-            public string Pallet_ID;
-            public string Location;
-            public string Item_Code;
-            public int Inner_Carton;
-            public int Inner_Pallet;
-            public long PO_ID;
-            public string WH_Code;
-            public string Line_ID;
-        }
-
-
 
         private void ParseCartonCode(string cartonRaw, out string parcelCode, out string receivedCode)
         {
@@ -3004,10 +2701,6 @@ Task_ID
 
     public static class PrintQueueHelper
     {
-
-        static Globals GLb = Globals.getInstance();
-
-
         public static int CurrentIndex = 0;
 
         public static string GetNextParcelCode(ListView listView)
@@ -3036,41 +2729,13 @@ Task_ID
             return result;
         }
 
-        public static string GetPalletIDFromDatabase(string parcelCode)
-        {
-            string connectionString = GLb.g_tSQLConfig.SqlString;
-            string palletID = null;
-
-            string query = @"SELECT TOP 1 Pallet_ID FROM WCS_Task_Temp WHERE ParcelCode = @parcelCode";
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@parcelCode", parcelCode);
-                        object result = cmd.ExecuteScalar();
-
-                        if (result != null && result != DBNull.Value)
-                        {
-                            palletID = result.ToString();
-                        }
-                    }
-                }
-            }
-            catch { }
-
-            return palletID;
-        }
-
         public static string GetPalletIDFromDatabaseS2(string status)
         {
             string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
             string palletID = null;
 
             string query =
-                @"SELECT TOP 1 Pallet_ID FROM WCS_Task_Temp WHERE Status = @status ORDER BY ID DESC";
+                @"SELECT TOP 1 Pallet_ID FROM WCS_Parcels_Prod WHERE Status = @status ORDER BY Id DESC";
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -3091,110 +2756,6 @@ Task_ID
             catch { }
 
             return palletID;
-        }
-
-        public static string GetItemNameFromDatabase(string parcelCode)
-        {
-            string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
-            string ItemName = null;
-
-            string query =
-                @"SELECT TOP 1 ItemCode FROM WCS_Task_Temp WHERE ParcelCode = @parcelCode";
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@parcelCode", parcelCode);
-                    object result = cmd.ExecuteScalar();
-
-                    if (result != null && result != DBNull.Value)
-                    {
-                        ItemName = result.ToString();
-                    }
-                }
-            }
-
-            return ItemName;
-        }
-
-        public static string GetWH_CodeFromDatabase(string pallet_ID)
-        {
-            string connectionString =
-                Globals.getInstance().g_tSQLConfig.SqlString;
-            string WH_Code = null;
-
-            string query =
-                @"SELECT TOP 1 WH_Code FROM WCS_Task_Temp WHERE Pallet_ID = @pallet_ID";
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@pallet_ID", pallet_ID);
-                    object result = cmd.ExecuteScalar();
-
-                    if (result != null && result != DBNull.Value)
-                    {
-                        WH_Code = result.ToString();
-                    }
-                }
-            }
-
-            return WH_Code;
-        }
-
-        public static string GetCtnFromDatabase(string palletcode)
-        {
-            string connectionString =
-                Globals.getInstance().g_tSQLConfig.SqlString;
-            string Ctn = null;
-
-            string query = @"SELECT TOP 1 Ctn FROM WCS_Task_Temp WHERE Pallet_ID= @palletcode";
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@palletcode", palletcode);
-                    object result = cmd.ExecuteScalar();
-
-                    if (result != null && result != DBNull.Value)
-                    {
-                        Ctn = result.ToString();
-                    }
-                }
-            }
-
-            return Ctn;
-        }
-
-        public static string GetInnerCartonFromDatabase()
-        {
-            string connectionString =
-                Globals.getInstance().g_tSQLConfig.SqlString;
-            string innerCarton = null;
-
-            string query =
-                @"SELECT TOP 1 Inner_Carton FROM WCS_PLAN_CONFIG_Temp ORDER BY id DESC";
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    object result = cmd.ExecuteScalar();
-                    if (result != null && result != DBNull.Value)
-                    {
-                        innerCarton = result.ToString();
-                    }
-                }
-            }
-
-            return innerCarton;
         }
 
         private static string GetCodeAndHighlight(ListView listView)
@@ -3273,7 +2834,7 @@ Task_ID
             string connectionString =
                 Globals.getInstance().g_tSQLConfig.SqlString;
             string query =
-                "UPDATE dbo.WCS_Task_Temp SET Status = @status WHERE ParcelCode = @code";
+                "UPDATE dbo.WCS_Parcels_Prod SET Status = @status WHERE ParcelCode = @code";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -3294,7 +2855,7 @@ Task_ID
 
             string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
 
-            const string query = @"UPDATE dbo.WCS_Task_Temp SET Status = @status WHERE Pallet_ID = @palletId;";
+            const string query = @"UPDATE dbo.WCS_Parcels_Prod SET Status = @status WHERE Pallet_ID = @palletId;";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -3352,51 +2913,6 @@ Task_ID
 
             return true;
         }
-
-        public static PalletLocationInfo GetPalletLocationInfo(string palletID)
-        {
-            PalletLocationInfo result = new PalletLocationInfo();
-
-            string query =
-                @"SELECT TOP 1 LineProduction, Location FROM WCS_Task_Temp WHERE Pallet_ID = @PalletID";
-            try
-            {
-                using (
-                    SqlConnection conn = new SqlConnection(Globals.getInstance().g_tSQLConfig.SqlString)
-                )
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@PalletID", palletID);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                //string line = reader["Line"].ToString();
-                                string lineProd = reader["LineProduction"].ToString();
-                                string location = reader["Location"].ToString();
-
-                                result.LocationOld = "line" + lineProd;
-                                result.LocationNew = location;
-                            }
-                        }
-                    }
-                }
-            }
-            catch //(Exception ex)
-            {
-                result.LocationOld = "";
-                result.LocationNew = "";
-            }
-            return result;
-        }
     }
     #endregion
-
-    public class PalletLocationInfo
-    {
-        public string LocationOld { get; set; }
-        public string LocationNew { get; set; }
-    }
 }
