@@ -104,6 +104,8 @@ namespace VTP_Induction.Device
         public string CurrentWH_Code = "";
         public string CurrentItemCode = "";
 
+        public bool IsAcceptStartNextPallet = false;
+
 
         public TAxisIO[] g_tInputCfg;
         public TAxisIO[] g_tOutputCfg;

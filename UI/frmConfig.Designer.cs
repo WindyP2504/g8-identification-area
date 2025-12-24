@@ -34,7 +34,7 @@
             this.tabControlConfig = new DevExpress.XtraTab.XtraTabControl();
             this.tabPageSystemConfig = new DevExpress.XtraTab.XtraTabPage();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.grbPos = new System.Windows.Forms.GroupBox();
             this.txtPos6 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.txtPos5 = new System.Windows.Forms.TextBox();
@@ -100,7 +100,7 @@
             this.tabControlConfig.SuspendLayout();
             this.tabPageSystemConfig.SuspendLayout();
             this.panel4.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.grbPos.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.panelXXX.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -193,7 +193,7 @@
             // panel4
             // 
             this.panel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.panel4.Controls.Add(this.groupBox3);
+            this.panel4.Controls.Add(this.grbPos);
             this.panel4.Controls.Add(this.groupBox9);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel4.Location = new System.Drawing.Point(0, 127);
@@ -201,36 +201,36 @@
             this.panel4.Size = new System.Drawing.Size(1372, 147);
             this.panel4.TabIndex = 4;
             // 
-            // groupBox3
+            // grbPos
             // 
-            this.groupBox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.groupBox3.Controls.Add(this.txtPos6);
-            this.groupBox3.Controls.Add(this.label10);
-            this.groupBox3.Controls.Add(this.txtPos5);
-            this.groupBox3.Controls.Add(this.label14);
-            this.groupBox3.Controls.Add(this.txtPos4);
-            this.groupBox3.Controls.Add(this.label15);
-            this.groupBox3.Controls.Add(this.txtPos3);
-            this.groupBox3.Controls.Add(this.label7);
-            this.groupBox3.Controls.Add(this.txtPos2);
-            this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Controls.Add(this.txtPos1);
-            this.groupBox3.Controls.Add(this.label5);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Left;
-            this.groupBox3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox3.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox3.Location = new System.Drawing.Point(272, 0);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(544, 147);
-            this.groupBox3.TabIndex = 2;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "[VỊ TRÍ SÀN]";
+            this.grbPos.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.grbPos.Controls.Add(this.txtPos6);
+            this.grbPos.Controls.Add(this.label10);
+            this.grbPos.Controls.Add(this.txtPos5);
+            this.grbPos.Controls.Add(this.label14);
+            this.grbPos.Controls.Add(this.txtPos4);
+            this.grbPos.Controls.Add(this.label15);
+            this.grbPos.Controls.Add(this.txtPos3);
+            this.grbPos.Controls.Add(this.label7);
+            this.grbPos.Controls.Add(this.txtPos2);
+            this.grbPos.Controls.Add(this.label6);
+            this.grbPos.Controls.Add(this.txtPos1);
+            this.grbPos.Controls.Add(this.label5);
+            this.grbPos.Dock = System.Windows.Forms.DockStyle.Left;
+            this.grbPos.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grbPos.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.grbPos.Location = new System.Drawing.Point(272, 0);
+            this.grbPos.Name = "grbPos";
+            this.grbPos.Size = new System.Drawing.Size(544, 147);
+            this.grbPos.TabIndex = 2;
+            this.grbPos.TabStop = false;
+            this.grbPos.Text = "[VỊ TRÍ SÀN]";
             // 
             // txtPos6
             // 
             this.txtPos6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtPos6.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos6.Location = new System.Drawing.Point(337, 96);
+            this.txtPos6.Location = new System.Drawing.Point(337, 115);
             this.txtPos6.Name = "txtPos6";
             this.txtPos6.Size = new System.Drawing.Size(153, 23);
             this.txtPos6.TabIndex = 58;
@@ -240,7 +240,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(280, 99);
+            this.label10.Location = new System.Drawing.Point(280, 118);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(50, 16);
             this.label10.TabIndex = 57;
@@ -250,7 +250,7 @@
             // 
             this.txtPos5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtPos5.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos5.Location = new System.Drawing.Point(337, 60);
+            this.txtPos5.Location = new System.Drawing.Point(337, 79);
             this.txtPos5.Name = "txtPos5";
             this.txtPos5.Size = new System.Drawing.Size(153, 23);
             this.txtPos5.TabIndex = 56;
@@ -260,7 +260,7 @@
             // 
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(280, 63);
+            this.label14.Location = new System.Drawing.Point(280, 82);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(50, 16);
             this.label14.TabIndex = 55;
@@ -270,7 +270,7 @@
             // 
             this.txtPos4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtPos4.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos4.Location = new System.Drawing.Point(337, 26);
+            this.txtPos4.Location = new System.Drawing.Point(337, 45);
             this.txtPos4.Name = "txtPos4";
             this.txtPos4.Size = new System.Drawing.Size(153, 23);
             this.txtPos4.TabIndex = 54;
@@ -280,7 +280,7 @@
             // 
             this.label15.AutoSize = true;
             this.label15.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(280, 29);
+            this.label15.Location = new System.Drawing.Point(280, 48);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(50, 16);
             this.label15.TabIndex = 53;
@@ -290,7 +290,7 @@
             // 
             this.txtPos3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtPos3.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos3.Location = new System.Drawing.Point(73, 98);
+            this.txtPos3.Location = new System.Drawing.Point(73, 117);
             this.txtPos3.Name = "txtPos3";
             this.txtPos3.Size = new System.Drawing.Size(153, 23);
             this.txtPos3.TabIndex = 52;
@@ -300,7 +300,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(16, 101);
+            this.label7.Location = new System.Drawing.Point(16, 120);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(50, 16);
             this.label7.TabIndex = 51;
@@ -310,7 +310,7 @@
             // 
             this.txtPos2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtPos2.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos2.Location = new System.Drawing.Point(73, 62);
+            this.txtPos2.Location = new System.Drawing.Point(73, 81);
             this.txtPos2.Name = "txtPos2";
             this.txtPos2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtPos2.Size = new System.Drawing.Size(153, 23);
@@ -321,7 +321,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(16, 65);
+            this.label6.Location = new System.Drawing.Point(16, 84);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(50, 16);
             this.label6.TabIndex = 49;
@@ -331,7 +331,7 @@
             // 
             this.txtPos1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtPos1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos1.Location = new System.Drawing.Point(73, 28);
+            this.txtPos1.Location = new System.Drawing.Point(73, 47);
             this.txtPos1.Name = "txtPos1";
             this.txtPos1.Size = new System.Drawing.Size(153, 23);
             this.txtPos1.TabIndex = 48;
@@ -341,7 +341,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(16, 31);
+            this.label5.Location = new System.Drawing.Point(16, 50);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(50, 16);
             this.label5.TabIndex = 47;
@@ -933,8 +933,8 @@
             this.tabControlConfig.ResumeLayout(false);
             this.tabPageSystemConfig.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.grbPos.ResumeLayout(false);
+            this.grbPos.PerformLayout();
             this.groupBox9.ResumeLayout(false);
             this.groupBox9.PerformLayout();
             this.panelXXX.ResumeLayout(false);
@@ -1015,7 +1015,7 @@
         private System.Windows.Forms.GroupBox groupBox9;
         private System.Windows.Forms.Label label32;
         private System.Windows.Forms.CheckBox checkBoxPrintPallet;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox grbPos;
         private System.Windows.Forms.TextBox txtPos6;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox txtPos5;

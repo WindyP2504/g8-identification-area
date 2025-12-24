@@ -236,7 +236,7 @@ namespace VTP_Induction.Device
             }
             catch
             {
-
+                throw;
             }
             Log.LogWrite(Globals.LogLv.Information, sLog);
         }

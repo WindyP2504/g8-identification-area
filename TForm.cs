@@ -560,7 +560,7 @@ ORDER BY Id ASC";
                     }
 
                     SetLabelText(labelStatus, "OK", Color.Lime);
-                    Thread.Sleep(500);
+                    Thread.Sleep(100);
 
                     SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
 
@@ -580,7 +580,7 @@ ORDER BY Id ASC";
 
                     bool printOK = devHandler.cPrinterGodex.PrintBarcode(parcelCode, ItemName, palletCode, WH_Code, finalWeight.ToString());
                     //bool printOK = true;
-                    Thread.Sleep(1500);
+                    Thread.Sleep(500);
 
                     if (!printOK)
                     {
@@ -598,8 +598,8 @@ ORDER BY Id ASC";
                     string BarcodeTemp = "";
                     SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH...", Color.OrangeRed);
                     bool readOK = WaitForBarcodeRead(out BarcodeTemp, 5000);
-                    if (readOK && BarcodeTemp == parcelCode)
-                    //if (readOK && BarcodeTemp == "TP0231")
+                    //if (readOK && BarcodeTemp == parcelCode)
+                    if (readOK && BarcodeTemp == "TP0279")
                     {
                         _isPrinting = false;
                         SetLabelText(labelStatus, "OK", Color.Lime);
@@ -641,7 +641,7 @@ ORDER BY Id ASC";
                     }
 
                     _isPrinting = false;
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
                     WaitForZeroWeight();
                 }
             }
@@ -696,17 +696,10 @@ ORDER BY Id ASC";
 
                         // Reload dữ liệu
                         LoadDataFromSqlToListView();
-                        var plan = LoadPlanConfig();
                         LoadProductionData();
                         InitPlan();
 
                         SetLabelText(lblPushInformation, "ĐÃ HOÀN TẤT LỆNH SẢN XUẤT", Color.Green);
-                        SetLabelText(lblCountParcel, "0/0", Color.Aqua);
-                        SetLabelText(lblCountPallet,
-                            GLb.nPalletDone + "/" + GLb.nTotalPallet,
-                            Color.Aqua
-                        );
-
                         devHandler.cPLCHandler.SetTrafficLightByM(1);
                     }
                     catch (Exception ex)
@@ -785,33 +778,26 @@ ORDER BY Id ASC";
                 PrintQueueHelper.UpdateStatusByPalletId(palletCode, 5);
 
                 GLb.nPalletDone++;
-                GLb.nParcelDone = 0;
-
-                UpdatePlanRealtime(GLb.nParcelDone, GLb.nPalletDone);
 
                 /* ================= UI + RESET ================= */
                 Action ui = () =>
                 {
                     try
                     {
+                        GLb.PalletInProgress = false;
+                        GLb.PalletScanCompleted = false;
+
                         buttonSTOP_Click(null, null);
                         SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
-                        SetLabelText(lblCountParcel, "0/" + GLb.nTotalParcel, Color.Aqua);
                         SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
                         devHandler.cPLCHandler.SetTrafficLightByM(1);
+
+                        buttonSTART.Enabled = false;
                     }
                     catch (Exception ex)
                     {
                         SetLabelText(lblPushInformation, "LỖI UI: " + ex.Message, Color.Red);
                         devHandler.cPLCHandler.SetTrafficLightByM(0);
-                    }
-                    finally
-                    {
-                        /* RESET STATE – 1 CHỖ DUY NHẤT */
-                        GLb.PalletInProgress = false;
-                        GLb.PalletScanCompleted = false;
-                        GLb.nParcelDone = 0;
-                        GLb.nTotalParcel = 0;
                     }
                 };
 
@@ -878,11 +864,7 @@ ORDER BY Id ASC";
 
                 /* ================= UPDATE DONE ================= */
                 PrintQueueHelper.UpdateStatusByPalletId(palletCode, 5);
-
                 GLb.nPalletDone++;
-                GLb.nParcelDone = 0;
-
-                UpdatePlanRealtime(GLb.nParcelDone, GLb.nPalletDone);
 
                 /* ================= UI + RESET ================= */
                 Action ui = () =>
@@ -906,8 +888,6 @@ ORDER BY Id ASC";
                         /* RESET STATE – 1 CHỖ DUY NHẤT */
                         GLb.PalletInProgress = false;
                         GLb.PalletScanCompleted = false;
-                        GLb.nParcelDone = 0;
-                        GLb.nTotalParcel = 0;
                     }
                 };
 
@@ -1105,7 +1085,7 @@ ORDER BY Id ASC";
             // CẤU HÌNH
             const int THRESHOLD = 20;      // Ngưỡng an toàn (g) - Dưới mức này coi như đã lấy hàng
             const int REQUIRED_COUNT = 5;  // Số lần liên tiếp cần đạt (đếm 5 lần cho chắc)
-            const int SLEEP_TIME = 100;    // Thời gian nghỉ giữa các lần đọc (ms)
+            const int SLEEP_TIME = 50;    // Thời gian nghỉ giữa các lần đọc (ms)
 
             // Tổng thời gian xác nhận = 5 * 100ms = 0.5 giây (Rất nhanh nhưng cực an toàn)
 
@@ -1276,17 +1256,6 @@ ORDER BY Id ASC";
             foreach (panelDevice item in panelDev1.Controls)
             {
                 item.RefreshDev();
-            }
-            if (GLb.g_tDevCfg.tWMS.bActive)
-            {
-                if (devHandler.cWMS.m_bConnection)
-                {
-                    buttonWMSOnOff.BackColor = Color.GreenYellow;
-                }
-            }
-            else
-            {
-                buttonWMSOnOff.BackColor = Color.OrangeRed;
             }
 
             #region RunMode
@@ -1495,18 +1464,18 @@ ORDER BY Id ASC";
             GLb.CurrentPalletID = "";
 
             string sql = @"
-SELECT TOP 1 Pallet_ID
-FROM dbo.WCS_Pallet_Prod
-WHERE Status = 'PROCESSING'
-ORDER BY Id ASC;
+                SELECT TOP 1 Pallet_ID
+                FROM dbo.WCS_Pallet_Prod
+                WHERE Status = 'PROCESSING'
+                ORDER BY Id ASC;
 
-IF (@@ROWCOUNT = 0)
-BEGIN
-    SELECT TOP 1 Pallet_ID
-    FROM dbo.WCS_Pallet_Prod
-    WHERE Status = 'WAIT'
-    ORDER BY Id ASC;
-END";
+                IF (@@ROWCOUNT = 0)
+                BEGIN
+                    SELECT TOP 1 Pallet_ID
+                    FROM dbo.WCS_Pallet_Prod
+                    WHERE Status = 'WAIT'
+                    ORDER BY Id ASC;
+                END";
 
             using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
             {
@@ -2099,34 +2068,33 @@ END";
         private void buttonSTART_Click_1(object sender, EventArgs e)
         {
             Log.LogWrite(Globals.LogLv.Information, "Click START button ");
-            AppendText("Click START button \r");
 
-            //if (!devHandler.cPrinterGodex.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cPrinterGodex.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //if (!devHandler.cBarcode.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cBarcode.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //if (!devHandler.cPLCHandler.m_bConnection)
-            //{
-            //    var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-            //    if(res == DialogResult.Cancel)
-            //    {
-            //        return;
-            //    }
-            //}
+            if (!devHandler.cPLCHandler.m_bConnection)
+            {
+                var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                if (res == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
 
-            //if (!devHandler.cScale.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cScale.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             if (GLb.IsInTask == false)
             {
@@ -2143,9 +2111,16 @@ END";
                 {
                     SetLabelText(lblPushInformation, "PALLET KHÔNG XỬ LÝ ĐƯỢC", Color.Red);
                     GLb.PalletScanCompleted = false;
-                    MessageBox.Show("HÃY GỬI LẠI THÔNG TIN PALLET CŨ NHÉ!", "NOTIFICATION", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                    MessageBox.Show("HÃY GỬI LẠI THÔNG TIN PALLET CŨ NHÉ!", "THÔNG BÁO", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                     return;
                 }
+            }
+
+            string palletNew = PrintQueueHelper.GetPalletIDFromDatabaseS2("0");
+            if (string.IsNullOrEmpty(palletNew))
+            {
+                MessageBox.Show("KHÔNG CÓ PALLET ĐƯỢC PHÉP SẢN XUẤT!", "THÔNG BÁO!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
             PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
@@ -2211,6 +2186,7 @@ END";
 
         private void labelTime_Click(object sender, EventArgs e) { }
 
+
         private void buttonUserMan_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
@@ -2240,8 +2216,6 @@ END";
                     LoadProductionData();
                     InitPlan();
 
-                    RCSbutton.Appearance.BackColor = Color.Orange;
-
                     MessageBox.Show(
                         "Đã đặt lại bộ đếm!",
                         "Thông báo",
@@ -2269,13 +2243,6 @@ END";
                 return;
 
             writeLog("XỬ LÝ LỆNH SẢN XUẤT: " + data.PO_ID);
-
-            if (MessageBox.Show(
-                "Có tiếp nhận lệnh sản xuất mới không?",
-                "Xác nhận",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question) != DialogResult.Yes)
-                return;
 
             try
             {
@@ -2352,6 +2319,9 @@ END";
 
                         if (!GLb.IsInTask)
                         {
+                            if (MessageBox.Show("Có tiếp nhận lệnh sản xuất mới không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                                return;
+
                             /* =====================================================
                             * 3. CHỌN 1 PALLET ĐẦU TIÊN → PROCESSING
                             * =====================================================*/
@@ -2406,19 +2376,19 @@ END";
 
                                 cmd.ExecuteNonQuery();
                             }
+
+                            GLb.IsInTask = true;
+
+                            BeginInvoke(new Action(() =>
+                            {
+                                LoadDataFromSqlToListView();
+                                LoadProductionData();
+                                InitPlan();
+                            }));
                         }
                         tran.Commit();
                     }
                 }
-
-                GLb.IsInTask = true;
-
-                BeginInvoke(new Action(() =>
-                {
-                    LoadDataFromSqlToListView();
-                    LoadProductionData();
-                    InitPlan();
-                }));
             }
             catch (Exception ex)
             {
@@ -2448,8 +2418,8 @@ END";
                          *    (TRIGGER → WCS_Parcels_His)
                          * =====================================================*/
                         using (SqlCommand cmd = new SqlCommand(@"
-DELETE FROM dbo.WCS_Parcels_Prod
-WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                            DELETE FROM dbo.WCS_Parcels_Prod
+                            WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@Pallet_ID", donePalletId);
                             cmd.ExecuteNonQuery();
@@ -2460,8 +2430,8 @@ WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                          *    (TRIGGER → WCS_Pallet_His)
                          * =====================================================*/
                         using (SqlCommand cmd = new SqlCommand(@"
-DELETE FROM dbo.WCS_Pallet_Prod
-WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                            DELETE FROM dbo.WCS_Pallet_Prod
+                            WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@Pallet_ID", donePalletId);
                             cmd.ExecuteNonQuery();
@@ -2471,10 +2441,10 @@ WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                          * 3. LẤY PALLET TIẾP THEO (FIFO)
                          * =====================================================*/
                         using (SqlCommand cmd = new SqlCommand(@"
-SELECT TOP 1 Pallet_ID
-FROM dbo.WCS_Pallet_Prod
-WHERE Status = 'WAIT'
-ORDER BY Id ASC;", conn, tran))
+                            SELECT TOP 1 Pallet_ID
+                            FROM dbo.WCS_Pallet_Prod
+                            WHERE Status = 'WAIT'
+                            ORDER BY Id ASC;", conn, tran))
                         {
                             object o = cmd.ExecuteScalar();
                             if (o != null)
@@ -2505,9 +2475,9 @@ ORDER BY Id ASC;", conn, tran))
                         int innerPallet = 0, innerCarton = 0, ctn = 0, totalParcel = 0;
 
                         using (SqlCommand cmd = new SqlCommand(@"
-SELECT Item_Code, Location, Inner_Pallet, Inner_Carton, Ctn, Line_ID
-FROM dbo.WCS_Pallet_Prod
-WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                            SELECT Item_Code, Location, Inner_Pallet, Inner_Carton, Ctn, Line_ID
+                            FROM dbo.WCS_Pallet_Prod
+                            WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
                             using (SqlDataReader rd = cmd.ExecuteReader())
@@ -2525,9 +2495,9 @@ WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                         }
 
                         using (SqlCommand cmd = new SqlCommand(@"
-SELECT COUNT(*)
-FROM dbo.WCS_Parcels_Prod
-WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                            SELECT COUNT(*)
+                            FROM dbo.WCS_Parcels_Prod
+                            WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
                             totalParcel = (int)cmd.ExecuteScalar();
@@ -2537,21 +2507,21 @@ WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                          * 6. GHI ĐÈ CONFIG_PLAN_Temp
                          * =====================================================*/
                         using (SqlCommand cmd = new SqlCommand(@"
-DELETE FROM dbo.WCS_PLAN_CONFIG_Temp;
+                            DELETE FROM dbo.WCS_PLAN_CONFIG_Temp;
 
-INSERT INTO dbo.WCS_PLAN_CONFIG_Temp (
-    Line_ID, Item_Code,
-    Inner_Pallet, Inner_Carton,
-    TotalParcel, TotalPallet,
-    RealtimeParcel, RealTimePallet,
-    Ctn, Position
-) VALUES (
-    @Line_ID, @Item_Code,
-    @Inner_Pallet, @Inner_Carton,
-    @TotalParcel, 1,
-    0, 0,
-    @Ctn, @Position
-);", conn, tran))
+                            INSERT INTO dbo.WCS_PLAN_CONFIG_Temp (
+                                Line_ID, Item_Code,
+                                Inner_Pallet, Inner_Carton,
+                                TotalParcel, TotalPallet,
+                                RealtimeParcel, RealTimePallet,
+                                Ctn, Position
+                            ) VALUES (
+                                @Line_ID, @Item_Code,
+                                @Inner_Pallet, @Inner_Carton,
+                                @TotalParcel, 1,
+                                0, 0,
+                                @Ctn, @Position
+                            );", conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@Line_ID", lineId ?? "LINE_01");
                             cmd.Parameters.AddWithValue("@Item_Code", itemCode);
@@ -2567,9 +2537,9 @@ INSERT INTO dbo.WCS_PLAN_CONFIG_Temp (
                          * 7. PALLET MỚI → PROCESSING
                          * =====================================================*/
                         using (SqlCommand cmd = new SqlCommand(@"
-UPDATE dbo.WCS_Pallet_Prod
-SET Status = 'PROCESSING'
-WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                            UPDATE dbo.WCS_Pallet_Prod
+                            SET Status = 'PROCESSING'
+                            WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
                             cmd.ExecuteNonQuery();
@@ -2579,10 +2549,10 @@ WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                          * 8. PARCEL: -1 → 0
                          * =====================================================*/
                         using (SqlCommand cmd = new SqlCommand(@"
-UPDATE dbo.WCS_Parcels_Prod
-SET Status = 0
-WHERE Pallet_ID = @Pallet_ID
-  AND Status = -1;", conn, tran))
+                            UPDATE dbo.WCS_Parcels_Prod
+                            SET Status = 0
+                            WHERE Pallet_ID = @Pallet_ID
+                              AND Status = -1;", conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
                             cmd.ExecuteNonQuery();
@@ -2600,6 +2570,7 @@ WHERE Pallet_ID = @Pallet_ID
                     LoadDataFromSqlToListView();
                     LoadProductionData();
                     InitPlan();
+                    buttonSTART.Enabled = true;
                 };
 
                 if (InvokeRequired)
