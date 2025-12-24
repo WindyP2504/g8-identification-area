@@ -1441,9 +1441,9 @@ ORDER BY Id ASC";
                                 case 0: statusText = "Chờ in"; break;
                                 case 1: statusText = "Đã in"; break;
                                 case 2: statusText = "Đã lên bảng kê"; break;
-                                case 3: statusText = "Chờ in Palet"; break;
-                                case 4: statusText = "Chờ gửi Palet"; break;
-                                case 5: statusText = "Hoàn tất Palet"; break;
+                                case 3: statusText = "Chờ in Pallet"; break;
+                                case 4: statusText = "Chờ gửi Pallet"; break;
+                                case 5: statusText = "Hoàn tất Pallet"; break;
                                 default: statusText = "Không xác định"; break;
                             }
 
