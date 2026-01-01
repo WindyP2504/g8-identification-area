@@ -104,6 +104,8 @@ namespace VTP_Induction.Device
         public string CurrentWH_Code = "";
         public string CurrentItemCode = "";
 
+        public int WeightCurrentValue = 0;
+
         public bool IsAcceptStartNextPallet = false;
 
 
@@ -113,7 +115,6 @@ namespace VTP_Induction.Device
         public bool g_bSQLCheck = false;
         public int workerNumber = 1;
         public string cameraSmartSelected = "";
-        private static Globals GLb = Globals.getInstance();
         public static string g_sLogTemp
         {
             get
@@ -182,7 +183,6 @@ namespace VTP_Induction.Device
         public Configure ConfigureDB = new Configure();
 
         private XDocument xmldoc;
-        private XDocument xmlSysdoc;
 
         public static Configure ConfigureParameter;
 
@@ -467,7 +467,7 @@ namespace VTP_Induction.Device
 
                 return true;
             }
-            catch (Exception ex)
+            catch //(Exception ex)
             {
                 //Delete error file
                 if (
@@ -569,7 +569,7 @@ namespace VTP_Induction.Device
                 }
                 bRet = true;
             }
-            catch (Exception ex)
+            catch //(Exception ex)
             {
                 try
                 {
@@ -1027,7 +1027,7 @@ namespace VTP_Induction.Device
             public int nPassCountPin = 0;
             public int nFailCountPin = 0;
 
-            public int nScaleValue = 0;
+            //public int nScaleValue = 0;
             public int nScaleError = 0;
             public int nTimeScale = 0;
 

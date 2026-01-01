@@ -1,13 +1,8 @@
-﻿using DevExpress.XtraSplashScreen;
-using EzioDll;
+﻿using EzioDll;
 using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Media.Imaging;
 
 namespace VTP_Induction.Device
 {
@@ -122,7 +117,6 @@ namespace VTP_Induction.Device
                 Printer.Command.Start();
                 int fontH_small = 18;
                 int fontH_med = 18;
-                int fontH_title = 25;
 
                 int x = 10, y = 20;
                 
@@ -178,7 +172,7 @@ namespace VTP_Induction.Device
                 //Disconnect();
                 return true;
             }
-            catch (Exception ex)
+            catch //(Exception ex)
             {
                 return false;
             }

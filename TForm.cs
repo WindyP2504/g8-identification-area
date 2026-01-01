@@ -150,7 +150,6 @@ namespace VTP_Induction
                 labelNameSoftware.Text = GLb.g_SoftwareNameVersion;
                 PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
 
-                LoadProductionData();
                 InitPlan();
                 devHandler.DevConnect(true);
             }
@@ -281,21 +280,6 @@ namespace VTP_Induction
             }
         }
 
-        public void LoadProductionData()
-        {
-            lblCountParcel.Text = GLb.nParcelDone + "/" + GLb.g_tSysCfg.nParcelNumber;
-            lblCountPallet.Text = GLb.nPalletDone + "/" + GLb.g_tSysCfg.nPalletNumber;
-
-            int total, pass, fail;
-            CounterService.Load(out total, out pass, out fail);
-
-            GLb.nTotalItems = total;
-            GLb.nPassItems = pass;
-            GLb.nFailItems = fail;
-
-            UpdateCounterUI();
-        }
-
         public void RunProcessCaptureImage()
         {
             BackgroundWorker worker = new BackgroundWorker();
@@ -313,33 +297,12 @@ namespace VTP_Induction
 
         public void ProcessCaptureImageCompleted(object sender, RunWorkerCompletedEventArgs e) { }
 
-        public class PlanConfig
+        public void InitPlan()
         {
-            public int ParcelQuantity { get; set; }
-            public int TotalParcel { get; set; }
-            public int PalletQuantity { get; set; }
-            public string ProductionName { get; set; }
-            public int ParcelRealTimeNumber { get; set; }
-            public int PalletRealTimeNumber { get; set; }
-            public string Position { get; set; }
-        }
-
-        public PlanConfig LoadPlanConfig()
-        {
-            PlanConfig config = new PlanConfig();
-
-            string query = @"
-SELECT TOP 1
-    Ctn,
-    Item_Code,
-    Inner_Pallet,
-    TotalParcel,
-    TotalPallet,
-    RealtimeParcel,
-    RealTimePallet,
-    Position
-FROM dbo.WCS_PLAN_CONFIG_Temp
-ORDER BY Id ASC";
+            string prodName = "";
+            string position = "";
+            string query = "SELECT TOP 1 Ctn, Item_Code, Inner_Pallet, TotalParcel, TotalPallet, RealtimeParcel, RealTimePallet, Position, Weight_ref " +
+                "FROM dbo.WCS_PLAN_CONFIG_Temp ORDER BY Id ASC";
 
             using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
             {
@@ -351,59 +314,59 @@ ORDER BY Id ASC";
                     if (reader.Read())
                     {
                         // INT → NULL = 0
-                        config.ParcelQuantity =
+                        GLb.nTotalParcel =
                             reader["Ctn"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Ctn"]);
 
-                        config.TotalParcel =
+                        GLb.nTotalParcelAll =
                             reader["TotalParcel"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TotalParcel"]);
 
-                        config.PalletQuantity =
+                        GLb.nTotalPallet =
                             reader["TotalPallet"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TotalPallet"]);
 
-                        config.ParcelRealTimeNumber =
+                        GLb.nParcelDone =
                             reader["RealtimeParcel"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RealtimeParcel"]);
 
-                        config.PalletRealTimeNumber =
+                        GLb.nPalletDone =
                             reader["RealTimePallet"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RealTimePallet"]);
 
                         // STRING → NULL = ""
-                        config.ProductionName =
+                        prodName =
                             reader["Item_Code"] == DBNull.Value ? string.Empty : reader["Item_Code"].ToString();
 
-                        config.Position =
+                        position =
                             reader["Position"] == DBNull.Value ? string.Empty : reader["Position"].ToString().Trim();
+
+                        GLb.WeightCurrentValue =
+                            reader["Weight_ref"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Weight_ref"]);
                     }
                 }
             }
 
-            return config;
-        }
-
-        public void InitPlan()
-        {
-            PlanConfig plan = LoadPlanConfig();
-
-            GLb.nParcelDone = plan.ParcelRealTimeNumber;
-            GLb.nPalletDone = plan.PalletRealTimeNumber;
-            GLb.nTotalParcelAll = plan.TotalParcel;
-            GLb.nTotalPallet = plan.PalletQuantity;
-            _parcelPerPallet = plan.ParcelQuantity;
-            GLb.nTotalParcel = plan.ParcelQuantity;
-
             //UI Update
-            lblProductionName.Text = "SẢN PHẨM: " + plan.ProductionName ?? string.Empty;
+            lblProductionName.Text = "SẢN PHẨM: " + prodName ?? string.Empty;
             SetLabelText(lblCountParcel, GLb.nParcelDone + "/" + GLb.nTotalParcel, Color.Aqua);
             SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
 
             for(int i = 0; i < GLb.g_tSysCfg.sPositions.Length; i++)
             {
-                if(GLb.g_tSysCfg.sPositions[i] == plan.Position)
+                if(GLb.g_tSysCfg.sPositions[i] == position)
                 {
                     GetLocalPositionPallet(i);
                     break;
                 }
                 GetLocalPositionPallet(-1);
             }
+            lblCountParcel.Text = GLb.nParcelDone + "/" + GLb.g_tSysCfg.nParcelNumber;
+            lblCountPallet.Text = GLb.nPalletDone + "/" + GLb.g_tSysCfg.nPalletNumber;
+
+            int total, pass, fail;
+            CounterService.Load(out total, out pass, out fail);
+
+            GLb.nTotalItems = total;
+            GLb.nPassItems = pass;
+            GLb.nFailItems = fail;
+
+            UpdateCounterUI();
         }
 
         private void GetLocalPositionPallet(int index)
@@ -456,22 +419,6 @@ ORDER BY Id ASC";
             }
         }
 
-        //private static int CalculateTargetParcelThisPallet(int palletDone, int totalPallet, int totalParcelAll, int parcelPerPallet)
-        //{
-        //    if (totalPallet <= 0 || parcelPerPallet <= 0)
-        //        return 0;
-
-        //    if (palletDone >= totalPallet)
-        //        return 0;
-
-        //    if (palletDone == totalPallet - 1)
-        //    {
-        //        int remaining = totalParcelAll - (parcelPerPallet * palletDone);
-        //        return Math.Max(0, remaining);
-        //    }
-        //    return parcelPerPallet;
-        //}
-
         private void AppendText(string text)
         {
             try
@@ -499,10 +446,8 @@ ORDER BY Id ASC";
         }
 
         private Thread m_hReceiveThread = null;
-
         string ScaleRaw;
         private volatile bool _isPrinting = false;
-        private int _parcelPerPallet = 0;
 
         public void MainProcessBarcode()
         {
@@ -548,7 +493,7 @@ ORDER BY Id ASC";
                     _isPrinting = true;
                     SetLabelText(lblPushInformation, "CÂN SẢN PHẨM...", Color.OrangeRed);
 
-                    bool weightOK = IsStableWeight(out finalWeight, GLb.g_tSysCfg.nScaleValue, GLb.g_tSysCfg.nScaleError, GLb.g_tSysCfg.nTimeScale, 200);
+                    bool weightOK = IsStableWeight(out finalWeight, GLb.WeightCurrentValue, GLb.g_tSysCfg.nScaleError, GLb.g_tSysCfg.nTimeScale, 200);
                     if (!weightOK)
                     {
                         SetLabelText(labelStatus, "NG", Color.Red);
@@ -560,7 +505,7 @@ ORDER BY Id ASC";
                     }
 
                     SetLabelText(labelStatus, "OK", Color.Lime);
-                    Thread.Sleep(100);
+                    Thread.Sleep(10);
 
                     SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
 
@@ -598,8 +543,8 @@ ORDER BY Id ASC";
                     string BarcodeTemp = "";
                     SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH...", Color.OrangeRed);
                     bool readOK = WaitForBarcodeRead(out BarcodeTemp, 5000);
-                    //if (readOK && BarcodeTemp == parcelCode)
-                    if (readOK && BarcodeTemp == "TP0279")
+                    if (readOK && BarcodeTemp == parcelCode)
+                    //if (readOK && BarcodeTemp == "TP0279")
                     {
                         _isPrinting = false;
                         SetLabelText(labelStatus, "OK", Color.Lime);
@@ -696,7 +641,7 @@ ORDER BY Id ASC";
 
                         // Reload dữ liệu
                         LoadDataFromSqlToListView();
-                        LoadProductionData();
+                        
                         InitPlan();
 
                         SetLabelText(lblPushInformation, "ĐÃ HOÀN TẤT LỆNH SẢN XUẤT", Color.Green);
@@ -1181,7 +1126,7 @@ ORDER BY Id ASC";
             }
         }
 
-        private bool IsStableWeight(out int finalWeight, int standardWeight, int allowedDiff, int durationSec = 2,int intervalMs = 200, int stabilityJitter = 15)
+        private bool IsStableWeight(out int finalWeight, int standardWeight, int allowedDiff, int durationSec = 2,int intervalMs = 100, int stabilityJitter = 15)
         {
             finalWeight = 0;
 
@@ -2018,7 +1963,7 @@ ORDER BY Id ASC";
                 }
                 else if (xTab.SelectedTabPage.Tag.ToString().IndexOf("Main") >= 0)
                 {
-                    // LoadProductionData();
+                    // 
                 }
             }
             catch (Exception ex)
@@ -2125,7 +2070,7 @@ ORDER BY Id ASC";
 
             PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
 
-            LoadProductionData();
+            
             InitPlan();
 
             AppendText("TẢI LÊN KẾ HOẠCH SẢN XUẤT \r ");
@@ -2213,7 +2158,7 @@ ORDER BY Id ASC";
                     LoadDataFromSqlToListView();
                     labelNameSoftware.Text = GLb.g_SoftwareNameVersion;
                     PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
-                    LoadProductionData();
+                    
                     InitPlan();
 
                     MessageBox.Show(
@@ -2357,13 +2302,13 @@ ORDER BY Id ASC";
                                 Inner_Pallet, Inner_Carton,
                                 TotalParcel, TotalPallet,
                                 RealtimeParcel, RealTimePallet,
-                                Ctn, Position
+                                Ctn, Position, Weight_ref
                             ) VALUES (
                                 @Line_ID, @Item_Code,
                                 @Inner_Pallet, @Inner_Carton,
                                 @TotalParcel, 1,
                                 0, 0,
-                                @Ctn, @Position
+                                @Ctn, @Position, @Weight_ref
                             );", conn, tran))
                             {
                                 cmd.Parameters.AddWithValue("@Line_ID", data.LineId ?? "LINE_01");
@@ -2373,7 +2318,7 @@ ORDER BY Id ASC";
                                 cmd.Parameters.AddWithValue("@TotalParcel", palletRun.CartonList.Count);
                                 cmd.Parameters.AddWithValue("@Ctn", palletRun.Ctn);
                                 cmd.Parameters.AddWithValue("@Position", palletRun.Location ?? "");
-
+                                cmd.Parameters.AddWithValue("@Weight_ref", palletRun.Weight);
                                 cmd.ExecuteNonQuery();
                             }
 
@@ -2382,7 +2327,7 @@ ORDER BY Id ASC";
                             BeginInvoke(new Action(() =>
                             {
                                 LoadDataFromSqlToListView();
-                                LoadProductionData();
+                                
                                 InitPlan();
                             }));
                         }
@@ -2472,10 +2417,10 @@ ORDER BY Id ASC";
                          * 5. LOAD INFO PALLET MỚI
                          * =====================================================*/
                         string itemCode = "", location = "", lineId = "";
-                        int innerPallet = 0, innerCarton = 0, ctn = 0, totalParcel = 0;
+                        int innerPallet = 0, innerCarton = 0, ctn = 0, totalParcel = 0, weight_ref = 0;
 
                         using (SqlCommand cmd = new SqlCommand(@"
-                            SELECT Item_Code, Location, Inner_Pallet, Inner_Carton, Ctn, Line_ID
+                            SELECT Item_Code, Location, Inner_Pallet, Inner_Carton, Ctn, Line_ID, Weight_ref
                             FROM dbo.WCS_Pallet_Prod
                             WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                         {
@@ -2490,6 +2435,7 @@ ORDER BY Id ASC";
                                     innerCarton = Convert.ToInt32(rd["Inner_Carton"]);
                                     ctn = Convert.ToInt32(rd["Ctn"]);
                                     lineId = rd["Line_ID"].ToString();
+                                    weight_ref = Convert.ToInt32(rd["Weight_ref"]);
                                 }
                             }
                         }
@@ -2514,13 +2460,13 @@ ORDER BY Id ASC";
                                 Inner_Pallet, Inner_Carton,
                                 TotalParcel, TotalPallet,
                                 RealtimeParcel, RealTimePallet,
-                                Ctn, Position
+                                Ctn, Position, Weight_ref
                             ) VALUES (
                                 @Line_ID, @Item_Code,
                                 @Inner_Pallet, @Inner_Carton,
                                 @TotalParcel, 1,
                                 0, 0,
-                                @Ctn, @Position
+                                @Ctn, @Position, @Weight_ref
                             );", conn, tran))
                         {
                             cmd.Parameters.AddWithValue("@Line_ID", lineId ?? "LINE_01");
@@ -2530,6 +2476,7 @@ ORDER BY Id ASC";
                             cmd.Parameters.AddWithValue("@TotalParcel", totalParcel);
                             cmd.Parameters.AddWithValue("@Ctn", ctn);
                             cmd.Parameters.AddWithValue("@Position", location);
+                            cmd.Parameters.AddWithValue("@Weight_ref", weight_ref);
                             cmd.ExecuteNonQuery();
                         }
 
@@ -2568,7 +2515,6 @@ ORDER BY Id ASC";
                 Action ui = () =>
                 {
                     LoadDataFromSqlToListView();
-                    LoadProductionData();
                     InitPlan();
                     buttonSTART.Enabled = true;
                 };

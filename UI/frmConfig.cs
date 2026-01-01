@@ -199,7 +199,7 @@ namespace VTP_Induction.UI
                     }
                 }
 
-                txtScaleValue.Text = GLb.g_tSysCfg.nScaleValue.ToString();
+                //txtScaleValue.Text = GLb.g_tSysCfg.nScaleValue.ToString();
                 txtScaleError.Text = GLb.g_tSysCfg.nScaleError.ToString();
                 txtTimeScale.Text = GLb.g_tSysCfg.nTimeScale.ToString();
                 textBoxSoftwareName.Text = GLb.g_tSysCfg.sSoftwareName;
@@ -286,7 +286,7 @@ namespace VTP_Induction.UI
                 }
 
                 //GLb.g_tSysCfg.n_MultipleCamera = int.Parse(txtScaleValue.Text);
-                GLb.g_tSysCfg.nScaleValue = int.Parse(txtScaleValue.Text);
+                //GLb.g_tSysCfg.nScaleValue = int.Parse(txtScaleValue.Text);
                 GLb.g_tSysCfg.nScaleError = int.Parse(txtScaleError.Text);
                 GLb.g_tSysCfg.nTimeScale = int.Parse(txtTimeScale.Text);
                 GLb.g_tSysCfg.sSoftwareName = textBoxSoftwareName.Text;

@@ -63,8 +63,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txtScaleError = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.txtScaleValue = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.checkBoxSpecialMode = new System.Windows.Forms.CheckBox();
             this.txtLengthOfBarcode = new System.Windows.Forms.TextBox();
@@ -479,8 +477,6 @@
             this.groupBox5.Controls.Add(this.label4);
             this.groupBox5.Controls.Add(this.txtScaleError);
             this.groupBox5.Controls.Add(this.label3);
-            this.groupBox5.Controls.Add(this.txtScaleValue);
-            this.groupBox5.Controls.Add(this.label1);
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Left;
             this.groupBox5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox5.ForeColor = System.Drawing.Color.WhiteSmoke;
@@ -496,7 +492,7 @@
             this.txtTimeScale.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtTimeScale.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtTimeScale.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtTimeScale.Location = new System.Drawing.Point(126, 84);
+            this.txtTimeScale.Location = new System.Drawing.Point(124, 65);
             this.txtTimeScale.Name = "txtTimeScale";
             this.txtTimeScale.Size = new System.Drawing.Size(142, 23);
             this.txtTimeScale.TabIndex = 62;
@@ -504,7 +500,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 87);
+            this.label4.Location = new System.Drawing.Point(4, 68);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(89, 16);
             this.label4.TabIndex = 61;
@@ -515,7 +511,7 @@
             this.txtScaleError.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtScaleError.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtScaleError.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtScaleError.Location = new System.Drawing.Point(126, 56);
+            this.txtScaleError.Location = new System.Drawing.Point(124, 37);
             this.txtScaleError.Name = "txtScaleError";
             this.txtScaleError.Size = new System.Drawing.Size(142, 23);
             this.txtScaleError.TabIndex = 60;
@@ -523,30 +519,11 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 58);
+            this.label3.Location = new System.Drawing.Point(4, 39);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(103, 16);
             this.label3.TabIndex = 59;
             this.label3.Text = "Sai số cho phép:\r\n";
-            // 
-            // txtScaleValue
-            // 
-            this.txtScaleValue.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txtScaleValue.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtScaleValue.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtScaleValue.Location = new System.Drawing.Point(126, 28);
-            this.txtScaleValue.Name = "txtScaleValue";
-            this.txtScaleValue.Size = new System.Drawing.Size(142, 23);
-            this.txtScaleValue.TabIndex = 58;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 30);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(109, 16);
-            this.label1.TabIndex = 47;
-            this.label1.Text = "Giá trị tiêu chuẩn:";
             // 
             // groupBox4
             // 
@@ -994,8 +971,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelDetector;
         private DevExpress.XtraEditors.SimpleButton buttonRefresh;
         private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.TextBox txtScaleValue;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtTimeScale;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtScaleError;
