@@ -151,26 +151,19 @@ namespace VTP_Induction.Device
                 {
                     // Thử in QR từ SDK của GoDEX (tên tham số có thể thay đổi tùy theo SDK của bạn)
                     //Printer.Command.PrintQRCode(qrX, qrY, ParcelCode);
-                    Printer.Command.PrintQRCode(qrX, qrY, Mode, Type, ErrorLevel, Mask, Mul, Rotation, ParcelCode);
-                    qrPrinted = true;
+                    var res = Printer.Command.PrintQRCode(qrX, qrY, Mode, Type, ErrorLevel, Mask, Mul, Rotation, ParcelCode);
+                    if(res != 0)
+                        qrPrinted = true;
+                    else 
+                        qrPrinted = false;
                 }
                 catch { qrPrinted = false; }
 
-                string code = "QR: " + ParcelCode;
-                // Nếu QR không in được, in mã ParcelCode thay thế
-                if (!qrPrinted)
-                {
-                    Printer.Command.PrintText_Unicode(
-                        qrX, qrY,
-                        fontH_small, "Arial",
-                        code,
-                        0, FontWeight.FW_400_NORMAL, RotateMode.Angle_180);
-                }
-
                 // Kết thúc lệnh in
                 Printer.Command.End();
+                //Printer.Close();
                 //Disconnect();
-                return true;
+                return qrPrinted;
             }
             catch //(Exception ex)
             {

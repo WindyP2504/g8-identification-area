@@ -61,6 +61,6 @@ public class DonePalletRequest
     public string Line_ID { get; set; }
     public string Pallet_ID { get; set; }
     public string Location { get; set; }
-    public string From_System { get; set; }
+    public string fromSystem { get; set; }
 }
 

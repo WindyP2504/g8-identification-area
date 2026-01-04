@@ -180,7 +180,6 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.TimerInsp = new System.Windows.Forms.Timer(this.components);
             this.panel17 = new System.Windows.Forms.Panel();
@@ -188,7 +187,6 @@
             this.panel11 = new System.Windows.Forms.Panel();
             this.panel19 = new System.Windows.Forms.Panel();
             this.panel33 = new System.Windows.Forms.Panel();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.timerBlink = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -1058,6 +1056,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(247, 156);
             this.tableLayoutPanel1.TabIndex = 0;
+            this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
             // panel39
             // 
@@ -1315,7 +1314,7 @@
             this.xtraTabPageConfig.Controls.Add(this.panel34);
             this.xtraTabPageConfig.Image = global::VTP_Induction.Properties.Resources.settings_icon1;
             this.xtraTabPageConfig.Name = "xtraTabPageConfig";
-            this.xtraTabPageConfig.Size = new System.Drawing.Size(1476, 609);
+            this.xtraTabPageConfig.Size = new System.Drawing.Size(1528, 592);
             this.xtraTabPageConfig.Tag = "Config";
             this.xtraTabPageConfig.Text = "Cài đặt";
             // 
@@ -1326,7 +1325,7 @@
             this.panel34.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel34.Location = new System.Drawing.Point(0, 0);
             this.panel34.Name = "panel34";
-            this.panel34.Size = new System.Drawing.Size(1476, 609);
+            this.panel34.Size = new System.Drawing.Size(1528, 592);
             this.panel34.TabIndex = 0;
             // 
             // panelConfig
@@ -1334,7 +1333,7 @@
             this.panelConfig.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelConfig.Location = new System.Drawing.Point(0, 0);
             this.panelConfig.Name = "panelConfig";
-            this.panelConfig.Size = new System.Drawing.Size(1476, 609);
+            this.panelConfig.Size = new System.Drawing.Size(1528, 592);
             this.panelConfig.TabIndex = 1;
             // 
             // xtraTabPageDeviceParameter
@@ -1342,7 +1341,7 @@
             this.xtraTabPageDeviceParameter.Controls.Add(this.panelDevPara);
             this.xtraTabPageDeviceParameter.Image = global::VTP_Induction.Properties.Resources.RobotOff32x32;
             this.xtraTabPageDeviceParameter.Name = "xtraTabPageDeviceParameter";
-            this.xtraTabPageDeviceParameter.Size = new System.Drawing.Size(1476, 609);
+            this.xtraTabPageDeviceParameter.Size = new System.Drawing.Size(1528, 592);
             this.xtraTabPageDeviceParameter.Tag = "Device";
             this.xtraTabPageDeviceParameter.Text = "Thông số";
             // 
@@ -1354,7 +1353,7 @@
             this.panelDevPara.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.panelDevPara.Location = new System.Drawing.Point(0, 0);
             this.panelDevPara.Name = "panelDevPara";
-            this.panelDevPara.Size = new System.Drawing.Size(1476, 609);
+            this.panelDevPara.Size = new System.Drawing.Size(1528, 592);
             this.panelDevPara.TabIndex = 0;
             // 
             // panel4
@@ -1364,7 +1363,7 @@
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel4.Location = new System.Drawing.Point(0, 0);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(1476, 609);
+            this.panel4.Size = new System.Drawing.Size(1528, 592);
             this.panel4.TabIndex = 0;
             // 
             // panelPLC
@@ -1374,7 +1373,7 @@
             this.panelPLC.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelPLC.Location = new System.Drawing.Point(0, 77);
             this.panelPLC.Name = "panelPLC";
-            this.panelPLC.Size = new System.Drawing.Size(1476, 532);
+            this.panelPLC.Size = new System.Drawing.Size(1528, 515);
             this.panelPLC.TabIndex = 1;
             // 
             // panel27
@@ -1384,7 +1383,7 @@
             this.panel27.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel27.Location = new System.Drawing.Point(988, 0);
             this.panel27.Name = "panel27";
-            this.panel27.Size = new System.Drawing.Size(488, 532);
+            this.panel27.Size = new System.Drawing.Size(540, 515);
             this.panel27.TabIndex = 1;
             // 
             // panel58
@@ -1395,7 +1394,7 @@
             this.panel58.Location = new System.Drawing.Point(0, 352);
             this.panel58.Margin = new System.Windows.Forms.Padding(2);
             this.panel58.Name = "panel58";
-            this.panel58.Size = new System.Drawing.Size(488, 180);
+            this.panel58.Size = new System.Drawing.Size(540, 163);
             this.panel58.TabIndex = 43;
             // 
             // panel60
@@ -1405,7 +1404,7 @@
             this.panel60.Location = new System.Drawing.Point(0, 52);
             this.panel60.Margin = new System.Windows.Forms.Padding(2);
             this.panel60.Name = "panel60";
-            this.panel60.Size = new System.Drawing.Size(488, 128);
+            this.panel60.Size = new System.Drawing.Size(540, 111);
             this.panel60.TabIndex = 21;
             // 
             // groupControl1
@@ -1423,7 +1422,7 @@
             this.groupControl1.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.UltraFlat;
             this.groupControl1.LookAndFeel.UseDefaultLookAndFeel = false;
             this.groupControl1.Name = "groupControl1";
-            this.groupControl1.Size = new System.Drawing.Size(488, 128);
+            this.groupControl1.Size = new System.Drawing.Size(540, 111);
             this.groupControl1.TabIndex = 42;
             this.groupControl1.Text = "PRINTER Parameter";
             // 
@@ -1443,7 +1442,7 @@
             this.propertyGridPrinter.Location = new System.Drawing.Point(2, 18);
             this.propertyGridPrinter.Name = "propertyGridPrinter";
             this.propertyGridPrinter.SelectedItemWithFocusForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.propertyGridPrinter.Size = new System.Drawing.Size(484, 108);
+            this.propertyGridPrinter.Size = new System.Drawing.Size(536, 91);
             this.propertyGridPrinter.TabIndex = 0;
             this.propertyGridPrinter.ViewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
             this.propertyGridPrinter.ViewBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(58)))));
@@ -1457,7 +1456,7 @@
             this.panel59.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel59.Location = new System.Drawing.Point(0, 0);
             this.panel59.Name = "panel59";
-            this.panel59.Size = new System.Drawing.Size(488, 52);
+            this.panel59.Size = new System.Drawing.Size(540, 52);
             this.panel59.TabIndex = 20;
             // 
             // simpleButton4
@@ -1475,7 +1474,7 @@
             this.simpleButton4.Appearance.Options.UseForeColor = true;
             this.simpleButton4.ImageLocation = DevExpress.XtraEditors.ImageLocation.MiddleLeft;
             this.simpleButton4.ImageToTextAlignment = DevExpress.XtraEditors.ImageAlignToText.LeftCenter;
-            this.simpleButton4.Location = new System.Drawing.Point(393, 7);
+            this.simpleButton4.Location = new System.Drawing.Point(445, 7);
             this.simpleButton4.LookAndFeel.SkinName = "The Asphalt World";
             this.simpleButton4.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.Style3D;
             this.simpleButton4.LookAndFeel.UseDefaultLookAndFeel = false;
@@ -1499,7 +1498,7 @@
             this.simpleButton5.Appearance.Options.UseForeColor = true;
             this.simpleButton5.ImageLocation = DevExpress.XtraEditors.ImageLocation.MiddleLeft;
             this.simpleButton5.ImageToTextAlignment = DevExpress.XtraEditors.ImageAlignToText.LeftCenter;
-            this.simpleButton5.Location = new System.Drawing.Point(756, 19);
+            this.simpleButton5.Location = new System.Drawing.Point(808, 19);
             this.simpleButton5.LookAndFeel.SkinName = "The Asphalt World";
             this.simpleButton5.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.Style3D;
             this.simpleButton5.LookAndFeel.UseDefaultLookAndFeel = false;
@@ -1526,7 +1525,7 @@
             this.panel56.Location = new System.Drawing.Point(0, 0);
             this.panel56.Margin = new System.Windows.Forms.Padding(2);
             this.panel56.Name = "panel56";
-            this.panel56.Size = new System.Drawing.Size(488, 352);
+            this.panel56.Size = new System.Drawing.Size(540, 352);
             this.panel56.TabIndex = 42;
             // 
             // panel57
@@ -1536,7 +1535,7 @@
             this.panel57.Location = new System.Drawing.Point(0, 46);
             this.panel57.Margin = new System.Windows.Forms.Padding(2);
             this.panel57.Name = "panel57";
-            this.panel57.Size = new System.Drawing.Size(488, 306);
+            this.panel57.Size = new System.Drawing.Size(540, 306);
             this.panel57.TabIndex = 20;
             // 
             // groupBoxParameter
@@ -1554,7 +1553,7 @@
             this.groupBoxParameter.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.UltraFlat;
             this.groupBoxParameter.LookAndFeel.UseDefaultLookAndFeel = false;
             this.groupBoxParameter.Name = "groupBoxParameter";
-            this.groupBoxParameter.Size = new System.Drawing.Size(488, 306);
+            this.groupBoxParameter.Size = new System.Drawing.Size(540, 306);
             this.groupBoxParameter.TabIndex = 41;
             this.groupBoxParameter.Text = "PLC parameter";
             // 
@@ -1574,7 +1573,7 @@
             this.propertyGridPower.Location = new System.Drawing.Point(2, 18);
             this.propertyGridPower.Name = "propertyGridPower";
             this.propertyGridPower.SelectedItemWithFocusForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.propertyGridPower.Size = new System.Drawing.Size(484, 286);
+            this.propertyGridPower.Size = new System.Drawing.Size(536, 286);
             this.propertyGridPower.TabIndex = 0;
             this.propertyGridPower.ViewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
             this.propertyGridPower.ViewBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(58)))));
@@ -1588,7 +1587,7 @@
             this.panel28.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel28.Location = new System.Drawing.Point(0, 0);
             this.panel28.Name = "panel28";
-            this.panel28.Size = new System.Drawing.Size(488, 46);
+            this.panel28.Size = new System.Drawing.Size(540, 46);
             this.panel28.TabIndex = 19;
             // 
             // simpleButton1
@@ -1606,7 +1605,7 @@
             this.simpleButton1.Appearance.Options.UseForeColor = true;
             this.simpleButton1.ImageLocation = DevExpress.XtraEditors.ImageLocation.MiddleLeft;
             this.simpleButton1.ImageToTextAlignment = DevExpress.XtraEditors.ImageAlignToText.LeftCenter;
-            this.simpleButton1.Location = new System.Drawing.Point(393, 6);
+            this.simpleButton1.Location = new System.Drawing.Point(445, 6);
             this.simpleButton1.LookAndFeel.SkinName = "The Asphalt World";
             this.simpleButton1.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.Style3D;
             this.simpleButton1.LookAndFeel.UseDefaultLookAndFeel = false;
@@ -1631,7 +1630,7 @@
             this.buttonSetup.Appearance.Options.UseForeColor = true;
             this.buttonSetup.ImageLocation = DevExpress.XtraEditors.ImageLocation.MiddleLeft;
             this.buttonSetup.ImageToTextAlignment = DevExpress.XtraEditors.ImageAlignToText.LeftCenter;
-            this.buttonSetup.Location = new System.Drawing.Point(756, 12);
+            this.buttonSetup.Location = new System.Drawing.Point(808, 12);
             this.buttonSetup.LookAndFeel.SkinName = "The Asphalt World";
             this.buttonSetup.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.Style3D;
             this.buttonSetup.LookAndFeel.UseDefaultLookAndFeel = false;
@@ -1658,7 +1657,7 @@
             this.panel22.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel22.Location = new System.Drawing.Point(0, 0);
             this.panel22.Name = "panel22";
-            this.panel22.Size = new System.Drawing.Size(988, 532);
+            this.panel22.Size = new System.Drawing.Size(988, 515);
             this.panel22.TabIndex = 0;
             // 
             // panel26
@@ -1667,7 +1666,7 @@
             this.panel26.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel26.Location = new System.Drawing.Point(0, 410);
             this.panel26.Name = "panel26";
-            this.panel26.Size = new System.Drawing.Size(988, 122);
+            this.panel26.Size = new System.Drawing.Size(988, 105);
             this.panel26.TabIndex = 1;
             // 
             // groupBox13
@@ -1681,7 +1680,7 @@
             this.groupBox13.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox13.Name = "groupBox13";
             this.groupBox13.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox13.Size = new System.Drawing.Size(988, 122);
+            this.groupBox13.Size = new System.Drawing.Size(988, 105);
             this.groupBox13.TabIndex = 2;
             this.groupBox13.TabStop = false;
             this.groupBox13.Text = "Output";
@@ -1706,7 +1705,7 @@
             this.gridControlOutputS1.Name = "gridControlOutputS1";
             this.gridControlOutputS1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.repositoryItemMemoEdit2});
-            this.gridControlOutputS1.Size = new System.Drawing.Size(984, 102);
+            this.gridControlOutputS1.Size = new System.Drawing.Size(984, 85);
             this.gridControlOutputS1.TabIndex = 1;
             this.gridControlOutputS1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gridViewOutputS1});
@@ -2224,7 +2223,7 @@
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox3.Location = new System.Drawing.Point(0, 0);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(1476, 77);
+            this.groupBox3.Size = new System.Drawing.Size(1528, 77);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             // 
@@ -2257,7 +2256,7 @@
             this.xtraTabPageSystem.Controls.Add(this.panel23);
             this.xtraTabPageSystem.Image = global::VTP_Induction.Properties.Resources.Exit_32x321;
             this.xtraTabPageSystem.Name = "xtraTabPageSystem";
-            this.xtraTabPageSystem.Size = new System.Drawing.Size(1476, 609);
+            this.xtraTabPageSystem.Size = new System.Drawing.Size(1528, 592);
             this.xtraTabPageSystem.Tag = "Log";
             this.xtraTabPageSystem.Text = "Lịch sử Log";
             // 
@@ -2267,7 +2266,7 @@
             this.panel23.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel23.Location = new System.Drawing.Point(0, 0);
             this.panel23.Name = "panel23";
-            this.panel23.Size = new System.Drawing.Size(1476, 609);
+            this.panel23.Size = new System.Drawing.Size(1528, 592);
             this.panel23.TabIndex = 0;
             // 
             // lvlog
@@ -2284,7 +2283,7 @@
             this.lvlog.HideSelection = false;
             this.lvlog.Location = new System.Drawing.Point(0, 0);
             this.lvlog.Name = "lvlog";
-            this.lvlog.Size = new System.Drawing.Size(1476, 609);
+            this.lvlog.Size = new System.Drawing.Size(1528, 592);
             this.lvlog.TabIndex = 52;
             this.lvlog.UseCompatibleStateImageBehavior = false;
             this.lvlog.View = System.Windows.Forms.View.Details;
@@ -2466,12 +2465,6 @@
             this.panel33.Size = new System.Drawing.Size(1538, 265);
             this.panel33.TabIndex = 0;
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
-            // 
             // timerBlink
             // 
             this.timerBlink.Interval = 500;
@@ -2605,7 +2598,6 @@
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.Timer timer2;
-        private System.Windows.Forms.Timer timer3;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.Timer TimerInsp;
         private DevExpress.XtraTab.XtraTabPage xtraTabPageDeviceParameter;
@@ -2717,7 +2709,6 @@
         private System.Windows.Forms.Panel panel52;
         private System.Windows.Forms.Label labelStatus;
         private System.Windows.Forms.Panel panel51;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.Panel panel43;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.Panel panel69;

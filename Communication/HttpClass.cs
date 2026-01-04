@@ -176,7 +176,7 @@ namespace VTP_Induction
                     + ", Line=" + data.Line_ID
                     + ", Pallet=" + data.Pallet_ID
                     + ", Location=" + data.Location
-                    + ", From=" + data.From_System);
+                    + ", From=" + data.fromSystem);
 
             if (PoReceived != null)
                 PoReceived(data);
