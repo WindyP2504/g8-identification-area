@@ -494,7 +494,6 @@
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox3.TabIndex = 0;
             this.pictureBox3.TabStop = false;
-            this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
             // 
             // panel46
             // 
@@ -1056,7 +1055,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(247, 156);
             this.tableLayoutPanel1.TabIndex = 0;
-            this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
             // panel39
             // 
@@ -2483,7 +2481,6 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TForm_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TForm_FormClosed);
             this.Load += new System.EventHandler(this.TForm_Load);
-            this.Resize += new System.EventHandler(this.TForm_Resize);
             this.panel1.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.xtraTabControlTForm)).EndInit();

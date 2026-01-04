@@ -104,7 +104,6 @@ namespace VTP_Induction
             ResultClass.resultStruct result = default(ResultClass.resultStruct);
             try
             {
-                string Connect = "Data Source=DESKTOP-IVJB6QI\\KTEAM;Initial Catalog=WCS_Viettel;Integrated Security= True";
                 if (!(dbType == "Oracle") && dbType == "SQLSERVER")
                 {
                     SqlConnection sqlConnection = new SqlConnection(connStr);

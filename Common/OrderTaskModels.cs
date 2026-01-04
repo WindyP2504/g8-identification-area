@@ -52,7 +52,7 @@ public class InforDetail
     public int Inner_Pallet{ get; set; }
 
     [JsonProperty("Weight")]
-    public int Weight { get; set; }
+    public int? Weight { get; set; }
 }
 
 public class DonePalletRequest

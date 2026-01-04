@@ -149,8 +149,7 @@ namespace VTP_Induction.Device
             }
         }
         CommConfig cfg = new CommConfig();
-        private bool isReading; // Biến để kiểm tra trạng thái đọc dữ liệu
-        private string lastNetData = "";
+
         public void CommInit()
         {
             //CommConfig cfg = new CommConfig();
@@ -183,7 +182,6 @@ namespace VTP_Induction.Device
                 if(p_bConnection)
                     Disconnect();
                 CommInit();
-                isReading = true;
                 string sLog = "{ Barcode: " + m_sName + "::Connect ";
                 //serialPort.DataReceived += SerialPort_DataReceived;
                 serialPort = new SerialPort(cfg.PortName, cfg.BaudRate, cfg.parity, cfg.DataBit, cfg.stopbit);
@@ -214,13 +212,11 @@ namespace VTP_Induction.Device
         }
         private AutoResetEvent receiveEvent = new AutoResetEvent(false);
         private string receivedData = "";
-        private bool success = false;
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             try
             {
                 receivedData = serialPort.ReadExisting().Trim();
-                success = true;
                 receiveEvent.Set(); // báo đã nhận
             }
             catch { }
@@ -232,7 +228,6 @@ namespace VTP_Induction.Device
             {
                 if (serialPort.IsOpen)
                     serialPort.Close();
-                isReading = false;
             }
             catch
             {
@@ -259,7 +254,6 @@ namespace VTP_Induction.Device
             try
             {
                 receivedData = "";
-                success = false;
                 TriggerOn();
 
                 if (receiveEvent.WaitOne(timeoutMs)) // chờ trong 15 giây
@@ -273,7 +267,7 @@ namespace VTP_Induction.Device
                     return "";
                 }
             }
-            catch (Exception ex)
+            catch //(Exception ex)
             {
                 TriggerOff();
                 return "";

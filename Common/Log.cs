@@ -16,7 +16,6 @@ namespace VTP_Induction.Common
         private static ILogger _LoggerSystem;
         private static ILogger _LoggerGmes;
         private static LoggingLevelSwitch levelSwitchSystem;
-        private static LoggingLevelSwitch levelSwitchGmes;
         private static string m_sFilePathSystem = @"D:\VIETTELPOST\Log\Test\SystemLog_";
         private static bool m_bInit = true;
         public static Globals.LogLv Loglv

@@ -35,8 +35,6 @@ namespace VTP_Induction
         private Queue<DeviceEvent> DevEventListSub3 = new Queue<DeviceEvent>();
         private List<MacroFunc> listThreadSub3 = new List<MacroFunc>();
 
-        private DeviceEvent CurCMDProcessing;
-
         private bool bSeverPVIsOpen = false;
         public bool SeverPVIsOpen
         {
@@ -277,14 +275,6 @@ namespace VTP_Induction
                         {
                             return null;
                         }
-                        if (cRFID != null)
-                        {
-                            return cRFID;
-                        }
-                        else
-                        {
-                            return null;
-                        }
                     case Globals.TEnumUtilDevice.PRINTER:
 
                         if (cPrinter != null)
@@ -421,7 +411,7 @@ namespace VTP_Induction
                 }
                 catch (System.Exception ex)
                 {
-                    //Log.LogWrite(Globals.LogLv.Debug, ex.Message);
+                    Log.LogWrite(Globals.LogLv.Debug, ex.Message);
                 }
             }
 
@@ -627,10 +617,6 @@ namespace VTP_Induction
             //    item.CameraTriggerFromOutSignal();
             //}
         }
-
-        private bool bThreadSubRet_1,
-            bThreadSubRet_2,
-            bThreadSubRet_3 = false;
 
         private void ProcessCmdExeSub1()
         {
@@ -1951,10 +1937,6 @@ namespace VTP_Induction
             bool bRet = false;
             long deadTime = 2000;
 
-            string sLog = "WaitForSubXML ";
-            string sReason = "";
-            //Log.LogWrite(Globals.LogLv.Information, sLog + "...");
-            // = (int)GLb.g_tSysCfg.nMasterTimeout;
             if (deadTime < 5000)
             {
                 deadTime = 5000;
@@ -1993,7 +1975,6 @@ namespace VTP_Induction
             long deadTime = 2000;
 
             string sLog = "WaitForOtherMachineFinish: ";
-            string sReason = "";
             Log.LogWrite(Globals.LogLv.Information, sLog + "...");
             //deadTime = (int)GLb.g_tSysCfg.nMasterTimeout;
             if (deadTime < 5000)
@@ -2030,10 +2011,6 @@ namespace VTP_Induction
             bool bRet = false;
             long deadTime = 10000;
 
-            string sLog = "WaitSalveCmdFinish: ";
-            string sReason = "";
-            //Log.LogWrite(Globals.LogLv.Information, sLog + "...");
-            //deadTime = (int)GLb.g_tSysCfg.nMasterTimeout;
             if (deadTime < 5000)
             {
                 deadTime = 5000;
