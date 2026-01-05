@@ -328,8 +328,8 @@ namespace VTP_Induction
                     GLb.CurrentWH_Code = string.Empty;
 
                     lblProductionName.Text = "SẢN PHẨM: ";
-                    SetLabelText(lblCountParcel, "0/0", Color.Aqua);
-                    SetLabelText(lblCountPallet, GLb.nPalletDone.ToString() + "/" + GLb.nTotalPallet.ToString(), Color.Aqua);
+                    SetLabelText(lblCountParcel, "0/0", Color.DarkOrange);
+                    SetLabelText(lblCountPallet, GLb.nPalletDone.ToString() + "/" + GLb.nTotalPallet.ToString(), Color.DarkOrange);
 
                     GetLocalPositionPallet(-1);
 
@@ -361,7 +361,7 @@ namespace VTP_Induction
                 GLb.CurrentItemCode = itemCode;
                 GLb.nTotalParcel = totalParcel;
                 GLb.nParcelDone = doneParcel;
-                GLb.WeightCurrentValue = weightRef;
+                GLb.WeightCurrentValue = (weightRef != 0) ? weightRef : GLb.g_tSysCfg.nWeightStandard;
 
                 if (string.Equals(palletStatus, "DONE", StringComparison.OrdinalIgnoreCase))
                     GLb.nPalletDone = 1;
@@ -404,8 +404,10 @@ namespace VTP_Induction
 
                 // Update UI
                 lblProductionName.Text = "SẢN PHẨM: " + itemCode;
-                SetLabelText(lblCountParcel, GLb.nParcelDone.ToString() + "/" + GLb.nTotalParcel.ToString(), Color.Aqua);
-                SetLabelText(lblCountPallet, GLb.nPalletDone.ToString() + "/" + GLb.nTotalPallet.ToString(), Color.Aqua);
+                lblPalletCode.Text = "MÃ PALLET: " + GLb.CurrentPalletID;
+                lblWeightStandard.Text = "TIÊU CHUẨN: " + GLb.WeightCurrentValue.ToString() + " GAM";
+                SetLabelText(lblCountParcel, GLb.nParcelDone.ToString() + "/" + GLb.nTotalParcel.ToString(), Color.DarkOrange);
+                SetLabelText(lblCountPallet, GLb.nPalletDone.ToString() + "/" + GLb.nTotalPallet.ToString(), Color.DarkOrange);
 
                 // Set position
                 int idx = -1;
@@ -562,7 +564,7 @@ namespace VTP_Induction
 
                         string nextParcel = PrintQueueHelper.GetNextParcelCode(lvPrintList);
 
-                        SetLabelText(lblPalletCode, "MÃ PALLET: " + GLb.CurrentPalletID, Color.LightYellow);
+                        SetLabelText(lblPalletCode, "MÃ PALLET: " + GLb.CurrentPalletID, Color.DarkOrange);
 
                         if (string.IsNullOrEmpty(nextParcel))
                         {
@@ -701,7 +703,7 @@ namespace VTP_Induction
                     {
                         buttonSTOP_Click(null, null);
                         SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
-                        SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
+                        SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.DarkOrange);
                         devHandler.cPLCHandler.SetTrafficLightByM(1);
                     }
                     catch (Exception ex)
@@ -759,8 +761,8 @@ namespace VTP_Induction
                     {
                         buttonSTOP_Click(null, null);
                         SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
-                        SetLabelText(lblCountParcel, "0/" + GLb.nTotalParcel, Color.Aqua);
-                        SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.Aqua);
+                        SetLabelText(lblCountParcel, "0/" + GLb.nTotalParcel, Color.DarkOrange);
+                        SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.DarkOrange);
                         devHandler.cPLCHandler.SetTrafficLightByM(1);
                     }
                     catch (Exception ex)
@@ -1185,7 +1187,7 @@ namespace VTP_Induction
             SetLabelText(
                 lblCountParcel,
                 GLb.nParcelDone.ToString() + "/" + GLb.nTotalParcel,
-                Color.Aqua
+                Color.DarkOrange
             );
 
             double percentPass = GLb.nPassItems * 100.0 / GLb.nTotalItems;

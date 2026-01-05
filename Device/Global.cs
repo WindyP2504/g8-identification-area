@@ -1027,7 +1027,7 @@ namespace VTP_Induction.Device
             public int nPassCountPin = 0;
             public int nFailCountPin = 0;
 
-            //public int nScaleValue = 0;
+            public int nWeightStandard = 0;
             public int nScaleError = 0;
             public int nTimeScale = 0;
 

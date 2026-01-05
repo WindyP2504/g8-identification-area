@@ -50,6 +50,7 @@
             this.panel49 = new System.Windows.Forms.Panel();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.panel46 = new System.Windows.Forms.Panel();
+            this.lblWeightStandard = new System.Windows.Forms.Label();
             this.lblProductionName = new System.Windows.Forms.Label();
             this.lblPalletCode = new System.Windows.Forms.Label();
             this.panel48 = new System.Windows.Forms.Panel();
@@ -497,6 +498,7 @@
             // 
             // panel46
             // 
+            this.panel46.Controls.Add(this.lblWeightStandard);
             this.panel46.Controls.Add(this.lblProductionName);
             this.panel46.Controls.Add(this.lblPalletCode);
             this.panel46.Dock = System.Windows.Forms.DockStyle.Top;
@@ -506,6 +508,19 @@
             this.panel46.Size = new System.Drawing.Size(989, 46);
             this.panel46.TabIndex = 0;
             // 
+            // lblWeightStandard
+            // 
+            this.lblWeightStandard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
+            this.lblWeightStandard.Dock = System.Windows.Forms.DockStyle.Right;
+            this.lblWeightStandard.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblWeightStandard.ForeColor = System.Drawing.Color.DarkOrange;
+            this.lblWeightStandard.Location = new System.Drawing.Point(287, 0);
+            this.lblWeightStandard.Name = "lblWeightStandard";
+            this.lblWeightStandard.Size = new System.Drawing.Size(307, 46);
+            this.lblWeightStandard.TabIndex = 12;
+            this.lblWeightStandard.Text = "Pallet ID";
+            this.lblWeightStandard.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // lblProductionName
             // 
             this.lblProductionName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
@@ -514,7 +529,7 @@
             this.lblProductionName.ForeColor = System.Drawing.Color.DarkOrange;
             this.lblProductionName.Location = new System.Drawing.Point(0, 0);
             this.lblProductionName.Name = "lblProductionName";
-            this.lblProductionName.Size = new System.Drawing.Size(534, 46);
+            this.lblProductionName.Size = new System.Drawing.Size(594, 46);
             this.lblProductionName.TabIndex = 11;
             this.lblProductionName.Text = "Production Name";
             this.lblProductionName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -525,9 +540,9 @@
             this.lblPalletCode.Dock = System.Windows.Forms.DockStyle.Right;
             this.lblPalletCode.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPalletCode.ForeColor = System.Drawing.Color.DarkOrange;
-            this.lblPalletCode.Location = new System.Drawing.Point(534, 0);
+            this.lblPalletCode.Location = new System.Drawing.Point(594, 0);
             this.lblPalletCode.Name = "lblPalletCode";
-            this.lblPalletCode.Size = new System.Drawing.Size(455, 46);
+            this.lblPalletCode.Size = new System.Drawing.Size(395, 46);
             this.lblPalletCode.TabIndex = 10;
             this.lblPalletCode.Text = "Pallet ID";
             this.lblPalletCode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -609,7 +624,7 @@
             this.lblCountPallet.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblCountPallet.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblCountPallet.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCountPallet.ForeColor = System.Drawing.Color.Aqua;
+            this.lblCountPallet.ForeColor = System.Drawing.Color.DarkOrange;
             this.lblCountPallet.Location = new System.Drawing.Point(0, 0);
             this.lblCountPallet.Name = "lblCountPallet";
             this.lblCountPallet.Size = new System.Drawing.Size(179, 42);
@@ -633,7 +648,7 @@
             this.label10.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label10.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label10.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.ForeColor = System.Drawing.Color.Aqua;
+            this.label10.ForeColor = System.Drawing.Color.DarkOrange;
             this.label10.Location = new System.Drawing.Point(0, 0);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(103, 42);
@@ -673,7 +688,7 @@
             this.lblCountParcel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblCountParcel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblCountParcel.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCountParcel.ForeColor = System.Drawing.Color.Aqua;
+            this.lblCountParcel.ForeColor = System.Drawing.Color.DarkOrange;
             this.lblCountParcel.Location = new System.Drawing.Point(0, 0);
             this.lblCountParcel.Name = "lblCountParcel";
             this.lblCountParcel.Size = new System.Drawing.Size(179, 42);
@@ -697,7 +712,7 @@
             this.label4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label4.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.Color.Aqua;
+            this.label4.ForeColor = System.Drawing.Color.DarkOrange;
             this.label4.Location = new System.Drawing.Point(0, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(103, 42);
@@ -2737,6 +2752,7 @@
         private System.Windows.Forms.Timer timerBlink;
         private System.Windows.Forms.Label lblScaleValue;
         private System.Windows.Forms.Button btnRstUI;
+        private System.Windows.Forms.Label lblWeightStandard;
     }
 }
 

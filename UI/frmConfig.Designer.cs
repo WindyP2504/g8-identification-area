@@ -92,6 +92,8 @@
             this.txtPrintManual = new System.Windows.Forms.TextBox();
             this.buttonRefresh = new DevExpress.XtraEditors.SimpleButton();
             this.buttonOk = new DevExpress.XtraEditors.SimpleButton();
+            this.txbWeightStandard = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabControlConfig)).BeginInit();
@@ -473,6 +475,8 @@
             // groupBox5
             // 
             this.groupBox5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.groupBox5.Controls.Add(this.txbWeightStandard);
+            this.groupBox5.Controls.Add(this.label1);
             this.groupBox5.Controls.Add(this.txtTimeScale);
             this.groupBox5.Controls.Add(this.label4);
             this.groupBox5.Controls.Add(this.txtScaleError);
@@ -492,7 +496,7 @@
             this.txtTimeScale.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtTimeScale.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtTimeScale.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtTimeScale.Location = new System.Drawing.Point(124, 65);
+            this.txtTimeScale.Location = new System.Drawing.Point(124, 84);
             this.txtTimeScale.Name = "txtTimeScale";
             this.txtTimeScale.Size = new System.Drawing.Size(142, 23);
             this.txtTimeScale.TabIndex = 62;
@@ -500,7 +504,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(4, 68);
+            this.label4.Location = new System.Drawing.Point(4, 87);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(89, 16);
             this.label4.TabIndex = 61;
@@ -511,7 +515,7 @@
             this.txtScaleError.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
             this.txtScaleError.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtScaleError.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtScaleError.Location = new System.Drawing.Point(124, 37);
+            this.txtScaleError.Location = new System.Drawing.Point(124, 56);
             this.txtScaleError.Name = "txtScaleError";
             this.txtScaleError.Size = new System.Drawing.Size(142, 23);
             this.txtScaleError.TabIndex = 60;
@@ -519,7 +523,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(4, 39);
+            this.label3.Location = new System.Drawing.Point(4, 58);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(103, 16);
             this.label3.TabIndex = 59;
@@ -897,6 +901,25 @@
             this.buttonOk.Text = "Apply";
             this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
             // 
+            // txbWeightStandard
+            // 
+            this.txbWeightStandard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txbWeightStandard.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txbWeightStandard.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txbWeightStandard.Location = new System.Drawing.Point(124, 27);
+            this.txbWeightStandard.Name = "txbWeightStandard";
+            this.txbWeightStandard.Size = new System.Drawing.Size(142, 23);
+            this.txbWeightStandard.TabIndex = 64;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(4, 29);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(114, 16);
+            this.label1.TabIndex = 63;
+            this.label1.Text = "Trọng lượng hàng:";
+            // 
             // frmConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1003,5 +1026,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txtPos1;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txbWeightStandard;
+        private System.Windows.Forms.Label label1;
     }
 }
