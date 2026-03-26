@@ -103,6 +103,7 @@ namespace VTP_Induction.Device
         public bool PalletScanCompleted = false;
         public string CurrentWH_Code = "";
         public string CurrentItemCode = "";
+        public string innerCtn = "";
 
         public int WeightCurrentValue = 0;
 

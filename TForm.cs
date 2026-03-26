@@ -39,8 +39,8 @@ namespace VTP_Induction
         public frmConfig frmCfg;
         public string g_sHomeDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\Config\\Gridview_data.txt";
         //private int nIndexPostion = -1;
-        //private string baseUrl = "http://192.168.110.189";
-        private string baseUrl = "http://127.0.0.1";
+        private string baseUrl = "http://192.168.110.189";
+        //private string baseUrl = "http://127.0.0.1";
         private static readonly HttpClient _client = new HttpClient{Timeout = TimeSpan.FromSeconds(10)};
 
         #endregion
@@ -288,7 +288,8 @@ namespace VTP_Induction
             string itemCode = string.Empty;
             string position = string.Empty;
             string palletStatus = string.Empty;
-
+            string whcode = string.Empty;
+            string innerCtn = string.Empty;
             int weightRef = 0;
             int totalParcel = 0;
             int doneParcel = 0;
@@ -300,7 +301,8 @@ namespace VTP_Induction
             {
                 conn.Open();
 
-                string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Weight_ref, Status FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
+                //string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Weight_ref, Status, WH_Code FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
+                string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Status, WH_Code, Inner_Carton FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
 
                 using (SqlCommand cmd = new SqlCommand(sqlPallet, conn))
                 using (SqlDataReader rd = cmd.ExecuteReader())
@@ -310,8 +312,10 @@ namespace VTP_Induction
                         palletId = rd["Pallet_ID"] == DBNull.Value ? null : rd["Pallet_ID"].ToString();
                         itemCode = rd["Item_Code"] == DBNull.Value ? "" : rd["Item_Code"].ToString();
                         position = rd["Location"] == DBNull.Value ? "" : rd["Location"].ToString().Trim();
-                        weightRef = rd["Weight_ref"] == DBNull.Value ? 0 : Convert.ToInt32(rd["Weight_ref"]);
+                        //weightRef = rd["Weight_ref"] == DBNull.Value ? 0 : Convert.ToInt32(rd["Weight_ref"]);
                         palletStatus = rd["Status"] == DBNull.Value ? "" : rd["Status"].ToString();
+                        whcode = rd["WH_Code"] == DBNull.Value ? "" : rd["WH_Code"].ToString();
+                        innerCtn = rd["Inner_Carton"] == DBNull.Value ? "" : rd["Inner_Carton"].ToString();
                     }
                 }
 
@@ -362,6 +366,8 @@ namespace VTP_Induction
                 GLb.nTotalParcel = totalParcel;
                 GLb.nParcelDone = doneParcel;
                 GLb.WeightCurrentValue = (weightRef != 0) ? weightRef : GLb.g_tSysCfg.nWeightStandard;
+                GLb.CurrentWH_Code = whcode;
+                GLb.innerCtn = innerCtn;
 
                 if (string.Equals(palletStatus, "DONE", StringComparison.OrdinalIgnoreCase))
                     GLb.nPalletDone = 1;
@@ -369,7 +375,7 @@ namespace VTP_Induction
                     GLb.nPalletDone = 0;
 
                 // Load danh sách in
-                const string sqlList = "SELECT ParcelCode, Pallet_ID, Status FROM dbo.WCS_Parcels_Prod " +
+                const string sqlList = "SELECT ReceivedCode, Pallet_ID, Status FROM dbo.WCS_Parcels_Prod " +
                     "WHERE Pallet_ID = @Pallet_ID AND Status <> -1 ORDER BY Id ASC;";
 
                 using (SqlCommand cmd = new SqlCommand(sqlList, conn))
@@ -383,7 +389,7 @@ namespace VTP_Induction
                         int stt = 1;
                         while (reader.Read())
                         {
-                            string parcelCode = reader["ParcelCode"] == DBNull.Value ? "" : reader["ParcelCode"].ToString();
+                            string parcelCode = reader["ReceivedCode"] == DBNull.Value ? "" : reader["ReceivedCode"].ToString();
                             string palletIdDb = reader["Pallet_ID"] == DBNull.Value ? "" : reader["Pallet_ID"].ToString();
                             int status = reader["Status"] == DBNull.Value ? -1 : Convert.ToInt32(reader["Status"]);
 
@@ -575,10 +581,7 @@ namespace VTP_Induction
 
                         SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
 
-                        bool printOK = devHandler.cPrinterGodex.PrintBarcode(nextParcel,GLb.CurrentItemCode,GLb.CurrentPalletID,
-                            GLb.CurrentWH_Code,
-                            finalWeight.ToString()
-                        );
+                        bool printOK = devHandler.cPrinterGodex.PrintBarcode(nextParcel, GLb.CurrentItemCode ,GLb.CurrentPalletID, GLb.CurrentWH_Code, finalWeight.ToString(), GLb.innerCtn );
 
                         //bool printOK = true;
 
@@ -1773,32 +1776,32 @@ namespace VTP_Induction
 
         private void buttonSTART_Click_1(object sender, EventArgs e)
         {
-            //if (!devHandler.cPrinterGodex.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cPrinterGodex.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //if (!devHandler.cBarcode.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cBarcode.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //if (!devHandler.cPLCHandler.m_bConnection)
-            //{
-            //    var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-            //    if (res == DialogResult.Cancel)
-            //    {
-            //        return;
-            //    }
-            //}
+            if (!devHandler.cPLCHandler.m_bConnection)
+            {
+                var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                if (res == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
 
-            //if (!devHandler.cScale.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cScale.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             if (GLb.IsInTask == false)
             {
@@ -1821,6 +1824,7 @@ namespace VTP_Induction
             // 2) Chưa DONE pallet nhưng đã in đủ parcel -> cần gửi thông tin pallet
             if (GLb.nTotalParcel > 0 && GLb.nParcelDone >= GLb.nTotalParcel)
             {
+                SetLabelText(lblPushInformation, "ĐANG XỬ LÝ PALLET TỒN ...", Color.DarkOrange);
                 bool sentOk = SendPalletInforOnce(GLb.CurrentPalletID);
                 if (!sentOk)
                 {
@@ -1997,7 +2001,7 @@ namespace VTP_Induction
                                 cmd.Parameters.AddWithValue("@Line_ID", data.LineId ?? "LINE_01");
                                 cmd.Parameters.AddWithValue("@Task_ID", data.Task_ID ?? "");
                                 cmd.Parameters.AddWithValue("@From_System", data.FromSystem ?? "");
-                                cmd.Parameters.AddWithValue("@Weight_ref", item.Weight);
+                                cmd.Parameters.AddWithValue("@Weight_ref", item.Weight ?? 0);
                                 cmd.ExecuteNonQuery();
                             }
 

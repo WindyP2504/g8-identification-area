@@ -97,9 +97,9 @@ namespace VTP_Induction.Device
         const int SPEED_IPS = 4;   // 1..8 tuỳ model
         const int DARKNESS = 10;  // 0..30 tuỳ model/giấy
 
-        public bool PrintBarcode(string ParcelCode, string ItemName, string PalletCode, string WH_code, string Khoiluong)
+        public bool PrintBarcode(string ParcelCode, string ItemName, string PalletCode, string WH_code, string Khoiluong, string InnerCtn)
         {
-            string currentTime = DateTime.Now.ToString("HH\\hmm\\pss\\s dd/MM/yyyy");
+            string currentTime = DateTime.Now.ToString("dd/MM/yyyy");
 
             try
             {
@@ -115,49 +115,41 @@ namespace VTP_Induction.Device
 
                 // Bắt đầu in
                 Printer.Command.Start();
-                int fontH_small = 18;
-                int fontH_med = 18;
-
-                int x = 10, y = 20;
-                
-                string imagePathLogo = Path.Combine(Application.StartupPath, "Images\\G8_Label.bmp");
-                Printer.Command.PrintImage(x, y, imagePathLogo, 0);
-
-                y = 90;
-                Printer.Command.PrintText(x, y, fontH_small, "Arial", currentTime, 0, FontWeight.FW_200_EXTRALIGHT, RotateMode.Angle_0);
-
-                y = 130;
-                int step = 30;
-                Printer.Command.PrintText_Unicode(x, y         , fontH_med, "Arial", "Ten SP    : " + ItemName, 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
-                Printer.Command.PrintText_Unicode(x , y += step, fontH_med, "Arial", "Ma SP     : " + ParcelCode, 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
-                Printer.Command.PrintText_Unicode(x , y += step, fontH_med, "Arial", "Ma Pallet : " + PalletCode, 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
-                Printer.Command.PrintText_Unicode(x , y += step, fontH_med, "Arial", "Ma Lenh   : " + WH_code, 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
-                Printer.Command.PrintText_Unicode(x , y += step, fontH_med, "Arial", "K.Luong   : " + Khoiluong + " gam", 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
 
                 // QR từ ParcelCode
-                int qrX = 280;
-                int qrY = 40;
+                int qrX = 10;
+                int qrY = 10;
                 bool qrPrinted = false;
 
                 // In mã QR với kích thước gấp đôi (Mul = 2)
-                int Mul = 10; // Thay đổi giá trị này để tăng giảm kích thước
+                int Mul = 7; // Thay đổi giá trị này để tăng giảm kích thước
                 int Mode = 3;  // Mức độ mã hóa (Thông thường là 0)
                 int Type = 2;  // Loại mã QR (Thông thường là 0)
-                string ErrorLevel = "L"; // Mức độ lỗi (L, M, Q, H)
-                int Mask = 0; // Mặt nạ mã QR
+                string ErrorLevel = "L";
+                int Mask = 0;
                 int Rotation = 0; // Xoay mã QR (0, 90, 180, 270)
 
                 try
                 {
-                    // Thử in QR từ SDK của GoDEX (tên tham số có thể thay đổi tùy theo SDK của bạn)
-                    //Printer.Command.PrintQRCode(qrX, qrY, ParcelCode);
                     var res = Printer.Command.PrintQRCode(qrX, qrY, Mode, Type, ErrorLevel, Mask, Mul, Rotation, ParcelCode);
-                    if(res != 0)
+                    if (res != 0)
                         qrPrinted = true;
-                    else 
+                    else
                         qrPrinted = false;
                 }
                 catch { qrPrinted = false; }
+
+                int fontH_med = 25;
+
+                int x = 260, y = 20;
+                int step = 60;
+                Printer.Command.PrintText_Unicode(x, y        , fontH_med, "Arial", "Tên sản phẩm: ", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
+                Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "  " + ItemName, 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
+                Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Quy cách: " + InnerCtn + " chiếc", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
+                Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Ngày nhập kho: " + currentTime, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
+
+                x = 10; y = 255;
+                Printer.Command.PrintText_Unicode(x, y       , fontH_med, "Arial", "Mã định danh: " + ParcelCode, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
 
                 // Kết thúc lệnh in
                 Printer.Command.End();
