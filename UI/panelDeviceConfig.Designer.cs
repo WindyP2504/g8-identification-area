@@ -124,7 +124,6 @@
             this.simpleButton1.Size = new System.Drawing.Size(116, 34);
             this.simpleButton1.TabIndex = 50;
             this.simpleButton1.Text = "&Set up";
-            this.simpleButton1.Click += new System.EventHandler(this.simpleButton1_Click);
             // 
             // buttonSetup
             // 

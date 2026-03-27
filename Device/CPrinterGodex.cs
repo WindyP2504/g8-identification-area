@@ -99,6 +99,7 @@ namespace VTP_Induction.Device
 
         public bool PrintBarcode(string ParcelCode, string ItemName, string PalletCode, string WH_code, string Khoiluong, string InnerCtn)
         {
+
             string currentTime = DateTime.Now.ToString("dd/MM/yyyy");
 
             try
@@ -144,12 +145,12 @@ namespace VTP_Induction.Device
                 int x = 260, y = 20;
                 int step = 60;
                 Printer.Command.PrintText_Unicode(x, y        , fontH_med, "Arial", "Tên sản phẩm: ", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
-                Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "  " + ItemName, 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
+                Printer.Command.PrintText_Unicode(x, y += step, 20, "Arial", ItemName, 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
                 Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Quy cách: " + InnerCtn + " chiếc", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
                 Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Ngày nhập kho: " + currentTime, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
 
                 x = 10; y = 255;
-                Printer.Command.PrintText_Unicode(x, y       , fontH_med, "Arial", "Mã định danh: " + ParcelCode, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
+                Printer.Command.PrintText_Unicode(x, y       , 16, "Arial", "Mã định danh: " + ParcelCode, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
 
                 // Kết thúc lệnh in
                 Printer.Command.End();

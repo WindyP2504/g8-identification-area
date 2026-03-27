@@ -9,7 +9,6 @@ namespace VTP_Induction.UI
     {
         private Globals GLb = Globals.getInstance();
         private TForm parentForm;
-        private int nDeviceID = 0;
         public Globals.TDevUtilDeviceConfig m_ptDevConfig;
         private int nIndexDev = -1;
         public panelDeviceConfig()
@@ -124,11 +123,6 @@ namespace VTP_Induction.UI
                     EnabledUI(true);
                 }
             }
-        }
-
-        private void simpleButton1_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

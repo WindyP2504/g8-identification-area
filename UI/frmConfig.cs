@@ -12,11 +12,7 @@ namespace VTP_Induction.UI
     {
         private Globals GLb = Globals.getInstance();
         private string sLogMain = "frmConfig: ";
-        private const int TIMEOUT = 5000;/* NOTE : */
-        private bool m_bClosePermission = true;
-
-        private string m_sPassword = string.Empty;
-
+         
         private BindingList<DataAxisConfig> recordsDataAxisConfig = new BindingList<DataAxisConfig>();
         private BindingList<DataJigConfig> recordsDataJigConfig = new BindingList<DataJigConfig>();
         private BindingList<DataDetectorPosConfig> recordsDataDetectorPosConfig = new BindingList<DataDetectorPosConfig>();

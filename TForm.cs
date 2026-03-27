@@ -581,7 +581,11 @@ namespace VTP_Induction
 
                         SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
 
-                        bool printOK = devHandler.cPrinterGodex.PrintBarcode(nextParcel, GLb.CurrentItemCode ,GLb.CurrentPalletID, GLb.CurrentWH_Code, finalWeight.ToString(), GLb.innerCtn );
+                        string itemName = "", raw = "";
+
+                        ParseCartonCode(nextParcel, out itemName, out raw);
+
+                        bool printOK = devHandler.cPrinterGodex.PrintBarcode(nextParcel, itemName, GLb.CurrentPalletID, GLb.CurrentWH_Code, finalWeight.ToString(), GLb.innerCtn );
 
                         //bool printOK = true;
 
@@ -1962,6 +1966,10 @@ namespace VTP_Induction
 
             writeLog("XỬ LÝ LỆNH SẢN XUẤT: " + data.PO_ID);
 
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            Log.LogWrite(Globals.LogLv.Information, json);
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
@@ -2077,6 +2085,10 @@ namespace VTP_Induction
             if (data == null || string.IsNullOrEmpty(GLb.CurrentPalletID))
                 return;
 
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            Log.LogWrite(Globals.LogLv.Information, json);
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
@@ -2173,6 +2185,8 @@ namespace VTP_Induction
             catch (Exception ex)
             {
                 MessageBox.Show("LỖI XỬ LÝ PALLET DONE: " + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                Log.LogWrite(Globals.LogLv.Information, ex.Message);
             }
         }
 
@@ -2395,7 +2409,7 @@ namespace VTP_Induction
             string connectionString =
                 Globals.getInstance().g_tSQLConfig.SqlString;
             string query =
-                "UPDATE dbo.WCS_Parcels_Prod SET Status = @status WHERE ParcelCode = @code";
+                "UPDATE dbo.WCS_Parcels_Prod SET Status = @status WHERE ReceivedCode = @code";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {

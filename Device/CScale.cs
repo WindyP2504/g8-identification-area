@@ -212,7 +212,7 @@ namespace VTP_Induction.Device
                 }
                 catch (Exception ex)
                 {
-                    Log.LogWrite(Globals.LogLv.Error, "Lỗi khi mở cổng ");
+                    Log.LogWrite(Globals.LogLv.Error, "Lỗi khi mở cổng " + ex.Message);
                     bRet = false;
                 }
 
@@ -221,7 +221,7 @@ namespace VTP_Induction.Device
             }
             catch (Exception ex)
             {
-                Log.LogWrite(Globals.LogLv.Error, "Connect failed: ");
+                Log.LogWrite(Globals.LogLv.Error, "Connect failed: " + ex.Message);
                 bRet = false;
             }
 
@@ -261,7 +261,7 @@ namespace VTP_Induction.Device
             }
             catch (Exception ex)
             {
-                Log.LogWrite(Globals.LogLv.Warning, "Lỗi khi disconnect");
+                Log.LogWrite(Globals.LogLv.Warning, "Lỗi khi disconnect" + ex.Message);
             }
 
             Log.LogWrite(Globals.LogLv.Information, sLog);
@@ -316,11 +316,7 @@ namespace VTP_Induction.Device
             }
             catch (Exception ex)
             {
-                // Ghi log nếu cần, tránh throw ra ngoài
-                //BeginInvoke(new Action(() =>
-                //{
-                //    AppendTextToTextbox("[ERR] " + ex.Message);
-                //}));
+                Log.LogWrite(Globals.LogLv.Information, ex.Message);
             }
         }
         public string ReadScaleDataFormCom()
@@ -360,6 +356,7 @@ namespace VTP_Induction.Device
                 // Trả về 0 nếu có lỗi
                 sScale = "0";
                 // Có thể ghi log ở đây nếu muốn
+                Log.LogWrite(Globals.LogLv.Information, ex.Message);
             }
 
             return sScale;
