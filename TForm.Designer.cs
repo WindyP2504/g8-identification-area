@@ -495,6 +495,7 @@
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox3.TabIndex = 0;
             this.pictureBox3.TabStop = false;
+            this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
             // 
             // panel46
             // 
@@ -548,6 +549,7 @@
             this.lblPalletCode.TabIndex = 10;
             this.lblPalletCode.Text = "Pallet ID";
             this.lblPalletCode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblPalletCode.Click += new System.EventHandler(this.lblPalletCode_Click);
             // 
             // panel48
             // 

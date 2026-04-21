@@ -59,6 +59,8 @@
             this.txtParcelNumber = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.txbWeightStandard = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.txtTimeScale = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.txtScaleError = new System.Windows.Forms.TextBox();
@@ -92,8 +94,6 @@
             this.txtPrintManual = new System.Windows.Forms.TextBox();
             this.buttonRefresh = new DevExpress.XtraEditors.SimpleButton();
             this.buttonOk = new DevExpress.XtraEditors.SimpleButton();
-            this.txbWeightStandard = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabControlConfig)).BeginInit();
@@ -491,6 +491,25 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "[CÂN ĐIỆN TỬ]";
             // 
+            // txbWeightStandard
+            // 
+            this.txbWeightStandard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txbWeightStandard.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txbWeightStandard.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txbWeightStandard.Location = new System.Drawing.Point(124, 27);
+            this.txbWeightStandard.Name = "txbWeightStandard";
+            this.txbWeightStandard.Size = new System.Drawing.Size(142, 23);
+            this.txbWeightStandard.TabIndex = 64;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(4, 29);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(114, 16);
+            this.label1.TabIndex = 63;
+            this.label1.Text = "Trọng lượng hàng:";
+            // 
             // txtTimeScale
             // 
             this.txtTimeScale.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
@@ -832,7 +851,7 @@
             // 
             // buttonPrintManual
             // 
-            this.buttonPrintManual.Location = new System.Drawing.Point(6, 224);
+            this.buttonPrintManual.Location = new System.Drawing.Point(7, 282);
             this.buttonPrintManual.Margin = new System.Windows.Forms.Padding(2);
             this.buttonPrintManual.Name = "buttonPrintManual";
             this.buttonPrintManual.Size = new System.Drawing.Size(56, 19);
@@ -844,7 +863,7 @@
             // 
             // txtPrintManual
             // 
-            this.txtPrintManual.Location = new System.Drawing.Point(6, 188);
+            this.txtPrintManual.Location = new System.Drawing.Point(7, 246);
             this.txtPrintManual.Margin = new System.Windows.Forms.Padding(2);
             this.txtPrintManual.Name = "txtPrintManual";
             this.txtPrintManual.Size = new System.Drawing.Size(142, 20);
@@ -900,25 +919,6 @@
             this.buttonOk.TabIndex = 52;
             this.buttonOk.Text = "Apply";
             this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
-            // 
-            // txbWeightStandard
-            // 
-            this.txbWeightStandard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txbWeightStandard.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txbWeightStandard.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txbWeightStandard.Location = new System.Drawing.Point(124, 27);
-            this.txbWeightStandard.Name = "txbWeightStandard";
-            this.txbWeightStandard.Size = new System.Drawing.Size(142, 23);
-            this.txbWeightStandard.TabIndex = 64;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(4, 29);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(114, 16);
-            this.label1.TabIndex = 63;
-            this.label1.Text = "Trọng lượng hàng:";
             // 
             // frmConfig
             // 

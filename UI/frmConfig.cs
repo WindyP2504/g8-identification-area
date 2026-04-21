@@ -357,5 +357,12 @@ namespace VTP_Induction.UI
                 MessageBox.Show("IN LỖI " + txtPrintManual.Text);
             }
         }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+
     }
 }

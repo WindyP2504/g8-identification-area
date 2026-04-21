@@ -18,6 +18,7 @@ using System.Windows.Forms;
 using VTP_Induction.Common;
 using VTP_Induction.Device;
 using VTP_Induction.UI;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace VTP_Induction
 {
@@ -94,9 +95,10 @@ namespace VTP_Induction
                 //ServerWCS = new JsonServer();
             }
             catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
+            {                
                 writeLog("ERROR :" + ex.ToString());
+                MessageBox.Show(ex.ToString());
+
             }
             finally
             {
@@ -142,8 +144,8 @@ namespace VTP_Induction
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Server start error! Please check again! " + ex.Message);
                     writeLog("Khởi động server lỗi: " + ex.Message);
+                    MessageBox.Show("Server start error! Please check again! " + ex.Message);
                 }
                 ResizeListViewColumns();
                 labelNameSoftware.Text = GLb.g_SoftwareNameVersion;
@@ -156,6 +158,7 @@ namespace VTP_Induction
             catch (Exception ex)
             {
                 writeLog("Lỗi khởi động: " + ex.Message);
+                Log.LogWrite(Globals.LogLv.Error, "Lỗi khởi động: " + ex.Message, true);
                 MessageBox.Show("Lỗi khởi động. Vui lòng tắt chương trình và kiểm tra lại hệ thống!!!: " + ex.Message, "CẢNH BÁO NGHIÊM TRỌNG!!!", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
             }
         }
@@ -302,7 +305,7 @@ namespace VTP_Induction
                 conn.Open();
 
                 //string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Weight_ref, Status, WH_Code FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
-                string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Status, WH_Code, Inner_Carton FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
+                string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Status, WH_Code, Inner_Carton, Weight_ref FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
 
                 using (SqlCommand cmd = new SqlCommand(sqlPallet, conn))
                 using (SqlDataReader rd = cmd.ExecuteReader())
@@ -312,7 +315,21 @@ namespace VTP_Induction
                         palletId = rd["Pallet_ID"] == DBNull.Value ? null : rd["Pallet_ID"].ToString();
                         itemCode = rd["Item_Code"] == DBNull.Value ? "" : rd["Item_Code"].ToString();
                         position = rd["Location"] == DBNull.Value ? "" : rd["Location"].ToString().Trim();
-                        //weightRef = rd["Weight_ref"] == DBNull.Value ? 0 : Convert.ToInt32(rd["Weight_ref"]);
+                        // ensure Weight_ref is converted to int when not null
+                        if (rd["Weight_ref"] == DBNull.Value)
+                            weightRef = 0;
+                        else
+                        {
+                            // try safe conversion
+                            try
+                            {
+                                weightRef = Convert.ToInt32(rd["Weight_ref"]);
+                            }
+                            catch
+                            {
+                                int.TryParse(rd["Weight_ref"].ToString(), out weightRef);
+                            }
+                        }
                         palletStatus = rd["Status"] == DBNull.Value ? "" : rd["Status"].ToString();
                         whcode = rd["WH_Code"] == DBNull.Value ? "" : rd["WH_Code"].ToString();
                         innerCtn = rd["Inner_Carton"] == DBNull.Value ? "" : rd["Inner_Carton"].ToString();
@@ -430,6 +447,8 @@ namespace VTP_Induction
                 GLb.nFailItems = fail;
 
                 UpdateCounterUI();
+
+                lvPrintList.Refresh();
             }
         }
 
@@ -680,7 +699,11 @@ namespace VTP_Induction
                 /* ================= BUILD JSON ================= */
                 string json;
                 if (!TryBuildPalletJsonEndOfTurn(palletCode, out json))
+                {
+                    Log.LogWrite(Globals.LogLv.Information, json, true);
                     throw new Exception("LỖI BUILD JSON PALLET");
+                }
+
 
                 /* ================= POST SERVER (BLOCK) ================= */
                 string err;
@@ -694,8 +717,14 @@ namespace VTP_Induction
                         out err
                     );
 
+                    Log.LogWrite(Globals.LogLv.Information, json, true);
+
                     if (!ok)
+                    {
+                        MakeLogFile.WriteSystemEvent("GỬI PALLET LỖI!" + err);
+                        Log.LogWrite(Globals.LogLv.Information, "GỬI PALLET LỖI!" + err, true);
                         throw new Exception("GỬI PALLET LỖI: " + err);
+                    }
                 }
 
                 /* ================= UPDATE DONE ================= */
@@ -726,6 +755,7 @@ namespace VTP_Induction
             catch (Exception ex)
             {
                 SetLabelText(lblPushInformation, ex.Message, Color.Red);
+                Log.LogWrite(Globals.LogLv.Information, "Lỗi gửi pallet done! " + ex.Message, true);
                 devHandler.cPLCHandler.SetTrafficLightByM(0);
                 throw new Exception(ex.Message);
             }
@@ -752,6 +782,8 @@ namespace VTP_Induction
                         json,
                         out err
                     );
+
+                    Log.LogWrite(Globals.LogLv.Information, json, true);
 
                     if (!ok)
                         return false;
@@ -788,6 +820,7 @@ namespace VTP_Induction
             {
                 SetLabelText(lblPushInformation, ex.Message, Color.Red);
                 devHandler.cPLCHandler.SetTrafficLightByM(0);
+                Log.LogWrite(Globals.LogLv.Information, "Lỗi gửi pallet done! " + ex.Message, true);
                 return false;
             }
         }
@@ -830,11 +863,13 @@ namespace VTP_Induction
                 };
 
                 json = JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
+                Log.LogWrite(Globals.LogLv.Debug, json);
                 return true;
             }
             catch (Exception ex)
             {
                 SetLabelText(lblPushInformation, "LỖI TẠO JSON KẾT THÚC PHIÊN: " + ex.Message, Color.Red);
+                Log.LogWrite(Globals.LogLv.Debug, "LỖI TẠO JSON KẾT THÚC PHIÊN: " + ex.Message);
                 json = "";
                 return false;
             }
@@ -1967,7 +2002,6 @@ namespace VTP_Induction
             writeLog("XỬ LÝ LỆNH SẢN XUẤT: " + data.PO_ID);
 
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-
             Log.LogWrite(Globals.LogLv.Information, json);
 
             try
@@ -1981,6 +2015,7 @@ namespace VTP_Induction
                         /* 1. INSERT TẤT CẢ PALLET (WAIT)*/
                         foreach (var item in data.InforDetail)
                         {
+                            int Int_weight = item.Weight == null ? 0 : Convert.ToInt32(item.Weight * 1000);
                             using (SqlCommand cmd = new SqlCommand(@"
                                 INSERT INTO dbo.WCS_Pallet_Prod (
                                     Pallet_ID, Location, Item_Code,
@@ -2009,7 +2044,7 @@ namespace VTP_Induction
                                 cmd.Parameters.AddWithValue("@Line_ID", data.LineId ?? "LINE_01");
                                 cmd.Parameters.AddWithValue("@Task_ID", data.Task_ID ?? "");
                                 cmd.Parameters.AddWithValue("@From_System", data.FromSystem ?? "");
-                                cmd.Parameters.AddWithValue("@Weight_ref", item.Weight ?? 0);
+                                cmd.Parameters.AddWithValue("@Weight_ref", Int_weight);
                                 cmd.ExecuteNonQuery();
                             }
 
@@ -2033,7 +2068,6 @@ namespace VTP_Induction
                                     cmd.Parameters.AddWithValue("@Location", item.Location ?? "");
                                     cmd.Parameters.AddWithValue("@Line_ID", data.LineId ?? "LINE_01");
                                     cmd.Parameters.AddWithValue("@ReceivedCode", carton);
-
                                     cmd.ExecuteNonQuery();
                                 }
                             }
@@ -2046,9 +2080,9 @@ namespace VTP_Induction
 
                             /* 3. CHỌN 1 PALLET ĐẦU TIÊN → PROCESSING*/
                             var palletRun = data.InforDetail.First();
-                            GLb.CurrentPalletID = palletRun.PalletId;
-                            GLb.CurrentItemCode = palletRun.ItemCode;
-                            GLb.CurrentWH_Code = data.WH_Code;
+                            //GLb.CurrentPalletID = palletRun.PalletId;
+                            //GLb.CurrentItemCode = palletRun.ItemCode;
+                            //GLb.CurrentWH_Code = data.WH_Code;
 
                             using (SqlCommand cmd = new SqlCommand("UPDATE dbo.WCS_Pallet_Prod SET Status = 'PROCESSING' WHERE Pallet_ID = @Pallet_ID;", conn, tran))
                             {
@@ -2076,6 +2110,7 @@ namespace VTP_Induction
             catch (Exception ex)
             {
                 writeLog("Lỗi HandleOrder: " + ex.Message);
+                Log.LogWrite(Globals.LogLv.Error, "Lỗi HandleOrder: " + ex.Message);
                 MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -2089,6 +2124,11 @@ namespace VTP_Induction
 
             Log.LogWrite(Globals.LogLv.Information, json);
 
+            ClearDataSQL();
+        }
+
+        private void ClearDataSQL()
+        {
             try
             {
                 using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
@@ -2130,6 +2170,8 @@ namespace VTP_Induction
                             return;
                         }
 
+                        GLb.CurrentPalletID = nextPalletId;
+
                         /* 5. LOAD INFO PALLET MỚI*/
                         string itemCode = "", location = "", lineId = "";
                         int innerPallet = 0, innerCarton = 0, ctn = 0, weight_ref = 0;
@@ -2170,7 +2212,15 @@ namespace VTP_Induction
                         tran.Commit();
                     }
                 }
-
+            }
+            catch (Exception ex)
+            {
+                Log.LogWrite(Globals.LogLv.Error, ex.Message);
+                MakeLogFile.WriteSystemEvent(ex.Message);
+                MessageBox.Show("LỖI XỬ LÝ PALLET DONE: " + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
                 /* 9. REFRESH UI*/
                 Action ui = () =>
                 {
@@ -2181,12 +2231,6 @@ namespace VTP_Induction
                     BeginInvoke(ui);
                 else
                     ui();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("LỖI XỬ LÝ PALLET DONE: " + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                Log.LogWrite(Globals.LogLv.Information, ex.Message);
             }
         }
 
@@ -2212,6 +2256,36 @@ namespace VTP_Induction
         {
             _blinkOn = !_blinkOn;
             PosPanTemp.BackColor = _blinkOn ? Color.Green : Color.DarkGray;
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            bool sentOk = SendPalletInforOnce(GLb.CurrentPalletID);
+            if(sentOk)
+            {
+                writeLog("Send pallet infor to server manually success!)");
+                Log.LogWrite(Globals.LogLv.Information, "Send pallet infor to server manually success!");
+            }
+            else
+            {
+                writeLog("Send manually not ok !!!");
+                Log.LogWrite(Globals.LogLv.Warning, "Send manually not ok !!!");
+            }
+        }
+
+        private void lblPalletCode_Click(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Bạn muốn reset lệnh sản xuất đúng không?",
+                "Xác nhận",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                ClearDataSQL();
+            }
         }
     }
 
