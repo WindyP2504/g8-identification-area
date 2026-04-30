@@ -92,6 +92,14 @@ namespace VTP_Induction
                 timer1.Enabled = true;
                 this.frmCfg = new frmConfig(this);
                 GLb.g_bSQLCheck = true;
+
+                //Add columns not exist
+                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
+                {
+                    conn.Open();
+                    EnsureColumns(conn);
+                    conn.Close();
+                }
                 //ServerWCS = new JsonServer();
             }
             catch (Exception ex)
@@ -293,6 +301,7 @@ namespace VTP_Induction
             string palletStatus = string.Empty;
             string whcode = string.Empty;
             string innerCtn = string.Empty;
+            string itemName = string.Empty;
             int weightRef = 0;
             int totalParcel = 0;
             int doneParcel = 0;
@@ -304,8 +313,7 @@ namespace VTP_Induction
             {
                 conn.Open();
 
-                //string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Weight_ref, Status, WH_Code FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
-                string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Status, WH_Code, Inner_Carton, Weight_ref FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
+                string sqlPallet = "SELECT TOP 1 Pallet_ID, Item_Code, Location, Status, WH_Code, Inner_Carton, Weight_ref, Item_Name FROM dbo.WCS_Pallet_Prod WHERE Status <> 'WAIT' ORDER BY Id ASC";
 
                 using (SqlCommand cmd = new SqlCommand(sqlPallet, conn))
                 using (SqlDataReader rd = cmd.ExecuteReader())
@@ -315,6 +323,7 @@ namespace VTP_Induction
                         palletId = rd["Pallet_ID"] == DBNull.Value ? null : rd["Pallet_ID"].ToString();
                         itemCode = rd["Item_Code"] == DBNull.Value ? "" : rd["Item_Code"].ToString();
                         position = rd["Location"] == DBNull.Value ? "" : rd["Location"].ToString().Trim();
+                        itemName = rd["Item_Name"] == DBNull.Value ? "" : rd["Item_Name"].ToString().Trim();
                         // ensure Weight_ref is converted to int when not null
                         if (rd["Weight_ref"] == DBNull.Value)
                             weightRef = 0;
@@ -347,6 +356,7 @@ namespace VTP_Induction
                     GLb.WeightCurrentValue = 0;
                     GLb.CurrentItemCode = string.Empty;
                     GLb.CurrentWH_Code = string.Empty;
+                    GLb.CurrentItemName = string.Empty;
 
                     lblProductionName.Text = "SẢN PHẨM: ";
                     SetLabelText(lblCountParcel, "0/0", Color.DarkOrange);
@@ -385,6 +395,7 @@ namespace VTP_Induction
                 GLb.WeightCurrentValue = (weightRef != 0) ? weightRef : GLb.g_tSysCfg.nWeightStandard;
                 GLb.CurrentWH_Code = whcode;
                 GLb.innerCtn = innerCtn;
+                GLb.CurrentItemName = itemName;
 
                 if (string.Equals(palletStatus, "DONE", StringComparison.OrdinalIgnoreCase))
                     GLb.nPalletDone = 1;
@@ -426,7 +437,7 @@ namespace VTP_Induction
                 }
 
                 // Update UI
-                lblProductionName.Text = "SẢN PHẨM: " + itemCode;
+                lblProductionName.Text = "SẢN PHẨM: " + itemName;
                 lblPalletCode.Text = "MÃ PALLET: " + GLb.CurrentPalletID;
                 lblWeightStandard.Text = "TIÊU CHUẨN: " + GLb.WeightCurrentValue.ToString() + " GAM";
                 SetLabelText(lblCountParcel, GLb.nParcelDone.ToString() + "/" + GLb.nTotalParcel.ToString(), Color.DarkOrange);
@@ -600,15 +611,11 @@ namespace VTP_Induction
 
                         SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
 
-                        string itemName = "", raw = "";
-
-                        ParseCartonCode(nextParcel, out itemName, out raw);
-
-                        bool printOK = devHandler.cPrinterGodex.PrintBarcode(nextParcel, itemName, GLb.CurrentPalletID, GLb.CurrentWH_Code, finalWeight.ToString(), GLb.innerCtn );
+                        bool printOK = devHandler.cPrinterGodex.PrintBarcode(nextParcel, GLb.CurrentItemName, GLb.CurrentPalletID, finalWeight.ToString(), GLb.innerCtn );
 
                         //bool printOK = true;
 
-                        Thread.Sleep(200);
+                        Thread.Sleep(1000);
 
                         if (!printOK)
                         {
@@ -622,13 +629,58 @@ namespace VTP_Induction
                         }
 
                         // Step 3: Read barcode
+                        //string barcodeTemp = "";
+                        //SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH ...", Color.OrangeRed);
+
+                        //bool readOK = WaitForBarcodeRead(out barcodeTemp, 1800000);
+
+                        //if (readOK && barcodeTemp == nextParcel.Trim())
+                        ////if (readOK && barcodeTemp == "TP0248")
+                        //{
+                        //    SetLabelText(labelStatus, "OK", Color.Lime);
+                        //    SetLabelText(lblPushInformation, "MÃ VẠCH:" + barcodeTemp, Color.GreenYellow);
+                        //    UpdateItemTotal(true);
+                        //    AppendText("[PROCESS] ĐÃ HOÀN THÀNH IN THÙNG " + barcodeTemp + "\r");
+                        //    devHandler.cPLCHandler.SetTrafficLightByM(1); // Green
+                        //}
+                        //else
+                        //{
+                        //    Log.LogWrite(Globals.LogLv.Error, "Đọc mã vạch thất bại hoặc không khớp! Đọc được: " + barcodeTemp + ", mong đợi: " + nextParcel, true);
+                        //    SetLabelText(labelStatus, "NG", Color.Red);
+                        //    SetLabelText(lblPushInformation, "KHÔNG ĐỌC ĐƯỢC MÃ VẠCH - BỎ RA KHỎI CÂN", Color.Red);
+                        //    devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
+                        //    UpdateItemTotal(false);
+                        //    PrintQueueHelper.MarkFail(lvPrintList);
+                        //    WaitForZeroWeight();
+                        //    continue;
+                        //}
+
+                        // Step 3: Read barcode
                         string barcodeTemp = "";
                         SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH...", Color.OrangeRed);
 
+                        // Lần đọc thứ 1
                         bool readOK = WaitForBarcodeRead(out barcodeTemp, 5000);
 
-                        if (readOK && barcodeTemp == nextParcel)
-                        //if (readOK && barcodeTemp == "TP0248")
+                        bool barcodeMatched = readOK && string.Equals(barcodeTemp, nextParcel, StringComparison.OrdinalIgnoreCase);
+
+                        // Nếu lần 1 lỗi thì cho đọc lại thêm 1 lần
+                        if (!barcodeMatched)
+                        {
+                            AppendText("[BARCODE RETRY] Lần 1 lỗi. Expected= " + nextParcel + ", Actual= " + barcodeTemp + ", readOK= " + readOK + "\r");
+
+                            SetLabelText(lblPushInformation, "ĐỌC MÃ LỖI - ĐANG THỬ ĐỌC LẠI LẦN 2...", Color.OrangeRed);
+
+                            Thread.Sleep(300); // nghỉ nhẹ trước khi đọc lại
+
+                            barcodeTemp = "";
+                            readOK = WaitForBarcodeRead(out barcodeTemp, 5000);
+
+                            barcodeMatched = readOK &&
+                                             string.Equals(barcodeTemp, nextParcel, StringComparison.OrdinalIgnoreCase);
+                        }
+
+                        if (barcodeMatched)
                         {
                             SetLabelText(labelStatus, "OK", Color.Lime);
                             SetLabelText(lblPushInformation, "MÃ VẠCH:" + barcodeTemp, Color.GreenYellow);
@@ -638,6 +690,7 @@ namespace VTP_Induction
                         }
                         else
                         {
+                            Log.LogWrite(Globals.LogLv.Error, "Đọc mã vạch thất bại hoặc không khớp! Đọc được: " + barcodeTemp + ", mong đợi: " + nextParcel, true);
                             SetLabelText(labelStatus, "NG", Color.Red);
                             SetLabelText(lblPushInformation, "KHÔNG ĐỌC ĐƯỢC MÃ VẠCH - BỎ RA KHỎI CÂN", Color.Red);
                             devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
@@ -668,7 +721,7 @@ namespace VTP_Induction
                             }
                         }
 
-                        Thread.Sleep(500);
+                        Thread.Sleep(200);
                         WaitForZeroWeight();
                     }
                     finally
@@ -791,7 +844,7 @@ namespace VTP_Induction
 
                 /* ================= UPDATE DONE ================= */
                 PrintQueueHelper.UpdateStatusByPalletId(palletCode, "DONE");
-                GLb.nPalletDone++;
+                if (GLb.nPalletDone < GLb.nTotalPallet) GLb.nPalletDone++;
 
                 /* ================= UI + RESET ================= */
                 Action ui = () =>
@@ -800,7 +853,6 @@ namespace VTP_Induction
                     {
                         buttonSTOP_Click(null, null);
                         SetLabelText(lblPushInformation, "PALLET OK – TIẾP TỤC SẢN XUẤT", Color.Green);
-                        SetLabelText(lblCountParcel, "0/" + GLb.nTotalParcel, Color.DarkOrange);
                         SetLabelText(lblCountPallet, GLb.nPalletDone + "/" + GLb.nTotalPallet, Color.DarkOrange);
                         devHandler.cPLCHandler.SetTrafficLightByM(1);
                     }
@@ -1009,7 +1061,7 @@ namespace VTP_Induction
             }
         }
 
-        private bool WaitForBarcodeRead(out string barcode, int timeoutMs = 6000)
+        private bool WaitForBarcodeRead(out string barcode, int timeoutMs = 1800000)
         {
             barcode = "";
             var sw = Stopwatch.StartNew();
@@ -2022,13 +2074,13 @@ namespace VTP_Induction
                                     Ctn, Qty, Pcs,
                                     Inner_Carton, Inner_Pallet,
                                     PO_ID, WH_Code, Line_ID, Task_ID,
-                                    From_System, Status, Weight_ref
+                                    From_System, Status, Weight_ref, Item_Name
                                 ) VALUES (
                                     @Pallet_ID, @Location, @Item_Code,
                                     @Ctn, @Qty, @Pcs,
                                     @Inner_Carton, @Inner_Pallet,
                                     @PO_ID, @WH_Code, @Line_ID, @Task_ID,
-                                    @From_System, 'WAIT', @Weight_ref
+                                    @From_System, 'WAIT', @Weight_ref, @Itemname
                                 );", conn, tran))
                             {
                                 cmd.Parameters.AddWithValue("@Pallet_ID", item.PalletId);
@@ -2045,6 +2097,7 @@ namespace VTP_Induction
                                 cmd.Parameters.AddWithValue("@Task_ID", data.Task_ID ?? "");
                                 cmd.Parameters.AddWithValue("@From_System", data.FromSystem ?? "");
                                 cmd.Parameters.AddWithValue("@Weight_ref", Int_weight);
+                                cmd.Parameters.AddWithValue("@Itemname", item.ItemName ?? "");
                                 cmd.ExecuteNonQuery();
                             }
 
@@ -2173,27 +2226,27 @@ namespace VTP_Induction
                         GLb.CurrentPalletID = nextPalletId;
 
                         /* 5. LOAD INFO PALLET MỚI*/
-                        string itemCode = "", location = "", lineId = "";
-                        int innerPallet = 0, innerCarton = 0, ctn = 0, weight_ref = 0;
+                        //string itemCode = "", location = "", lineId = "";
+                        //int innerPallet = 0, innerCarton = 0, ctn = 0, weight_ref = 0;
 
-                        using (SqlCommand cmd = new SqlCommand("SELECT Item_Code, Location, Inner_Pallet, Inner_Carton, Ctn, Line_ID, Weight_ref FROM dbo.WCS_Pallet_Prod " +
-                            "WHERE Pallet_ID = @Pallet_ID;", conn, tran))
-                        {
-                            cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
-                            using (SqlDataReader rd = cmd.ExecuteReader())
-                            {
-                                if (rd.Read())
-                                {
-                                    itemCode = rd["Item_Code"].ToString();
-                                    location = rd["Location"].ToString();
-                                    innerPallet = Convert.ToInt32(rd["Inner_Pallet"]);
-                                    innerCarton = Convert.ToInt32(rd["Inner_Carton"]);
-                                    ctn = Convert.ToInt32(rd["Ctn"]);
-                                    lineId = rd["Line_ID"].ToString();
-                                    weight_ref = Convert.ToInt32(rd["Weight_ref"]);
-                                }
-                            }
-                        }
+                        //using (SqlCommand cmd = new SqlCommand("SELECT Item_Code, Location, Inner_Pallet, Inner_Carton, Ctn, Line_ID, Weight_ref FROM dbo.WCS_Pallet_Prod " +
+                        //    "WHERE Pallet_ID = @Pallet_ID;", conn, tran))
+                        //{
+                        //    cmd.Parameters.AddWithValue("@Pallet_ID", nextPalletId);
+                        //    using (SqlDataReader rd = cmd.ExecuteReader())
+                        //    {
+                        //        if (rd.Read())
+                        //        {
+                        //            itemCode = rd["Item_Code"].ToString();
+                        //            location = rd["Location"].ToString();
+                        //            innerPallet = Convert.ToInt32(rd["Inner_Pallet"]);
+                        //            innerCarton = Convert.ToInt32(rd["Inner_Carton"]);
+                        //            ctn = Convert.ToInt32(rd["Ctn"]);
+                        //            lineId = rd["Line_ID"].ToString();
+                        //            weight_ref = Convert.ToInt32(rd["Weight_ref"]);
+                        //        }
+                        //    }
+                        //}
 
                         /* 7. PALLET MỚI → PROCESSING*/
                         using (SqlCommand cmd = new SqlCommand("UPDATE dbo.WCS_Pallet_Prod SET Status = 'PROCESSING' WHERE Pallet_ID = @Pallet_ID;", conn, tran))
@@ -2286,6 +2339,47 @@ namespace VTP_Induction
             {
                 ClearDataSQL();
             }
+        }
+
+        private void EnsureColumn(SqlConnection conn, string tableName, string columnName, string columnDefinition)
+        {
+            string checkSql =
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS " +
+                "WHERE TABLE_NAME = @TableName AND COLUMN_NAME = @ColumnName";
+
+            using (SqlCommand cmd = new SqlCommand(checkSql, conn))
+            {
+                cmd.Parameters.AddWithValue("@TableName", tableName);
+                cmd.Parameters.AddWithValue("@ColumnName", columnName);
+
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+                if (count == 0)
+                {
+                    string alterSql = string.Format(
+                        "ALTER TABLE {0} ADD {1} {2}",
+                        tableName,
+                        columnName,
+                        columnDefinition
+                    );
+
+                    using (SqlCommand alterCmd = new SqlCommand(alterSql, conn))
+                    {
+                        alterCmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+        private void EnsureColumns(SqlConnection conn)
+        {
+            
+                string table = "WCS_Pallet_Prod";
+
+                EnsureColumn(conn, table, "Weight_ref", "INT");
+                EnsureColumn(conn, table, "Item_Name", "NVARCHAR(255)");
+            
+            // thêm các cột khác ở đây
         }
     }
 

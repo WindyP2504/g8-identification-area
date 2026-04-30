@@ -1,8 +1,8 @@
 ﻿using EzioDll;
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace VTP_Induction.Device
 {
@@ -97,10 +97,10 @@ namespace VTP_Induction.Device
         const int SPEED_IPS = 4;   // 1..8 tuỳ model
         const int DARKNESS = 10;  // 0..30 tuỳ model/giấy
 
-        public bool PrintBarcode(string ParcelCode, string ItemName, string PalletCode, string WH_code, string Khoiluong, string InnerCtn)
+        public bool PrintBarcode(string ParcelCode, string ItemName, string PalletCode, string Khoiluong, string InnerCtn)
         {
 
-            string currentTime = DateTime.Now.ToString("dd/MM/yyyy");
+            string currentTime = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
 
             try
             {
@@ -143,14 +143,14 @@ namespace VTP_Induction.Device
                 int fontH_med = 25;
 
                 int x = 260, y = 20;
-                int step = 60;
-                Printer.Command.PrintText_Unicode(x, y        , fontH_med, "Arial", "Tên sản phẩm: ", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
-                Printer.Command.PrintText_Unicode(x, y += step, 20, "Arial", ItemName, 0, FontWeight.FW_600_FW_SEMIBOLD, RotateMode.Angle_0);
-                Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Quy cách: " + InnerCtn + " chiếc", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
-                Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Ngày nhập kho: " + currentTime, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
+                int step = 40;
+                Printer.Command.PrintText_Unicode(x, y, fontH_med, "Arial", "Tên sản phẩm: ", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
+                PrintItemNameAuto(x, ref y, ItemName);
+                Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Quy cách   : " + InnerCtn + " chiếc", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
+                Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Ngày nhập : " + currentTime, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
 
                 x = 10; y = 255;
-                Printer.Command.PrintText_Unicode(x, y       , 16, "Arial", "Mã định danh: " + ParcelCode, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
+                Printer.Command.PrintText_Unicode(x, y, 16, "Arial", "Mã định danh: " + ParcelCode, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
 
                 // Kết thúc lệnh in
                 Printer.Command.End();
@@ -161,6 +161,68 @@ namespace VTP_Induction.Device
             catch //(Exception ex)
             {
                 return false;
+            }
+        }
+
+        private List<string> WrapText(string text, int maxCharsPerLine)
+        {
+            List<string> lines = new List<string>();
+
+            while (text.Length > maxCharsPerLine)
+            {
+                int wrapAt = text.LastIndexOf(' ', maxCharsPerLine);
+                if (wrapAt <= 0) wrapAt = maxCharsPerLine;
+
+                lines.Add(text.Substring(0, wrapAt).Trim());
+                text = text.Substring(wrapAt).Trim();
+            }
+
+            if (!string.IsNullOrEmpty(text))
+                lines.Add(text);
+
+            return lines;
+        }
+
+        private void PrintItemNameAuto(int x, ref int y, string itemName)
+        {
+            int baseFont = 26; // tăng font lên
+            int fontSize = baseFont;
+
+            // Auto scale font (to hơn mặc định)
+            if (itemName.Length > 30) fontSize = 24;
+            if (itemName.Length > 45) fontSize = 22;
+            if (itemName.Length > 60) fontSize = 20;
+
+            // Step phụ thuộc font → KHÔNG bị đè chữ
+            int step = (int)(fontSize * 1.8); // 🔥 key chính ở đây
+
+            // max ký tự theo font
+            int maxChars = 26;
+            if (fontSize == 24) maxChars = 30;
+            if (fontSize == 22) maxChars = 31;
+            if (fontSize == 20) maxChars = 32;
+
+            var lines = WrapText(itemName, maxChars);
+
+            // Giới hạn 3 dòng
+            if (lines.Count > 3)
+            {
+                lines = lines.Take(3).ToList();
+                lines[2] += "...";
+            }
+
+            foreach (var line in lines)
+            {
+                y += step;
+                Printer.Command.PrintText_Unicode(
+                    x, y,
+                    fontSize,
+                    "Arial",
+                    line,
+                    0,
+                    FontWeight.FW_600_FW_SEMIBOLD,
+                    RotateMode.Angle_0
+                );
             }
         }
         public bool PrintPallet(string PalletCode)

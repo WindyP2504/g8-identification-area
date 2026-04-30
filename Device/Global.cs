@@ -98,6 +98,7 @@ namespace VTP_Induction.Device
         public string fileNameSaveImage = "";
         public int iParcelCount = 0;
 
+        public string CurrentItemName = string.Empty;
         public bool PalletInProgress = false;
         public string CurrentPalletID = "";
         public bool PalletScanCompleted = false;

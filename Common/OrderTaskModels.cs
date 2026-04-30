@@ -27,6 +27,9 @@ public class InforDetail
     [JsonProperty("Item_Code")]
     public string ItemCode { get; set; }
 
+    [JsonProperty("Item_Name")]
+    public string ItemName { get; set; }
+
     [JsonProperty("Pallet_ID")]
     public string PalletId { get; set; }
 

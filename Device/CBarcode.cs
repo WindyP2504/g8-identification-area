@@ -249,14 +249,14 @@ namespace VTP_Induction.Device
             //Console.WriteLine("⚪ Trigger OFF");
         }
 
-        public string ReadBarcoder(int timeoutMs = 90000)
+        public string ReadBarcoder(int timeoutMs = 1800000)
         {
             try
             {
                 receivedData = "";
                 TriggerOn();
 
-                if (receiveEvent.WaitOne(timeoutMs)) // chờ trong 15 giây
+                if (receiveEvent.WaitOne(timeoutMs)) 
                 {
                     TriggerOff();
                     return receivedData;

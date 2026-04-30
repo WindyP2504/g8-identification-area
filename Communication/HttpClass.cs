@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using VTP_Induction.Device;
 
 namespace VTP_Induction
 {
@@ -190,6 +191,7 @@ namespace VTP_Induction
 
             try
             {
+                Common.Log.LogWrite(Globals.LogLv.Information,"Full body: " + body);
                 data = JsonConvert.DeserializeObject<OrderTaskRequest>(body);
             }
             catch (Exception exJson)
