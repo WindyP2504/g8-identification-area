@@ -159,7 +159,9 @@ namespace VTP_Induction
                 labelNameSoftware.Text = GLb.g_SoftwareNameVersion;
 
                 InitPlan();
-                PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
+
+                string nextParcel = GetNextParcelCodeFromDatabase(GLb.CurrentPalletID);
+                HighlightProcessingParcelOnListView(nextParcel);
 
                 devHandler.DevConnect(true);
             }
@@ -423,7 +425,8 @@ namespace VTP_Induction
 
                             string statusText;
                             if (status == 0) statusText = "Chờ in";
-                            else if (status == 1) statusText = "Đã in";
+                            else if (status == 1) statusText = "Đã lên bảng kê";
+                            else if (status == 2) statusText = "Lỗi";
                             else statusText = "Không xác định";
 
                             ListViewItem item = new ListViewItem(stt.ToString());
@@ -511,241 +514,535 @@ namespace VTP_Induction
 
         private void AppendText(string text)
         {
-            try
+            if (richTextBoxLog.InvokeRequired)
             {
-                if (richTextBoxLog.Lines.Count() > 100)
-                {
-                    richTextBoxLog.Clear();
-                }
-
-                if (richTextBoxLog.InvokeRequired)
-                {
-                    delegateAppendText method = AppendText;
-                    Invoke(method, text);
-                    return;
-                }
-                richTextBoxLog.AppendText(text);
-                if (richTextBoxLog.Lines.Count() > 100)
-                {
-                    richTextBoxLog.Clear();
-                    lvlog.Items.Clear();
-                }
-                richTextBoxLog.ScrollToCaret();
+                richTextBoxLog.BeginInvoke(new Action(() => AppendText(text)));
+                return;
             }
-            catch { }
+
+            if (richTextBoxLog.Lines.Length > 100)
+            {
+                richTextBoxLog.Clear();
+                lvlog.Items.Clear();
+            }
+
+            richTextBoxLog.AppendText(text + Environment.NewLine);
+            richTextBoxLog.ScrollToCaret();
         }
 
         private Thread m_hReceiveThread = null;
         string ScaleRaw;
-        private volatile bool _isPrinting = false;
+
+        //public void MainProcessBarcode()
+        //{
+        //    GLb.g_bGrabbing = true;
+        //    int finalWeight = 0;
+        //    try
+        //    {
+        //        while (GLb.g_bGrabbing)
+        //        {
+        //            // Read scale value
+        //            string scaleRaw = devHandler.cScale.ReadScaleDataFormCom();
+        //            string digitsOnly = new string(scaleRaw.Where(char.IsDigit).ToArray());
+
+        //            int scaleValue;
+        //            if (!int.TryParse(digitsOnly, out scaleValue))
+        //                continue;
+
+        //            // Chưa đặt hàng lên cân
+        //            if (scaleValue < 20)
+        //            {
+        //                SetLabelText(lblPushInformation, "CHỜ ĐẶT SẢN PHẨM LÊN CÂN", Color.Gray);
+        //                SetLabelText(labelStatus, "", Color.Black);
+        //                devHandler.cPLCHandler.SetTrafficLightByM(2); // Yellow
+        //                Thread.Sleep(100);
+        //                continue;
+        //            }
+
+
+        //                SetLabelText(lblPushInformation, "CÂN SẢN PHẨM...", Color.OrangeRed);
+
+        //                bool weightOK = IsStableWeight(out finalWeight,
+        //                                               GLb.WeightCurrentValue,
+        //                                               GLb.g_tSysCfg.nScaleError,
+        //                                               GLb.g_tSysCfg.nTimeScale,
+        //                                               200);
+
+        //                if (!weightOK)
+        //                {
+        //                    SetLabelText(labelStatus, "NG", Color.Red);
+        //                    SetLabelText(lblPushInformation, "SẢN PHẨM KHÔNG ĐẠT, VUI LÒNG BỎ RA KHỎI CÂN", Color.Red);
+        //                    devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
+        //                    WaitForZeroWeight();
+        //                    UpdateItemTotal(false);
+        //                    continue;
+        //                }
+
+        //                SetLabelText(labelStatus, "OK", Color.Lime);
+        //                Thread.Sleep(10);
+
+        //                string nextParcel = GetNextParcelCodeFromDatabase(GLb.CurrentPalletID);
+
+        //                SetLabelText(lblPalletCode, "MÃ PALLET: " + GLb.CurrentPalletID, Color.DarkOrange);
+
+        //                if (string.IsNullOrEmpty(nextParcel))
+        //                {
+        //                    SetLabelText(lblPushInformation, "HẾT DANH SÁCH IN / CHƯA CÓ THÙNG CHỜ IN", Color.Gray);
+        //                    Thread.Sleep(500);
+        //                    continue;
+        //                }
+
+        //                SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
+
+        //                bool printOK = devHandler.cPrinterGodex.PrintBarcode(nextParcel, GLb.CurrentItemName, GLb.CurrentPalletID, finalWeight.ToString(), GLb.innerCtn);
+
+        //                //bool printOK = true;
+
+        //                Thread.Sleep(1000);
+
+        //                if (!printOK)
+        //                {
+        //                    SetLabelText(labelStatus, "NG", Color.Red);
+        //                    SetLabelText(lblPushInformation, "IN TEM THẤT BẠI, VUI LÒNG BỎ RA KHỎI CÂN", Color.Red);
+        //                    devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
+        //                    WaitForZeroWeight();
+        //                    UpdateItemTotal(false);
+        //                    MarkFailOnListView(nextParcel);
+        //                    continue;
+        //                }
+
+        //                // Step 3: Read barcode
+        //                //string barcodeTemp = "";
+        //                //SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH ...", Color.OrangeRed);
+
+        //                //bool readOK = WaitForBarcodeRead(out barcodeTemp, 1800000);
+
+        //                //if (readOK && barcodeTemp == nextParcel.Trim())
+        //                ////if (readOK && barcodeTemp == "TP0248")
+        //                //{
+        //                //    SetLabelText(labelStatus, "OK", Color.Lime);
+        //                //    SetLabelText(lblPushInformation, "MÃ VẠCH:" + barcodeTemp, Color.GreenYellow);
+        //                //    UpdateItemTotal(true);
+        //                //    AppendText("[PROCESS] ĐÃ HOÀN THÀNH IN THÙNG " + barcodeTemp + "\n");
+        //                //    devHandler.cPLCHandler.SetTrafficLightByM(1); // Green
+        //                //}
+        //                //else
+        //                //{
+        //                //    Log.LogWrite(Globals.LogLv.Error, "Đọc mã vạch thất bại hoặc không khớp! Đọc được: " + barcodeTemp + ", mong đợi: " + nextParcel, true);
+        //                //    SetLabelText(labelStatus, "NG", Color.Red);
+        //                //    SetLabelText(lblPushInformation, "KHÔNG ĐỌC ĐƯỢC MÃ VẠCH - BỎ RA KHỎI CÂN", Color.Red);
+        //                //    devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
+        //                //    UpdateItemTotal(false);
+        //                //    PrintQueueHelper.MarkFail(lvPrintList);
+        //                //    WaitForZeroWeight();
+        //                //    continue;
+        //                //}
+
+        //                // Step 3: Read barcode
+        //                string barcodeTemp = "";
+        //                SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH...", Color.OrangeRed);
+
+        //                // Lần đọc thứ 1
+        //                bool readOK = WaitForBarcodeRead(out barcodeTemp, 5000);
+
+        //                bool barcodeMatched = readOK && string.Equals(barcodeTemp, nextParcel, StringComparison.OrdinalIgnoreCase);
+
+        //                // Nếu lần 1 lỗi thì cho đọc lại thêm 1 lần
+        //                if (!barcodeMatched)
+        //                {
+        //                    AppendText("[BARCODE RETRY] Lần 1 lỗi. Expected= " + nextParcel + ", Actual= " + barcodeTemp + ", readOK= " + readOK + "\n");
+
+        //                    SetLabelText(lblPushInformation, "ĐỌC MÃ LỖI - ĐANG THỬ ĐỌC LẠI LẦN 2...", Color.OrangeRed);
+
+        //                    Thread.Sleep(300); // nghỉ nhẹ trước khi đọc lại
+
+        //                    barcodeTemp = "";
+        //                    readOK = WaitForBarcodeRead(out barcodeTemp, 5000);
+
+        //                    barcodeMatched = readOK &&
+        //                                     string.Equals(barcodeTemp, nextParcel, StringComparison.OrdinalIgnoreCase);
+        //                }
+
+        //                if (barcodeMatched)
+        //                {
+        //                    SetLabelText(labelStatus, "OK", Color.Lime);
+        //                    SetLabelText(lblPushInformation, "MÃ VẠCH:" + barcodeTemp, Color.GreenYellow);
+        //                    UpdateItemTotal(true);
+        //                    AppendText("[PROCESS] ĐÃ HOÀN THÀNH IN THÙNG " + barcodeTemp + "\n");
+        //                    devHandler.cPLCHandler.SetTrafficLightByM(1); // Green
+        //                }
+        //                else
+        //                {
+        //                    Log.LogWrite(Globals.LogLv.Error, "Đọc mã vạch thất bại hoặc không khớp! Đọc được: " + barcodeTemp + ", mong đợi: " + nextParcel, true);
+        //                    SetLabelText(labelStatus, "NG", Color.Red);
+        //                    SetLabelText(lblPushInformation, "KHÔNG ĐỌC ĐƯỢC MÃ VẠCH - BỎ RA KHỎI CÂN", Color.Red);
+        //                    devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
+        //                    UpdateItemTotal(false);
+        //                    MarkFailOnListView(nextParcel);
+        //                WaitForZeroWeight();
+        //                    continue;
+        //                }
+
+        //            // Mark success + update DB
+        //            MarkSuccessOnListView(nextParcel);
+        //            UpdateParcelStatusInDatabase(nextParcel, 1);
+
+        //            bool isLastParcel = IsLastPrintedParcelFromDatabase(nextParcel);
+        //                Thread.Sleep(100);
+
+        //                if (GLb.nParcelDone >= GLb.nTotalParcel || (isLastParcel && GLb.nParcelDone > 0))
+        //                {
+        //                    try
+        //                    {
+        //                        // dùng trực tiếp GLb.CurrentPalletID, không cần palletCode
+        //                        SendPalletInforAfterDoneUntilSuccess(GLb.CurrentPalletID);
+        //                    }
+        //                    catch (Exception e)
+        //                    {
+        //                        SetLabelText(lblPushInformation, "PALLET KHÔNG XỬ LÝ ĐƯỢC: " + e.Message, Color.Red);
+        //                        devHandler.cPLCHandler.SetTrafficLightByM(0); // Red
+        //                    }
+        //                }
+
+        //                Thread.Sleep(200);
+        //                WaitForZeroWeight();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        SetLabelText(lblPushInformation, "LỖI HỆ THỐNG: " + ex.Message, Color.Red);
+        //        devHandler.cPLCHandler.SetTrafficLightByM(0); //Red
+        //    }
+        //}
+
+        private bool _simulatePrintFail = false;
+        private SimBarcodeMode _simBarcodeMode = SimBarcodeMode.Wrong;
+
+        private enum SimBarcodeMode
+        {
+            Correct, // PDA đọc đúng mã vừa in
+            Wrong,   // PDA đọc sai mã
+            NoRead   // PDA không đọc được mã
+        }
+        private bool _simulationMode = false;
 
         public void MainProcessBarcode()
         {
-            _isPrinting = false;
             GLb.g_bGrabbing = true;
-            int finalWeight = 0;
+
+            int finalWeight;
+
             try
             {
                 while (GLb.g_bGrabbing)
                 {
-                    // Read scale value
-                    string scaleRaw = devHandler.cScale.ReadScaleDataFormCom();
-                    string digitsOnly = new string(scaleRaw.Where(char.IsDigit).ToArray());
-
-                    int scaleValue;
-                    if (!int.TryParse(digitsOnly, out scaleValue))
-                        continue;
+                    int scaleValue = ReadScaleValueWrapper();
 
                     // Chưa đặt hàng lên cân
                     if (scaleValue < 20)
                     {
                         SetLabelText(lblPushInformation, "CHỜ ĐẶT SẢN PHẨM LÊN CÂN", Color.Gray);
                         SetLabelText(labelStatus, "", Color.Black);
-                        devHandler.cPLCHandler.SetTrafficLightByM(2); // Yellow
-                        Thread.Sleep(100);
-                        _isPrinting = false;
-                        continue;
-                    }
-
-                    if (_isPrinting)
-                    {
+                        SetTrafficLightWrapper(2); // Yellow
                         Thread.Sleep(100);
                         continue;
                     }
 
-                    _isPrinting = true;
+                    SetLabelText(lblPushInformation, "CÂN SẢN PHẨM...", Color.OrangeRed);
 
-                    try
+                    bool weightOK = CheckStableWeightWrapper(out finalWeight);
+
+                    if (!weightOK)
                     {
-                        SetLabelText(lblPushInformation, "CÂN SẢN PHẨM...", Color.OrangeRed);
+                        SetLabelText(labelStatus, "NG", Color.Red);
+                        SetLabelText(lblPushInformation, "SẢN PHẨM KHÔNG ĐẠT, VUI LÒNG BỎ RA KHỎI CÂN", Color.Red);
+                        SetTrafficLightWrapper(0); // Red
 
-                        bool weightOK = IsStableWeight(out finalWeight,
-                                                       GLb.WeightCurrentValue,
-                                                       GLb.g_tSysCfg.nScaleError,
-                                                       GLb.g_tSysCfg.nTimeScale,
-                                                       200);
+                        UpdateItemTotal(false);
+                        WaitForZeroWeightWrapper();
 
-                        if (!weightOK)
+                        continue;
+                    }
+
+                    SetLabelText(labelStatus, "OK", Color.Lime);
+                    Thread.Sleep(100);
+
+                    string nextParcel = GetNextParcelCodeFromDatabase(GLb.CurrentPalletID);
+
+                    SetLabelText(lblPalletCode, "MÃ PALLET: " + GLb.CurrentPalletID, Color.DarkOrange);
+
+                    if (string.IsNullOrWhiteSpace(nextParcel))
+                    {
+                        SetLabelText(lblPushInformation, "HẾT DANH SÁCH IN / CHƯA CÓ THÙNG CHỜ IN", Color.Gray);
+                        AppendText("[PROCESS] Không còn parcel chờ in trong DB\n");
+
+                        WaitForZeroWeightWrapper();
+                        Thread.Sleep(300);
+
+                        continue;
+                    }
+
+                    HighlightProcessingParcelOnListView(nextParcel);
+
+                    SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
+
+                    bool printOK = PrintBarcodeWrapper(nextParcel, GLb.CurrentItemName, GLb.CurrentPalletID, finalWeight.ToString(), GLb.innerCtn);
+
+                    Thread.Sleep(1000);
+
+                    if (!printOK)
+                    {
+                        SetLabelText(labelStatus, "NG", Color.Red);
+                        SetLabelText(lblPushInformation, "IN TEM THẤT BẠI, VUI LÒNG BỎ RA KHỎI CÂN", Color.Red);
+                        SetTrafficLightWrapper(0); // Red
+
+                        bool dbFailOK = MarkParcelErrorInDatabase(nextParcel);
+
+                        if (!dbFailOK)
+                        {
+                            Log.LogWrite(Globals.LogLv.Error, "Không cập nhật được trạng thái lỗi trong DB cho mã: " + nextParcel, true);
+                        }
+
+                        MarkFailOnListView(nextParcel);
+                        UpdateItemTotal(false);
+                        WaitForZeroWeightWrapper();
+
+                        continue;
+                    }
+
+                    // =======================
+                    // READ BARCODE
+                    // =======================
+
+                    string barcodeTemp = "";
+                    SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH...", Color.OrangeRed);
+
+                    bool readOK = WaitForBarcodeReadWrapper(nextParcel, out barcodeTemp, 5000);
+
+                    bool barcodeMatched = readOK && string.Equals(barcodeTemp.Trim(), nextParcel.Trim(), StringComparison.OrdinalIgnoreCase);
+
+                    // Retry 1 lần nếu đọc lỗi hoặc không khớp
+                    if (!barcodeMatched)
+                    {
+                        AppendText("[BARCODE RETRY] Lần 1 lỗi. Expected=" + nextParcel + ", Actual=" + barcodeTemp + "\n");
+
+                        SetLabelText(lblPushInformation, "ĐỌC MÃ LỖI - ĐANG THỬ ĐỌC LẠI LẦN 2...", Color.OrangeRed);
+
+                        Thread.Sleep(300);
+
+                        barcodeTemp = "";
+
+                        readOK = WaitForBarcodeReadWrapper(nextParcel, out barcodeTemp, 5000);
+
+                        barcodeMatched = readOK && string.Equals(barcodeTemp.Trim(), nextParcel.Trim(), StringComparison.OrdinalIgnoreCase);
+                    }
+
+                    if (barcodeMatched)
+                    {
+                        bool dbSuccessOK = MarkParcelSuccessInDatabase(nextParcel);
+
+                        if (!dbSuccessOK)
                         {
                             SetLabelText(labelStatus, "NG", Color.Red);
-                            SetLabelText(lblPushInformation, "SẢN PHẨM KHÔNG ĐẠT, VUI LÒNG BỎ RA KHỎI CÂN", Color.Red);
-                            devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
-                            WaitForZeroWeight();
-                            UpdateItemTotal(false);
+                            SetLabelText(lblPushInformation, "CẬP NHẬT DB THẤT BẠI: " + nextParcel, Color.Red);
+                            SetTrafficLightWrapper(0); // Red
+
+                            Log.LogWrite(Globals.LogLv.Error, "Cập nhật DB thất bại cho mã: " + nextParcel, true);
+
+                            WaitForZeroWeightWrapper();
                             continue;
                         }
+
+                        MarkSuccessOnListView(nextParcel);
 
                         SetLabelText(labelStatus, "OK", Color.Lime);
-                        Thread.Sleep(10);
+                        SetLabelText(lblPushInformation, "MÃ VẠCH: " + barcodeTemp, Color.GreenYellow);
 
-                        string nextParcel = PrintQueueHelper.GetNextParcelCode(lvPrintList);
+                        UpdateItemTotal(true);
 
-                        SetLabelText(lblPalletCode, "MÃ PALLET: " + GLb.CurrentPalletID, Color.DarkOrange);
+                        AppendText("[PROCESS] ĐÃ HOÀN THÀNH IN THÙNG " + barcodeTemp + "\n");
 
-                        if (string.IsNullOrEmpty(nextParcel))
-                        {
-                            SetLabelText(lblPushInformation, "HẾT DANH SÁCH IN / CHƯA CÓ THÙNG CHỜ IN", Color.Gray);
-                            Thread.Sleep(500);
-                            continue;
-                        }
-
-                        SetLabelText(lblPushInformation, "ĐANG IN TEM...", Color.OrangeRed);
-
-                        bool printOK = devHandler.cPrinterGodex.PrintBarcode(nextParcel, GLb.CurrentItemName, GLb.CurrentPalletID, finalWeight.ToString(), GLb.innerCtn );
-
-                        //bool printOK = true;
-
-                        Thread.Sleep(1000);
-
-                        if (!printOK)
-                        {
-                            SetLabelText(labelStatus, "NG", Color.Red);
-                            SetLabelText(lblPushInformation, "IN TEM THẤT BẠI, VUI LÒNG BỎ RA KHỎI CÂN", Color.Red);
-                            devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
-                            WaitForZeroWeight();
-                            UpdateItemTotal(false);
-                            PrintQueueHelper.MarkFail(lvPrintList);
-                            continue;
-                        }
-
-                        // Step 3: Read barcode
-                        //string barcodeTemp = "";
-                        //SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH ...", Color.OrangeRed);
-
-                        //bool readOK = WaitForBarcodeRead(out barcodeTemp, 1800000);
-
-                        //if (readOK && barcodeTemp == nextParcel.Trim())
-                        ////if (readOK && barcodeTemp == "TP0248")
-                        //{
-                        //    SetLabelText(labelStatus, "OK", Color.Lime);
-                        //    SetLabelText(lblPushInformation, "MÃ VẠCH:" + barcodeTemp, Color.GreenYellow);
-                        //    UpdateItemTotal(true);
-                        //    AppendText("[PROCESS] ĐÃ HOÀN THÀNH IN THÙNG " + barcodeTemp + "\r");
-                        //    devHandler.cPLCHandler.SetTrafficLightByM(1); // Green
-                        //}
-                        //else
-                        //{
-                        //    Log.LogWrite(Globals.LogLv.Error, "Đọc mã vạch thất bại hoặc không khớp! Đọc được: " + barcodeTemp + ", mong đợi: " + nextParcel, true);
-                        //    SetLabelText(labelStatus, "NG", Color.Red);
-                        //    SetLabelText(lblPushInformation, "KHÔNG ĐỌC ĐƯỢC MÃ VẠCH - BỎ RA KHỎI CÂN", Color.Red);
-                        //    devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
-                        //    UpdateItemTotal(false);
-                        //    PrintQueueHelper.MarkFail(lvPrintList);
-                        //    WaitForZeroWeight();
-                        //    continue;
-                        //}
-
-                        // Step 3: Read barcode
-                        string barcodeTemp = "";
-                        SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH...", Color.OrangeRed);
-
-                        // Lần đọc thứ 1
-                        bool readOK = WaitForBarcodeRead(out barcodeTemp, 5000);
-
-                        bool barcodeMatched = readOK && string.Equals(barcodeTemp, nextParcel, StringComparison.OrdinalIgnoreCase);
-
-                        // Nếu lần 1 lỗi thì cho đọc lại thêm 1 lần
-                        if (!barcodeMatched)
-                        {
-                            AppendText("[BARCODE RETRY] Lần 1 lỗi. Expected= " + nextParcel + ", Actual= " + barcodeTemp + ", readOK= " + readOK + "\r");
-
-                            SetLabelText(lblPushInformation, "ĐỌC MÃ LỖI - ĐANG THỬ ĐỌC LẠI LẦN 2...", Color.OrangeRed);
-
-                            Thread.Sleep(300); // nghỉ nhẹ trước khi đọc lại
-
-                            barcodeTemp = "";
-                            readOK = WaitForBarcodeRead(out barcodeTemp, 5000);
-
-                            barcodeMatched = readOK &&
-                                             string.Equals(barcodeTemp, nextParcel, StringComparison.OrdinalIgnoreCase);
-                        }
-
-                        if (barcodeMatched)
-                        {
-                            SetLabelText(labelStatus, "OK", Color.Lime);
-                            SetLabelText(lblPushInformation, "MÃ VẠCH:" + barcodeTemp, Color.GreenYellow);
-                            UpdateItemTotal(true);
-                            AppendText("[PROCESS] ĐÃ HOÀN THÀNH IN THÙNG " + barcodeTemp + "\r");
-                            devHandler.cPLCHandler.SetTrafficLightByM(1); // Green
-                        }
-                        else
-                        {
-                            Log.LogWrite(Globals.LogLv.Error, "Đọc mã vạch thất bại hoặc không khớp! Đọc được: " + barcodeTemp + ", mong đợi: " + nextParcel, true);
-                            SetLabelText(labelStatus, "NG", Color.Red);
-                            SetLabelText(lblPushInformation, "KHÔNG ĐỌC ĐƯỢC MÃ VẠCH - BỎ RA KHỎI CÂN", Color.Red);
-                            devHandler.cPLCHandler.SetTrafficLightByM(0); // RED
-                            UpdateItemTotal(false);
-                            PrintQueueHelper.MarkFail(lvPrintList);
-                            WaitForZeroWeight();
-                            continue;
-                        }
-
-                        // Mark success + update DB
-                        PrintQueueHelper.MarkSuccess(lvPrintList);
-                        PrintQueueHelper.UpdateStatusInDatabase(nextParcel, 1);
-
-                        bool isLastParcel = PrintQueueHelper.IsLastPrintedParcel(lvPrintList);
-                        Thread.Sleep(100);
-
-                        if (GLb.nParcelDone >= GLb.nTotalParcel || (isLastParcel && GLb.nParcelDone > 0))
-                        {
-                            try
-                            {
-                                // dùng trực tiếp GLb.CurrentPalletID, không cần palletCode
-                                SendPalletInforAfterDoneUntilSuccess(GLb.CurrentPalletID);
-                            }
-                            catch (Exception e)
-                            {
-                                SetLabelText(lblPushInformation, "PALLET KHÔNG XỬ LÝ ĐƯỢC: " + e.Message, Color.Red);
-                                devHandler.cPLCHandler.SetTrafficLightByM(0); // Red
-                            }
-                        }
-
-                        Thread.Sleep(200);
-                        WaitForZeroWeight();
+                        SetTrafficLightWrapper(1); // Green
                     }
-                    finally
+                    else
                     {
-                        // đảm bảo không bao giờ bị kẹt _isPrinting
-                        _isPrinting = false;
-                    }
-                }
+                        Log.LogWrite(Globals.LogLv.Error, "Đọc mã vạch thất bại hoặc không khớp! Đọc được: " + barcodeTemp
+                            + ", mong đợi: " + nextParcel, true);
 
+                        SetLabelText(labelStatus, "NG", Color.Red);
+                        SetLabelText(lblPushInformation, "KHÔNG ĐỌC ĐƯỢC MÃ VẠCH - BỎ RA KHỎI CÂN", Color.Red);
+                        SetTrafficLightWrapper(0); // Red
+
+                        bool dbFailOK = MarkParcelErrorInDatabase(nextParcel);
+
+                        if (!dbFailOK)
+                        {
+                            Log.LogWrite(Globals.LogLv.Error, "Không cập nhật được trạng thái lỗi trong DB cho mã: " + nextParcel, true);
+                        }
+
+                        MarkFailOnListView(nextParcel);
+                        UpdateItemTotal(false);
+                        WaitForZeroWeightWrapper();
+
+                        continue;
+                    }
+
+                    bool isLastParcel = IsLastPrintedParcelFromDatabase(GLb.CurrentPalletID);
+
+                    Thread.Sleep(100);
+
+                    if (GLb.nParcelDone >= GLb.nTotalParcel || (isLastParcel && GLb.nParcelDone > 0))
+                    {
+                        try
+                        {
+                            SendPalletInforAfterDoneUntilSuccess(GLb.CurrentPalletID);
+                        }
+                        catch (Exception e)
+                        {
+                            SetLabelText(lblPushInformation, "PALLET KHÔNG XỬ LÝ ĐƯỢC: " + e.Message, Color.Red);
+                            SetTrafficLightWrapper(0); // Red
+                        }
+                    }
+
+                    Thread.Sleep(500);
+
+                    WaitForZeroWeightWrapper();
+                }
             }
             catch (Exception ex)
             {
                 SetLabelText(lblPushInformation, "LỖI HỆ THỐNG: " + ex.Message, Color.Red);
-                devHandler.cPLCHandler.SetTrafficLightByM(0); //Red
+                SetTrafficLightWrapper(0); // Red
+
+                Log.LogWrite(Globals.LogLv.Error, "MainProcessBarcode lỗi hệ thống: " + ex.Message, true);
             }
         }
+
+        #region Test
+        private int ReadScaleValueWrapper()
+        {
+            if (_simulationMode)
+            {
+                return 500;
+            }
+
+            int scaleValue = 0;
+            string scaleRaw = devHandler.cScale.ReadScaleDataFormCom();
+            string digitsOnly = new string(scaleRaw.Where(char.IsDigit).ToArray());
+
+            if (!int.TryParse(digitsOnly, out scaleValue))
+                return 0;
+
+            return scaleValue;
+        }
+
+        private bool CheckStableWeightWrapper(out int finalWeight)
+        {
+            if (_simulationMode)
+            {
+                finalWeight = 500;
+                AppendText("[SIM SCALE] Cân ổn định, weight=" + finalWeight + "\n");
+                Thread.Sleep(2000);
+                return true;
+            }
+
+            return IsStableWeight(out finalWeight, GLb.WeightCurrentValue, GLb.g_tSysCfg.nScaleError, GLb.g_tSysCfg.nTimeScale, 200);
+        }
+        private bool PrintBarcodeWrapper(string parcelCode, string itemName, string palletId, string weight, string innerCtn)
+        {
+            if (_simulationMode)
+            {
+                if (_simulatePrintFail)
+                {
+                    AppendText("[SIM PRINT] Giả lập IN LỖI. Parcel=" + parcelCode + "\n");
+                    return false;
+                }
+
+                AppendText("[SIM PRINT] In giả lập OK. Parcel="
+                    + parcelCode
+                    + ", Item="
+                    + itemName
+                    + ", Pallet="
+                    + palletId
+                    + ", Weight="
+                    + weight
+                    + ", InnerCtn="
+                    + innerCtn
+                    + "\n"
+                );
+
+                return true;
+            }
+
+            return devHandler.cPrinterGodex.PrintBarcode(parcelCode,itemName,palletId,weight,innerCtn);
+        }
+
+        private bool WaitForBarcodeReadWrapper(string expectedParcel, out string barcode, int timeoutMs = 5000)
+        {
+            if (_simulationMode)
+            {
+                switch (_simBarcodeMode)
+                {
+                    case SimBarcodeMode.Correct:
+                        barcode = expectedParcel;
+                        AppendText("[SIM PDA] Đọc đúng barcode=" + barcode + "\n");
+                        return true;
+
+                    case SimBarcodeMode.Wrong:
+                        barcode = "WRONG_" + expectedParcel;
+                        AppendText("[SIM PDA] Đọc sai barcode=" + barcode + "\n");
+                        return true;
+
+                    case SimBarcodeMode.NoRead:
+                        barcode = "";
+                        AppendText("[SIM PDA] Không đọc được barcode\n");
+                        return false;
+
+                    default:
+                        barcode = "";
+                        return false;
+                }
+            }
+
+            return WaitForBarcodeRead(out barcode, timeoutMs);
+        }
+
+        private void WaitForZeroWeightWrapper()
+        {
+            if (_simulationMode)
+            {
+                AppendText("[SIM SCALE] Giả lập đã bỏ hàng khỏi cân\n");
+                Thread.Sleep(300);
+                return;
+            }
+
+            WaitForZeroWeight();
+        }
+
+        private void SetTrafficLightWrapper(int mode)
+        {
+            if (_simulationMode)
+            {
+                string lightName = mode == 0 ? "RED" :
+                                   mode == 1 ? "GREEN" :
+                                   mode == 2 ? "YELLOW" :
+                                   "UNKNOWN";
+
+                AppendText("[SIM PLC] Traffic light=" + lightName + "\n");
+                return;
+            }
+
+            devHandler.cPLCHandler.SetTrafficLightByM(mode);
+        }
+
+        #endregion
 
         private void SendPalletInforAfterDoneUntilSuccess(string palletCode)
         {
             if (string.IsNullOrWhiteSpace(palletCode))
                 throw new Exception("MÃ PALLET KHÔNG HỢP LỆ");
 
-            /* ================= UPDATE STATUS: WAIT → SEND ================= */
-            PrintQueueHelper.UpdateStatusByPalletId(palletCode, "FINALIZING");
+            UpdatePalletStatusByPalletId(palletCode, "FINALIZING");
 
             try
             {
@@ -781,7 +1078,7 @@ namespace VTP_Induction
                 }
 
                 /* ================= UPDATE DONE ================= */
-                PrintQueueHelper.UpdateStatusByPalletId(palletCode, "DONE");
+               UpdatePalletStatusByPalletId(palletCode, "DONE");
 
                 GLb.nPalletDone++;
 
@@ -843,7 +1140,7 @@ namespace VTP_Induction
                 }
 
                 /* ================= UPDATE DONE ================= */
-                PrintQueueHelper.UpdateStatusByPalletId(palletCode, "DONE");
+                UpdatePalletStatusByPalletId(palletCode, "DONE");
                 if (GLb.nPalletDone < GLb.nTotalPallet) GLb.nPalletDone++;
 
                 /* ================= UI + RESET ================= */
@@ -1005,7 +1302,7 @@ namespace VTP_Induction
             // CẤU HÌNH
             const int THRESHOLD = 20;      // Ngưỡng an toàn (g) - Dưới mức này coi như đã lấy hàng
             const int REQUIRED_COUNT = 5;  // Số lần liên tiếp cần đạt (đếm 5 lần cho chắc)
-            const int SLEEP_TIME = 50;    // Thời gian nghỉ giữa các lần đọc (ms)
+            const int SLEEP_TIME = 100;    // Thời gian nghỉ giữa các lần đọc (ms)
 
             // Tổng thời gian xác nhận = 5 * 100ms = 0.5 giây (Rất nhanh nhưng cực an toàn)
 
@@ -1867,32 +2164,32 @@ namespace VTP_Induction
 
         private void buttonSTART_Click_1(object sender, EventArgs e)
         {
-            if (!devHandler.cPrinterGodex.m_bConnection)
-            {
-                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            //if (!devHandler.cPrinterGodex.m_bConnection)
+            //{
+            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
 
-            if (!devHandler.cBarcode.m_bConnection)
-            {
-                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            //if (!devHandler.cBarcode.m_bConnection)
+            //{
+            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
 
-            if (!devHandler.cPLCHandler.m_bConnection)
-            {
-                var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-                if (res == DialogResult.Cancel)
-                {
-                    return;
-                }
-            }
+            //if (!devHandler.cPLCHandler.m_bConnection)
+            //{
+            //    var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+            //    if (res == DialogResult.Cancel)
+            //    {
+            //        return;
+            //    }
+            //}
 
-            if (!devHandler.cScale.m_bConnection)
-            {
-                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            //if (!devHandler.cScale.m_bConnection)
+            //{
+            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
 
             if (GLb.IsInTask == false)
             {
@@ -1939,8 +2236,11 @@ namespace VTP_Induction
             }
 
             InitPlan();
-            PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
-            AppendText("TẢI LÊN KẾ HOẠCH SẢN XUẤT \r ");
+
+            string nextParcel = GetNextParcelCodeFromDatabase(GLb.CurrentPalletID);
+            HighlightProcessingParcelOnListView(nextParcel);
+
+            AppendText("TẢI LÊN KẾ HOẠCH SẢN XUẤT \n");
 
             TimerInsp.Enabled = true;
             this.buttonSTART.Enabled = false;
@@ -1953,7 +2253,7 @@ namespace VTP_Induction
             SetButton(BtnState.RUNNING);
             RunProcessCaptureImage();
             writeLog("[SYSTEM] System is Working");
-            AppendText("[SYSTEM] System is Working \r");
+            AppendText("[SYSTEM] System is Working \n");
         }
 
         private void buttonSTOP_Click(object sender, EventArgs e)
@@ -2023,7 +2323,9 @@ namespace VTP_Induction
                     UpdateCounterUI();
                     InitPlan();
                     labelNameSoftware.Text = GLb.g_SoftwareNameVersion;
-                    PrintQueueHelper.ResetToFirstWaitingItem(lvPrintList);
+
+                    string nextParcel = GetNextParcelCodeFromDatabase(GLb.CurrentPalletID);
+                    HighlightProcessingParcelOnListView(nextParcel);
 
                     MessageBox.Show(
                         "Đã đặt lại bộ đếm!",
@@ -2033,7 +2335,7 @@ namespace VTP_Induction
                     );
                 }
 
-                AppendText("ĐÃ RESET CHU TRÌNH THÀNH CÔNG \r");
+                AppendText("ĐÃ RESET CHU TRÌNH THÀNH CÔNG \n");
             }
             catch (Exception ex)
             {
@@ -2381,10 +2683,240 @@ namespace VTP_Induction
             
             // thêm các cột khác ở đây
         }
+
+        #region Helper Methods
+        private const int COL_CODE = 1;
+        private const int COL_STATUS = 2;
+
+        private const string UI_STATUS_WAITING = "Chờ in";
+        private const string UI_STATUS_PRINT_ERROR = "Lỗi";
+        private const string UI_STATUS_SUCCESS = "Đã lên bảng kê";
+
+        private const int DB_STATUS_WAITING = 0;
+        private const int DB_STATUS_SUCCESS = 1;
+        private const int DB_STATUS_ERROR = 2;
+
+        private string GetNextParcelCodeFromDatabase(string palletId)
+        {
+            if (string.IsNullOrWhiteSpace(palletId))
+                return null;
+
+            string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
+
+            const string query = "SELECT TOP 1 ReceivedCode FROM dbo.WCS_Parcels_Prod WHERE Pallet_ID = @palletId " +
+                "AND (Status = @statusWaiting OR Status = @statusError) ORDER BY Id ASC;";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.Add("@palletId", SqlDbType.NVarChar, 100).Value = palletId.Trim();
+                cmd.Parameters.Add("@statusWaiting", SqlDbType.Int).Value = DB_STATUS_WAITING;
+                cmd.Parameters.Add("@statusError", SqlDbType.Int).Value = DB_STATUS_ERROR;
+
+                conn.Open();
+
+                object result = cmd.ExecuteScalar();
+
+                if (result == null || result == DBNull.Value)
+                    return null;
+
+                return result.ToString().Trim();
+            }
+        }
+
+        private bool UpdateParcelStatusInDatabase(string parcelCode, int newStatus)
+        {
+            if (string.IsNullOrWhiteSpace(parcelCode))
+                return false;
+
+            string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
+
+            const string query = "UPDATE dbo.WCS_Parcels_Prod SET Status = @status WHERE ReceivedCode = @code;";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.Add("@status", SqlDbType.Int).Value = newStatus;
+                cmd.Parameters.Add("@code", SqlDbType.NVarChar, 100).Value = parcelCode.Trim();
+
+                conn.Open();
+
+                int affectedRows = cmd.ExecuteNonQuery();
+
+                return affectedRows > 0;
+            }
+        }
+
+        private bool MarkParcelSuccessInDatabase(string parcelCode)
+        {
+            return UpdateParcelStatusInDatabase(parcelCode, DB_STATUS_SUCCESS);
+        }
+
+        private bool MarkParcelErrorInDatabase(string parcelCode)
+        {
+            return UpdateParcelStatusInDatabase(parcelCode, DB_STATUS_ERROR);
+        }
+
+        private bool IsLastPrintedParcelFromDatabase(string palletId)
+        {
+            if (string.IsNullOrWhiteSpace(palletId))
+                return true;
+
+            string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
+
+            const string query = "SELECT COUNT(1) FROM dbo.WCS_Parcels_Prod WHERE Pallet_ID = @palletId " +
+                "AND (Status = @statusWaiting OR Status = @statusError);";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.Add("@palletId", SqlDbType.NVarChar, 100).Value = palletId.Trim();
+                cmd.Parameters.Add("@statusWaiting", SqlDbType.Int).Value = DB_STATUS_WAITING;
+                cmd.Parameters.Add("@statusError", SqlDbType.Int).Value = DB_STATUS_ERROR;
+
+                conn.Open();
+
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+                return count == 0;
+            }
+        }
+        private void MarkSuccessOnListView(string parcelCode)
+        {
+            if (string.IsNullOrWhiteSpace(parcelCode))
+                return;
+
+            if (lvPrintList.InvokeRequired)
+            {
+                lvPrintList.Invoke(new Action(() => MarkSuccessOnListView(parcelCode)));
+                return;
+            }
+
+            ListViewItem item = FindListViewItemByParcelCode(parcelCode);
+
+            if (item == null)
+            {
+                AppendText("[UI] Không tìm thấy parcel trên ListView để MarkSuccess: " + parcelCode + "\n");
+                return;
+            }
+
+            item.SubItems[COL_STATUS].Text = UI_STATUS_SUCCESS;
+            item.BackColor = Color.LightGreen;
+        }
+
+        private void MarkFailOnListView(string parcelCode)
+        {
+            if (string.IsNullOrWhiteSpace(parcelCode))
+                return;
+
+            if (lvPrintList.InvokeRequired)
+            {
+                lvPrintList.Invoke(new Action(() => MarkFailOnListView(parcelCode)));
+                return;
+            }
+
+            ListViewItem item = FindListViewItemByParcelCode(parcelCode);
+
+            if (item == null)
+            {
+                AppendText("[UI] Không tìm thấy parcel trên ListView để MarkFail: " + parcelCode + "\n");
+                return;
+            }
+
+            item.SubItems[COL_STATUS].Text = UI_STATUS_PRINT_ERROR;
+            item.BackColor = Color.LightCoral;
+        }
+
+        private ListViewItem FindListViewItemByParcelCode(string parcelCode)
+        {
+            if (string.IsNullOrWhiteSpace(parcelCode))
+                return null;
+
+            string targetCode = parcelCode.Trim();
+
+            foreach (ListViewItem item in lvPrintList.Items)
+            {
+                if (item.SubItems.Count <= COL_CODE)
+                    continue;
+
+                string code = item.SubItems[COL_CODE].Text.Trim();
+
+                if (string.Equals(code, targetCode, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+
+            return null;
+        }
+        private void HighlightProcessingParcelOnListView(string parcelCode)
+        {
+            if (string.IsNullOrWhiteSpace(parcelCode))
+                return;
+
+            if (lvPrintList.InvokeRequired)
+            {
+                lvPrintList.Invoke(new Action(() => HighlightProcessingParcelOnListView(parcelCode)));
+                return;
+            }
+
+            ListViewItem item = FindListViewItemByParcelCode(parcelCode);
+
+            if (item == null)
+            {
+                AppendText("[UI] Không tìm thấy parcel trên ListView để highlight: " + parcelCode + "\n");
+                return;
+            }
+
+            ResetListViewRowColors();
+
+            item.BackColor = Color.Orange;
+            lvPrintList.EnsureVisible(item.Index);
+        }
+
+        private void ResetListViewRowColors()
+        {
+            foreach (ListViewItem item in lvPrintList.Items)
+            {
+                if (item.SubItems.Count <= COL_STATUS)
+                    continue;
+
+                string status = item.SubItems[COL_STATUS].Text.Trim();
+
+                if (status == UI_STATUS_SUCCESS)
+                {
+                    item.BackColor = Color.LightGreen;
+                    item.ForeColor = Color.Black;
+                }
+                else if (status == UI_STATUS_PRINT_ERROR)
+                {
+                    item.BackColor = Color.LightCoral;
+                }
+            }
+        }
+        private int UpdatePalletStatusByPalletId(string palletId, string newStatus)
+        {
+            if (string.IsNullOrWhiteSpace(palletId))
+                return 0;
+
+            string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
+
+            const string query = @"UPDATE dbo.WCS_Pallet_Prod SET Status = @status WHERE Pallet_ID = @palletId;";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.Add("@status", SqlDbType.NVarChar, 50).Value = newStatus.Trim();
+                cmd.Parameters.Add("@palletId", SqlDbType.NVarChar, 100).Value = palletId.Trim();
+
+                conn.Open();
+
+                return cmd.ExecuteNonQuery();
+            }
+        }
+
+        #endregion
     }
 
     #region Helper Classes
-
     public enum BtnState
     {
         RUNNING,
@@ -2443,219 +2975,219 @@ namespace VTP_Induction
         }
     }
 
-    public static class PrintQueueHelper
-    {
-        public static int CurrentIndex = 0;
+    //public static class PrintQueueHelper
+    //{
+    //    public static int CurrentIndex = 0;
 
-        public static string GetNextParcelCode(ListView listView)
-        {
-            if (listView == null || CurrentIndex >= listView.Items.Count)
-            {
-                return null;
-            }
+    //    public static string GetNextParcelCode(ListView listView)
+    //    {
+    //        if (listView == null || CurrentIndex >= listView.Items.Count)
+    //        {
+    //            return null;
+    //        }
 
-            string result = null;
+    //        string result = null;
 
-            if (listView.InvokeRequired)
-            {
-                listView.Invoke(
-                    new Action(() =>
-                    {
-                        result = GetCodeAndHighlight(listView);
-                    })
-                );
-            }
-            else
-            {
-                result = GetCodeAndHighlight(listView);
-            }
+    //        if (listView.InvokeRequired)
+    //        {
+    //            listView.Invoke(
+    //                new Action(() =>
+    //                {
+    //                    result = GetCodeAndHighlight(listView);
+    //                })
+    //            );
+    //        }
+    //        else
+    //        {
+    //            result = GetCodeAndHighlight(listView);
+    //        }
 
-            return result;
-        }
+    //        return result;
+    //    }
 
-        public static string GetPalletIDFromDatabaseS2(string status)
-        {
-            string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
-            string palletID = null;
+    //    public static string GetPalletIDFromDatabaseS2(string status)
+    //    {
+    //        string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
+    //        string palletID = null;
 
-            string query = "SELECT TOP 1 Pallet_ID FROM WCS_Pallet_Prod WHERE Status = @status ORDER BY Id DESC";
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@status", status);
-                        object result = cmd.ExecuteScalar();
+    //        string query = "SELECT TOP 1 Pallet_ID FROM WCS_Pallet_Prod WHERE Status = @status ORDER BY Id DESC";
+    //        try
+    //        {
+    //            using (SqlConnection conn = new SqlConnection(connectionString))
+    //            {
+    //                conn.Open();
+    //                using (SqlCommand cmd = new SqlCommand(query, conn))
+    //                {
+    //                    cmd.Parameters.AddWithValue("@status", status);
+    //                    object result = cmd.ExecuteScalar();
 
-                        if (result != null && result != DBNull.Value)
-                        {
-                            palletID = result.ToString();
-                        }
-                    }
-                }
-            }
-            catch { }
+    //                    if (result != null && result != DBNull.Value)
+    //                    {
+    //                        palletID = result.ToString();
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        catch { }
 
-            return palletID;
-        }
+    //        return palletID;
+    //    }
 
-        private static string GetCodeAndHighlight(ListView listView)
-        {
-            var item = listView.Items[CurrentIndex];
-            string status = item.SubItems[2].Text;
+    //    private static string GetCodeAndHighlight(ListView listView)
+    //    {
+    //        var item = listView.Items[CurrentIndex];
+    //        string status = item.SubItems[2].Text;
 
-            if (status != "Chờ in" && status != "In lỗi")
-            {
-                return null;
-            }
+    //        if (status != "Chờ in" && status != "In lỗi")
+    //        {
+    //            return null;
+    //        }
 
-            foreach (ListViewItem i in listView.Items)
-            {
-                i.BackColor = Color.Gray;
-            }
+    //        foreach (ListViewItem i in listView.Items)
+    //        {
+    //            i.BackColor = Color.Gray;
+    //        }
 
-            item.BackColor = Color.Lime;
-            listView.EnsureVisible(CurrentIndex);
+    //        item.BackColor = Color.Lime;
+    //        listView.EnsureVisible(CurrentIndex);
 
-            return item.SubItems[1].Text;
-        }
+    //        return item.SubItems[1].Text;
+    //    }
 
-        public static void MarkSuccess(ListView listView)
-        {
-            if (listView.InvokeRequired)
-            {
-                listView.Invoke(new Action(() => MarkSuccessInternal(listView)));
-            }
-            else
-            {
-                MarkSuccessInternal(listView);
-            }
-        }
+    //    public static void MarkSuccess(ListView listView)
+    //    {
+    //        if (listView.InvokeRequired)
+    //        {
+    //            listView.Invoke(new Action(() => MarkSuccessInternal(listView)));
+    //        }
+    //        else
+    //        {
+    //            MarkSuccessInternal(listView);
+    //        }
+    //    }
 
-        private static void MarkSuccessInternal(ListView listView)
-        {
-            if (listView == null || CurrentIndex >= listView.Items.Count)
-            {
-                return;
-            }
+    //    private static void MarkSuccessInternal(ListView listView)
+    //    {
+    //        if (listView == null || CurrentIndex >= listView.Items.Count)
+    //        {
+    //            return;
+    //        }
 
-            listView.Items[CurrentIndex].SubItems[2].Text = "Đã lên bảng kê";
-            //listView.Items[CurrentIndex].BackColor = Color.Gray;
+    //        listView.Items[CurrentIndex].SubItems[2].Text = "Đã lên bảng kê";
+    //        //listView.Items[CurrentIndex].BackColor = Color.Gray;
 
-            CurrentIndex++;
-        }
+    //        CurrentIndex++;
+    //    }
 
-        public static void MarkFail(ListView listView)
-        {
-            if (listView.InvokeRequired)
-            {
-                listView.Invoke(new Action(() => MarkFailInternal(listView)));
-            }
-            else
-            {
-                MarkFailInternal(listView);
-            }
-        }
+    //    public static void MarkFail(ListView listView)
+    //    {
+    //        if (listView.InvokeRequired)
+    //        {
+    //            listView.Invoke(new Action(() => MarkFailInternal(listView)));
+    //        }
+    //        else
+    //        {
+    //            MarkFailInternal(listView);
+    //        }
+    //    }
 
-        public static void MarkFailInternal(ListView listView)
-        {
-            if (listView == null || CurrentIndex >= listView.Items.Count)
-            {
-                return;
-            }
+    //    public static void MarkFailInternal(ListView listView)
+    //    {
+    //        if (listView == null || CurrentIndex >= listView.Items.Count)
+    //        {
+    //            return;
+    //        }
 
-            listView.Items[CurrentIndex].SubItems[2].Text = "In lỗi";
-            listView.Items[CurrentIndex].BackColor = Color.LightCoral;
+    //        listView.Items[CurrentIndex].SubItems[2].Text = "In lỗi";
+    //        listView.Items[CurrentIndex].BackColor = Color.LightCoral;
 
-            // Không tăng index => chờ xử lý lại
-        }
+    //        // Không tăng index => chờ xử lý lại
+    //    }
 
-        public static void UpdateStatusInDatabase(string parcelCode, int newStatus)
-        {
-            string connectionString =
-                Globals.getInstance().g_tSQLConfig.SqlString;
-            string query =
-                "UPDATE dbo.WCS_Parcels_Prod SET Status = @status WHERE ReceivedCode = @code";
+    //    public static void UpdateStatusInDatabase(string parcelCode, int newStatus)
+    //    {
+    //        string connectionString =
+    //            Globals.getInstance().g_tSQLConfig.SqlString;
+    //        string query =
+    //            "UPDATE dbo.WCS_Parcels_Prod SET Status = @status WHERE ReceivedCode = @code";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@status", newStatus);
-                    cmd.Parameters.AddWithValue("@code", parcelCode);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
+    //        using (SqlConnection conn = new SqlConnection(connectionString))
+    //        {
+    //            conn.Open();
+    //            using (SqlCommand cmd = new SqlCommand(query, conn))
+    //            {
+    //                cmd.Parameters.AddWithValue("@status", newStatus);
+    //                cmd.Parameters.AddWithValue("@code", parcelCode);
+    //                cmd.ExecuteNonQuery();
+    //            }
+    //        }
+    //    }
 
-        public static int UpdateStatusByPalletId(string palletId, string newStatus)
-        {
-            if (string.IsNullOrWhiteSpace(palletId))
-                return 0;
+    //    public static int UpdateStatusByPalletId(string palletId, string newStatus)
+    //    {
+    //        if (string.IsNullOrWhiteSpace(palletId))
+    //            return 0;
 
-            string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
+    //        string connectionString = Globals.getInstance().g_tSQLConfig.SqlString;
 
-            const string query = @"UPDATE dbo.WCS_Pallet_Prod SET Status = @status WHERE Pallet_ID = @palletId;";
+    //        const string query = @"UPDATE dbo.WCS_Pallet_Prod SET Status = @status WHERE Pallet_ID = @palletId;";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand cmd = new SqlCommand(query, conn))
-            {
-                cmd.Parameters.AddWithValue("@status", newStatus);
-                cmd.Parameters.AddWithValue("@palletId", palletId);
+    //        using (SqlConnection conn = new SqlConnection(connectionString))
+    //        using (SqlCommand cmd = new SqlCommand(query, conn))
+    //        {
+    //            cmd.Parameters.AddWithValue("@status", newStatus);
+    //            cmd.Parameters.AddWithValue("@palletId", palletId);
 
-                conn.Open();
-                return cmd.ExecuteNonQuery(); // số dòng đã update
-            }
-        }
+    //            conn.Open();
+    //            return cmd.ExecuteNonQuery(); // số dòng đã update
+    //        }
+    //    }
 
-        public static void ResetToFirstWaitingItem(ListView listView)
-        {
-            if (listView == null)
-            {
-                return;
-            }
+    //    public static void ResetToFirstWaitingItem(ListView listView)
+    //    {
+    //        if (listView == null)
+    //        {
+    //            return;
+    //        }
 
-            for (int i = 0; i < listView.Items.Count; i++)
-            {
-                if (listView.Items[i].SubItems[2].Text == "Chờ in")
-                {
-                    CurrentIndex = i;
-                    return;
-                }
-            }
+    //        for (int i = 0; i < listView.Items.Count; i++)
+    //        {
+    //            if (listView.Items[i].SubItems[2].Text == "Chờ in")
+    //            {
+    //                CurrentIndex = i;
+    //                return;
+    //            }
+    //        }
 
-            // Nếu không có dòng nào chờ in, đặt CurrentIndex ngoài phạm vi
-            CurrentIndex = listView.Items.Count;
-        }
+    //        // Nếu không có dòng nào chờ in, đặt CurrentIndex ngoài phạm vi
+    //        CurrentIndex = listView.Items.Count;
+    //    }
 
-        public static bool IsLastPrintedParcel(ListView lv)
-        {
-            if (lv == null || lv.IsDisposed || lv.Items.Count == 0)
-            {
-                return true;
-            }
+    //    public static bool IsLastPrintedParcel(ListView lv)
+    //    {
+    //        if (lv == null || lv.IsDisposed || lv.Items.Count == 0)
+    //        {
+    //            return true;
+    //        }
 
-            if (lv.InvokeRequired)
-            {
-                return (bool)lv.Invoke(new Func<bool>(() => IsLastPrintedParcel(lv)));
-            }
+    //        if (lv.InvokeRequired)
+    //        {
+    //            return (bool)lv.Invoke(new Func<bool>(() => IsLastPrintedParcel(lv)));
+    //        }
 
-            foreach (ListViewItem item in lv.Items)
-            {
-                if (
-                    (item.Tag != null && item.Tag.ToString() == "0")
-                    || (item.SubItems.Count > 2 && item.SubItems[2].Text.Trim() == "Chờ in")
-                )
-                {
-                    return false;
-                }
-            }
+    //        foreach (ListViewItem item in lv.Items)
+    //        {
+    //            if (
+    //                (item.Tag != null && item.Tag.ToString() == "0")
+    //                || (item.SubItems.Count > 2 && item.SubItems[2].Text.Trim() == "Chờ in")
+    //            )
+    //            {
+    //                return false;
+    //            }
+    //        }
 
-            return true;
-        }
-    }
+    //        return true;
+    //    }
+    //}
     #endregion
 }
