@@ -235,39 +235,42 @@ namespace VTP_Induction.Device
             }
             Log.LogWrite(Globals.LogLv.Information, sLog);
         }
-        private void TriggerOn()
+        public void TriggerOn()
         {
             byte[] triggerOn = { 0x16, 0x54, 0x0D };  // \x16T\r
             serialPort.Write(triggerOn, 0, triggerOn.Length);
             //Console.WriteLine("🔴 Trigger ON");
         }
 
-        private void TriggerOff()
+        public void TriggerOff()
         {
             byte[] triggerOff = { 0x16, 0x55, 0x0D };  // \x16U\r
             serialPort.Write(triggerOff, 0, triggerOff.Length);
             //Console.WriteLine("⚪ Trigger OFF");
         }
 
-        public string ReadBarcoder(int timeoutMs = 1800000)
+        public string ReadBarcoder(WaitHandle stopHandle, int timeoutMs = 1800000)
         {
             try
             {
                 receivedData = "";
                 TriggerOn();
 
-                if (receiveEvent.WaitOne(timeoutMs)) 
+                int result = WaitHandle.WaitAny(
+                    new WaitHandle[] { receiveEvent, stopHandle },
+                    timeoutMs
+                );
+
+                TriggerOff();
+
+                if (result == 0)
                 {
-                    TriggerOff();
-                    return receivedData;
+                    return receivedData ?? "";
                 }
-                else
-                {
-                    TriggerOff();
-                    return "";
-                }
+
+                return "";
             }
-            catch //(Exception ex)
+            catch
             {
                 TriggerOff();
                 return "";

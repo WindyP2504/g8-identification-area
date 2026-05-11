@@ -817,7 +817,7 @@ namespace VTP_Induction
                     string barcodeTemp = "";
                     SetLabelText(lblPushInformation, "ĐANG ĐỌC MÃ VẠCH...", Color.OrangeRed);
 
-                    bool readOK = WaitForBarcodeReadWrapper(nextParcel, out barcodeTemp, 5000);
+                    bool readOK = WaitForBarcodeReadWrapper(nextParcel, out barcodeTemp, 1800000);
 
                     bool barcodeMatched = readOK && string.Equals(barcodeTemp.Trim(), nextParcel.Trim(), StringComparison.OrdinalIgnoreCase);
 
@@ -832,7 +832,7 @@ namespace VTP_Induction
 
                         barcodeTemp = "";
 
-                        readOK = WaitForBarcodeReadWrapper(nextParcel, out barcodeTemp, 5000);
+                        readOK = WaitForBarcodeReadWrapper(nextParcel, out barcodeTemp, 1800000);
 
                         barcodeMatched = readOK && string.Equals(barcodeTemp.Trim(), nextParcel.Trim(), StringComparison.OrdinalIgnoreCase);
                     }
@@ -977,7 +977,7 @@ namespace VTP_Induction
             return devHandler.cPrinterGodex.PrintBarcode(parcelCode,itemName,palletId,weight,innerCtn);
         }
 
-        private bool WaitForBarcodeReadWrapper(string expectedParcel, out string barcode, int timeoutMs = 5000)
+        private bool WaitForBarcodeReadWrapper(string expectedParcel, out string barcode, int timeoutMs)
         {
             if (_simulationMode)
             {
@@ -1308,7 +1308,7 @@ namespace VTP_Induction
 
             int stableCount = 0; // Biến đếm số lần thỏa mãn
 
-            while (true)
+            while (GLb.g_bGrabbing)
             {
                 // 1. Đọc dữ liệu từ cân
                 string scaleRaw = devHandler.cScale.ReadScaleDataFormCom();
@@ -1358,22 +1358,23 @@ namespace VTP_Induction
             }
         }
 
-        private bool WaitForBarcodeRead(out string barcode, int timeoutMs = 1800000)
+        private ManualResetEvent stopBarcodeEvent = new ManualResetEvent(false);
+        private bool WaitForBarcodeRead(out string barcode, int timeoutMs)
         {
             barcode = "";
             var sw = Stopwatch.StartNew();
 
-            while (sw.ElapsedMilliseconds < timeoutMs)
+            while (GLb.g_bGrabbing)
             {
-                string data = devHandler.cBarcode.ReadBarcoder().Trim();
+                string data = devHandler.cBarcode.ReadBarcoder(stopBarcodeEvent).Trim();
+
+                if (!GLb.g_bGrabbing)
+                    break;
 
                 if (!string.IsNullOrEmpty(data))
                 {
-                    barcode = data;
-                    return true;
+                    AppendText("Barcode: " + data + Environment.NewLine);
                 }
-
-                Thread.Sleep(100);
             }
 
             return false;
@@ -2264,6 +2265,17 @@ namespace VTP_Induction
             //}
 
             GLb.g_bGrabbing = false;
+
+            //stop barcode reader thread
+            stopBarcodeEvent.Set();
+            try
+            {
+                devHandler.cBarcode.TriggerOff();
+            }
+            catch
+            {
+            }
+
 
             ScaleRaw = "0";
             if (lblScaleValue.InvokeRequired)
