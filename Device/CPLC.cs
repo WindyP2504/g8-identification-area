@@ -705,7 +705,7 @@ namespace VTP_Induction
         public bool SetTrafficLightByM(int color)
         {
             // Tắt tất cả nếu yêu cầu OFF hoặc color không hợp lệ
-            if (color < 0 || color > 2)
+            if (color < 0 || color > 2 || GLb.g_bGrabbing == false)
             {
                 bool ok = true;
                 ok &= WriteOneBitPLC("M10", true);

@@ -729,6 +729,7 @@ namespace VTP_Induction
         public void MainProcessBarcode()
         {
             GLb.g_bGrabbing = true;
+            stopBarcodeEvent.Reset();
 
             int finalWeight;
 
@@ -1373,7 +1374,8 @@ namespace VTP_Induction
 
                 if (!string.IsNullOrEmpty(data))
                 {
-                    AppendText("Barcode: " + data + Environment.NewLine);
+                    barcode = data;
+                    return true;
                 }
             }
 
@@ -2165,32 +2167,32 @@ namespace VTP_Induction
 
         private void buttonSTART_Click_1(object sender, EventArgs e)
         {
-            //if (!devHandler.cPrinterGodex.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cPrinterGodex.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI MÁY IN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //if (!devHandler.cBarcode.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cBarcode.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI PDA!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //if (!devHandler.cPLCHandler.m_bConnection)
-            //{
-            //    var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-            //    if (res == DialogResult.Cancel)
-            //    {
-            //        return;
-            //    }
-            //}
+            if (!devHandler.cPLCHandler.m_bConnection)
+            {
+                var res = MessageBox.Show("KẾT NỐI ĐÈN LỖI. TIẾP TỤC HAY KHÔNG?", "CẢNH BÁO", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                if (res == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
 
-            //if (!devHandler.cScale.m_bConnection)
-            //{
-            //    MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            if (!devHandler.cScale.m_bConnection)
+            {
+                MessageBox.Show("KIỂM TRA LẠI KẾT NỐI TỚI CÂN!!", "LỖI KẾT NỐI!!!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             if (GLb.IsInTask == false)
             {
@@ -2268,14 +2270,6 @@ namespace VTP_Induction
 
             //stop barcode reader thread
             stopBarcodeEvent.Set();
-            try
-            {
-                devHandler.cBarcode.TriggerOff();
-            }
-            catch
-            {
-            }
-
 
             ScaleRaw = "0";
             if (lblScaleValue.InvokeRequired)
