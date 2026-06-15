@@ -1,6 +1,8 @@
 ﻿using DevExpress.XtraSplashScreen;
 using System;
 using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading;
 using System.Windows.Forms;
 using VTP_Induction.Common;
@@ -12,7 +14,7 @@ namespace VTP_Induction.UI
     {
         private Globals GLb = Globals.getInstance();
         private string sLogMain = "frmConfig: ";
-         
+
         private BindingList<DataAxisConfig> recordsDataAxisConfig = new BindingList<DataAxisConfig>();
         private BindingList<DataJigConfig> recordsDataJigConfig = new BindingList<DataJigConfig>();
         private BindingList<DataDetectorPosConfig> recordsDataDetectorPosConfig = new BindingList<DataDetectorPosConfig>();
@@ -27,6 +29,8 @@ namespace VTP_Induction.UI
             InitDeviceCfgs();
             DataToUI();
             GLb.g_SoftwareNameVersion = textBoxSoftwareName.Text;
+
+            LoadHisPallet();
         }
         public void InitDeviceCfgs()
         {
@@ -110,6 +114,56 @@ namespace VTP_Induction.UI
 
             }
         }
+
+        private void LoadHisPallet()
+        {
+            try
+            {
+                string sql = @"SELECT TOP (500) Item_Code AS [Item Code],Pallet_ID AS [Pallet ID],Inner_Pallet AS [Inner Pallet], CreatedAt AS [Created At] FROM dbo.WCS_Pallet_His ORDER BY CreatedAt DESC;";
+
+                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
+                using (SqlDataAdapter da = new SqlDataAdapter(sql, conn))
+                {
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    dgvPalletHis.DataSource = dt;
+
+                    dgvPalletHis.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                    dgvPalletHis.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                    dgvPalletHis.ReadOnly = true;
+                    dgvPalletHis.AllowUserToAddRows = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Lỗi load dữ liệu pallet history: " + ex.Message,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+
+        private string GetSelectedHisPalletId()
+        {
+            if (dgvPalletHis.CurrentRow == null)
+                return "";
+
+            object value = null;
+
+            // Nếu DataGridView đang hiển thị cột tên là Pallet_ID
+            if (dgvPalletHis.Columns.Contains("Pallet_ID"))
+                value = dgvPalletHis.CurrentRow.Cells["Pallet_ID"].Value;
+
+            // Nếu bạn đang đặt alias là Pallet ID
+            else if (dgvPalletHis.Columns.Contains("Pallet ID"))
+                value = dgvPalletHis.CurrentRow.Cells["Pallet ID"].Value;
+
+            return value == null ? "" : value.ToString().Trim();
+        }
+
         private bool bInitDone = false;
         private void dataChangedHandler()
         {
@@ -360,9 +414,340 @@ namespace VTP_Induction.UI
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            
+
         }
 
+        private void btnReloadTask_Click(object sender, EventArgs e)
+        {
+            string palletId = GetSelectedHisPalletId();
 
+            if (string.IsNullOrWhiteSpace(palletId))
+            {
+                MessageBox.Show(
+                    "Vui lòng chọn một pallet trong danh sách lịch sử.",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+                return;
+            }
+
+            if (GLb.IsInTask)
+            {
+                MessageBox.Show(
+                    "Đang có task chạy, không thể reload pallet lịch sử.",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+                return;
+            }
+
+            DialogResult confirm = MessageBox.Show(
+                "Bạn có chắc muốn reload pallet này không?\n\nPallet_ID: " + palletId,
+                "Xác nhận reload",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (confirm != DialogResult.Yes)
+                return;
+
+            ReloadPalletFromHis(palletId);
+        }
+
+        private void ReloadPalletFromHis(string palletId)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(GLb.g_tSQLConfig.SqlString))
+                {
+                    conn.Open();
+
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            int innerPallet = 0;
+
+                            /*
+                                1. Lấy thông tin pallet trong HIS,
+                                đồng thời lấy Inner_Pallet để biết cần reload bao nhiêu parcel
+                            */
+                            using (SqlCommand cmd = new SqlCommand(@"
+                        SELECT TOP 1 
+                            ISNULL(Inner_Pallet, 0)
+                        FROM dbo.WCS_Pallet_His
+                        WHERE Pallet_ID = @Pallet_ID;
+                    ", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@Pallet_ID", palletId);
+
+                                object result = cmd.ExecuteScalar();
+
+                                if (result == null || result == DBNull.Value)
+                                {
+                                    tran.Rollback();
+
+                                    MessageBox.Show(
+                                        "Không tìm thấy pallet trong bảng WCS_Pallet_His.",
+                                        "Thông báo",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Warning
+                                    );
+                                    return;
+                                }
+
+                                innerPallet = Convert.ToInt32(result);
+
+                                if (innerPallet <= 0)
+                                {
+                                    tran.Rollback();
+
+                                    MessageBox.Show(
+                                        "Inner_Pallet của pallet này không hợp lệ.",
+                                        "Thông báo",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Warning
+                                    );
+                                    return;
+                                }
+                            }
+
+                            /*
+                                2. Kiểm tra pallet đã tồn tại trong PROD chưa
+                            */
+                            using (SqlCommand cmd = new SqlCommand(@"
+                        SELECT COUNT(1)
+                        FROM dbo.WCS_Pallet_Prod
+                        WHERE Pallet_ID = @Pallet_ID;
+                    ", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@Pallet_ID", palletId);
+
+                                int countProd = Convert.ToInt32(cmd.ExecuteScalar());
+
+                                if (countProd > 0)
+                                {
+                                    tran.Rollback();
+
+                                    MessageBox.Show(
+                                        "Pallet này đã tồn tại trong WCS_Pallet_Prod, không thể reload.",
+                                        "Thông báo",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Warning
+                                    );
+                                    return;
+                                }
+                            }
+
+                            /*
+                                3. Insert pallet từ HIS về PROD
+                                Status set lại là PROCESSING
+                            */
+                            using (SqlCommand cmd = new SqlCommand(@"
+                        INSERT INTO dbo.WCS_Pallet_Prod
+                        (
+                            Pallet_ID,
+                            Location,
+                            Item_Code,
+                            Ctn,
+                            Qty,
+                            Pcs,
+                            Inner_Carton,
+                            Inner_Pallet,
+                            PO_ID,
+                            WH_Code,
+                            Line_ID,
+                            Task_ID,
+                            From_System,
+                            CreatedAt,
+                            Status,
+                            Weight_ref,
+                            Item_Name
+                        )
+                        SELECT TOP 1
+                            Pallet_ID,
+                            Location,
+                            Item_Code,
+                            Ctn,
+                            Qty,
+                            Pcs,
+                            Inner_Carton,
+                            Inner_Pallet,
+                            PO_ID,
+                            WH_Code,
+                            Line_ID,
+                            Task_ID,
+                            From_System,
+                            CreatedAt,
+                            'PROCESSING' AS Status,
+                            Weight_ref,
+                            Item_Name
+                        FROM dbo.WCS_Pallet_His
+                        WHERE Pallet_ID = @Pallet_ID;
+                    ", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@Pallet_ID", palletId);
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            /*
+     4. Insert parcel từ HIS về PROD
+     Order theo CreatedAt trước
+     Sau đó lấy đúng số lượng = Inner_Pallet
+     Đồng thời loại trùng ParcelCode để tránh lỗi unique
+ */
+                            int insertedParcel = 0;
+
+                            using (SqlCommand cmd = new SqlCommand(@"
+    ;WITH SourceParcel AS
+    (
+        SELECT
+            h.ParcelCode,
+            h.Pallet_ID,
+            h.Location,
+            h.Line_ID,
+            h.ReceivedCode,
+            h.CreatedAt,
+
+            ROW_NUMBER() OVER
+            (
+                PARTITION BY h.ParcelCode
+                ORDER BY h.CreatedAt ASC, h.ParcelCode ASC
+            ) AS rn
+        FROM dbo.WCS_Parcels_His h
+        WHERE h.Pallet_ID = @Pallet_ID
+    ),
+    PickParcel AS
+    (
+        SELECT TOP (@InnerPallet)
+            s.ParcelCode,
+            s.Pallet_ID,
+            s.Location,
+            s.Line_ID,
+            s.ReceivedCode,
+            s.CreatedAt
+        FROM SourceParcel s
+        WHERE s.rn = 1
+          AND NOT EXISTS
+          (
+              SELECT 1
+              FROM dbo.WCS_Parcels_Prod p
+              WHERE p.ParcelCode = s.ParcelCode
+          )
+        ORDER BY s.CreatedAt ASC, s.ParcelCode ASC
+    )
+    INSERT INTO dbo.WCS_Parcels_Prod
+    (
+        ParcelCode,
+        Pallet_ID,
+        Location,
+        Status,
+        Line_ID,
+        ReceivedCode
+    )
+    SELECT
+        ParcelCode,
+        Pallet_ID,
+        Location,
+        0 AS Status,
+        Line_ID,
+        ReceivedCode
+    FROM PickParcel;
+", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@Pallet_ID", palletId);
+                                cmd.Parameters.AddWithValue("@InnerPallet", innerPallet);
+
+                                insertedParcel = cmd.ExecuteNonQuery();
+                            }
+
+                            /*
+                                5. Nếu số parcel lấy được không đủ Inner_Pallet thì rollback
+                            */
+                            if (insertedParcel != innerPallet)
+                            {
+                                tran.Rollback();
+
+                                MessageBox.Show(
+                                    "Số parcel reload không đủ theo Inner_Pallet.\n\n" +
+                                    "Pallet_ID: " + palletId + "\n" +
+                                    "Inner_Pallet yêu cầu: " + innerPallet + "\n" +
+                                    "Parcel reload được: " + insertedParcel,
+                                    "Thông báo",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning
+                                );
+                                return;
+                            }
+
+                            tran.Commit();
+                        }
+                        catch
+                        {
+                            tran.Rollback();
+                            throw;
+                        }
+                    }
+                }
+
+                /*
+                    6. Sau khi reload DB thành công:
+                    - Set đang có task
+                    - Gọi InitPlan ở form cha
+                */
+                GLb.IsInTask = true;
+
+                CallInitPlanFromParentForm();
+
+                MessageBox.Show(
+                    "Reload pallet từ lịch sử thành công.",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+
+                LoadHisPallet();
+            }
+            catch (Exception ex)
+            {
+                parentForm.writeLog("Lỗi ReloadPalletFromHis: " + ex.Message);
+                Log.LogWrite(Globals.LogLv.Error, "Lỗi ReloadPalletFromHis: " + ex.Message);
+
+                MessageBox.Show(
+                    ex.Message,
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+
+        private void CallInitPlanFromParentForm()
+        {
+            if (parentForm == null || parentForm.IsDisposed)
+            {
+                MessageBox.Show(
+                    "Không tìm thấy form chính để gọi InitPlan.",
+                    "Thông báo",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+                return;
+            }
+
+            if (parentForm.InvokeRequired)
+            {
+                parentForm.BeginInvoke(new Action(() =>
+                {
+                    parentForm.InitPlan();
+                }));
+            }
+            else
+            {
+                parentForm.InitPlan();
+            }
+        }
     }
 }

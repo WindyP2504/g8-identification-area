@@ -42,7 +42,7 @@ namespace VTP_Induction
         //private int nIndexPostion = -1;
         private string baseUrl = "http://192.168.110.189";
         //private string baseUrl = "http://127.0.0.1";
-        private static readonly HttpClient _client = new HttpClient{Timeout = TimeSpan.FromSeconds(10)};
+        private static readonly HttpClient _client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
 
         #endregion
 
@@ -103,7 +103,7 @@ namespace VTP_Induction
                 //ServerWCS = new JsonServer();
             }
             catch (Exception ex)
-            {                
+            {
                 writeLog("ERROR :" + ex.ToString());
                 MessageBox.Show(ex.ToString());
 
@@ -489,7 +489,7 @@ namespace VTP_Induction
                     lblRealPos2.Text = GLb.g_tSysCfg.sPositions[index];
                     lblRealPos1.Text = "";
                     lblRealPos3.Text = "";
-                    break ;
+                    break;
                 case 2:
                     timerBlink.Start();
                     PosPanTemp = plPos03;
@@ -974,7 +974,7 @@ namespace VTP_Induction
                 return true;
             }
 
-            return devHandler.cPrinterGodex.PrintBarcode(parcelCode,itemName,palletId,weight,innerCtn);
+            return devHandler.cPrinterGodex.PrintBarcode(parcelCode, itemName, palletId, weight, innerCtn);
         }
 
         private bool WaitForBarcodeReadWrapper(string expectedParcel, out string barcode, int timeoutMs)
@@ -1078,7 +1078,7 @@ namespace VTP_Induction
                 }
 
                 /* ================= UPDATE DONE ================= */
-               UpdatePalletStatusByPalletId(palletCode, "DONE");
+                UpdatePalletStatusByPalletId(palletCode, "DONE");
 
                 GLb.nPalletDone++;
 
@@ -1194,7 +1194,7 @@ namespace VTP_Induction
                             while (reader.Read())
                             {
                                 taskId = reader["Task_ID"].ToString().Trim();
-                                po_ID =  Convert.ToInt64(reader["PO_ID"]);
+                                po_ID = Convert.ToInt64(reader["PO_ID"]);
                                 lineId = reader["Line_ID"].ToString();
                                 wh_Code = reader["WH_Code"].ToString();
                             }
@@ -1269,7 +1269,7 @@ namespace VTP_Induction
             }
         }
 
-        private bool PostJsonBlockUntilSuccess(string url,string json,int retryDelayMs,CancellationToken token,out string lastErr)
+        private bool PostJsonBlockUntilSuccess(string url, string json, int retryDelayMs, CancellationToken token, out string lastErr)
         {
             lastErr = "";
 
@@ -1399,7 +1399,7 @@ namespace VTP_Induction
             }
         }
 
-        private bool IsStableWeight(out int finalWeight, int standardWeight, int allowedDiff, int durationSec = 2,int intervalMs = 100, int stabilityJitter = 15)
+        private bool IsStableWeight(out int finalWeight, int standardWeight, int allowedDiff, int durationSec = 2, int intervalMs = 100, int stabilityJitter = 15)
         {
             finalWeight = 0;
 
@@ -2628,7 +2628,7 @@ namespace VTP_Induction
         private void pictureBox3_Click(object sender, EventArgs e)
         {
             bool sentOk = SendPalletInforOnce(GLb.CurrentPalletID);
-            if(sentOk)
+            if (sentOk)
             {
                 writeLog("Send pallet infor to server manually success!)");
                 Log.LogWrite(Globals.LogLv.Information, "Send pallet infor to server manually success!");
@@ -2687,12 +2687,12 @@ namespace VTP_Induction
 
         private void EnsureColumns(SqlConnection conn)
         {
-            
-                string table = "WCS_Pallet_Prod";
 
-                EnsureColumn(conn, table, "Weight_ref", "INT");
-                EnsureColumn(conn, table, "Item_Name", "NVARCHAR(255)");
-            
+            string table = "WCS_Pallet_Prod";
+
+            EnsureColumn(conn, table, "Weight_ref", "INT");
+            EnsureColumn(conn, table, "Item_Name", "NVARCHAR(255)");
+
             // thêm các cột khác ở đây
         }
 

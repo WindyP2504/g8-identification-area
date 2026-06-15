@@ -94,6 +94,9 @@
             this.txtPrintManual = new System.Windows.Forms.TextBox();
             this.buttonRefresh = new DevExpress.XtraEditors.SimpleButton();
             this.buttonOk = new DevExpress.XtraEditors.SimpleButton();
+            this.panel5 = new System.Windows.Forms.Panel();
+            this.dgvPalletHis = new System.Windows.Forms.DataGridView();
+            this.btnReloadTask = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabControlConfig)).BeginInit();
@@ -116,6 +119,8 @@
             this.xtraTabPageDB.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel57.SuspendLayout();
+            this.panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPalletHis)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -182,6 +187,7 @@
             // 
             this.tabPageSystemConfig.Appearance.PageClient.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
             this.tabPageSystemConfig.Appearance.PageClient.Options.UseBackColor = true;
+            this.tabPageSystemConfig.Controls.Add(this.panel5);
             this.tabPageSystemConfig.Controls.Add(this.panel4);
             this.tabPageSystemConfig.Controls.Add(this.panelXXX);
             this.tabPageSystemConfig.Name = "tabPageSystemConfig";
@@ -198,7 +204,7 @@
             this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel4.Location = new System.Drawing.Point(0, 127);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(1372, 147);
+            this.panel4.Size = new System.Drawing.Size(1372, 171);
             this.panel4.TabIndex = 4;
             // 
             // grbPos
@@ -221,7 +227,7 @@
             this.grbPos.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.grbPos.Location = new System.Drawing.Point(272, 0);
             this.grbPos.Name = "grbPos";
-            this.grbPos.Size = new System.Drawing.Size(544, 147);
+            this.grbPos.Size = new System.Drawing.Size(544, 171);
             this.grbPos.TabIndex = 2;
             this.grbPos.TabStop = false;
             this.grbPos.Text = "[VỊ TRÍ SÀN]";
@@ -357,7 +363,7 @@
             this.groupBox9.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.groupBox9.Location = new System.Drawing.Point(0, 0);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(272, 147);
+            this.groupBox9.Size = new System.Drawing.Size(272, 171);
             this.groupBox9.TabIndex = 1;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "[IN PALLET]";
@@ -920,6 +926,39 @@
             this.buttonOk.Text = "Apply";
             this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
             // 
+            // panel5
+            // 
+            this.panel5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.panel5.Controls.Add(this.btnReloadTask);
+            this.panel5.Controls.Add(this.dgvPalletHis);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel5.Location = new System.Drawing.Point(0, 298);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(1372, 221);
+            this.panel5.TabIndex = 5;
+            // 
+            // dgvPalletHis
+            // 
+            this.dgvPalletHis.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvPalletHis.Dock = System.Windows.Forms.DockStyle.Left;
+            this.dgvPalletHis.Location = new System.Drawing.Point(0, 0);
+            this.dgvPalletHis.Name = "dgvPalletHis";
+            this.dgvPalletHis.Size = new System.Drawing.Size(816, 221);
+            this.dgvPalletHis.TabIndex = 0;
+            // 
+            // btnReloadTask
+            // 
+            this.btnReloadTask.BackColor = System.Drawing.Color.DodgerBlue;
+            this.btnReloadTask.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnReloadTask.ForeColor = System.Drawing.Color.White;
+            this.btnReloadTask.Location = new System.Drawing.Point(816, 182);
+            this.btnReloadTask.Name = "btnReloadTask";
+            this.btnReloadTask.Size = new System.Drawing.Size(93, 36);
+            this.btnReloadTask.TabIndex = 1;
+            this.btnReloadTask.Text = "Reload";
+            this.btnReloadTask.UseVisualStyleBackColor = false;
+            this.btnReloadTask.Click += new System.EventHandler(this.btnReloadTask_Click);
+            // 
             // frmConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -957,6 +996,8 @@
             this.panel2.ResumeLayout(false);
             this.panel57.ResumeLayout(false);
             this.panel57.PerformLayout();
+            this.panel5.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPalletHis)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1028,5 +1069,8 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txbWeightStandard;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.Button btnReloadTask;
+        private System.Windows.Forms.DataGridView dgvPalletHis;
     }
 }
