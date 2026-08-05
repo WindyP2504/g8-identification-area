@@ -94,10 +94,10 @@ namespace VTP_Induction.Device
         const int PAGES = 1;   // số "trang" trong một lệnh
 
         // tốc độ & độ đậm tham khảo; chỉnh theo giấy/tem của bạn
-        const int SPEED_IPS = 4;   // 1..8 tuỳ model
+        const int SPEED_IPS = 2;   // 1..8 tuỳ model
         const int DARKNESS = 10;  // 0..30 tuỳ model/giấy
 
-        public bool PrintBarcode(string ParcelCode, string ItemName, string PalletCode, string Khoiluong, string InnerCtn)
+        public bool PrintBarcode(string stt, string ParcelCode, string ItemName, string PalletCode, string Khoiluong, string InnerCtn)
         {
 
             string currentTime = DateTime.Now.ToString("HH:mm dd/MM/yyyy");
@@ -140,7 +140,7 @@ namespace VTP_Induction.Device
                 }
                 catch { qrPrinted = false; }
 
-                int fontH_med = 25;
+                int fontH_med = 21;
 
                 int x = 260, y = 20;
                 int step = 40;
@@ -148,7 +148,7 @@ namespace VTP_Induction.Device
                 PrintItemNameAuto(x, ref y, ItemName);
                 Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Quy cách   : " + InnerCtn + " chiếc", 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
                 Printer.Command.PrintText_Unicode(x, y += step, fontH_med, "Arial", "Ngày nhập : " + currentTime, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
-
+                Printer.Command.PrintText_Unicode(470, 10, 80, "Arial", stt, 0, FontWeight.FW_900_HEAVY, RotateMode.Angle_0);
                 x = 10; y = 255;
                 Printer.Command.PrintText_Unicode(x, y, 16, "Arial", "Mã định danh: " + ParcelCode, 0, FontWeight.FW_400_NORMAL, RotateMode.Angle_0);
 
@@ -185,22 +185,22 @@ namespace VTP_Induction.Device
 
         private void PrintItemNameAuto(int x, ref int y, string itemName)
         {
-            int baseFont = 26; // tăng font lên
+            int baseFont = 22; // giảm font mặc định
             int fontSize = baseFont;
 
-            // Auto scale font (to hơn mặc định)
-            if (itemName.Length > 30) fontSize = 24;
-            if (itemName.Length > 45) fontSize = 22;
-            if (itemName.Length > 60) fontSize = 20;
+            // Auto scale font (nhỏ hơn so với bản gốc)
+            if (itemName.Length > 24) fontSize = 20;
+            if (itemName.Length > 36) fontSize = 18;
+            if (itemName.Length > 48) fontSize = 16;
 
             // Step phụ thuộc font → KHÔNG bị đè chữ
-            int step = (int)(fontSize * 1.8); // 🔥 key chính ở đây
+            int step = (int)(fontSize * 1.8);
 
-            // max ký tự theo font
-            int maxChars = 26;
-            if (fontSize == 24) maxChars = 30;
-            if (fontSize == 22) maxChars = 31;
-            if (fontSize == 20) maxChars = 32;
+            // max ký tự theo font (giảm xuống)
+            int maxChars = 20;
+            if (fontSize == 20) maxChars = 22;
+            if (fontSize == 18) maxChars = 24;
+            if (fontSize == 16) maxChars = 26;
 
             var lines = WrapText(itemName, maxChars);
 
@@ -225,6 +225,7 @@ namespace VTP_Induction.Device
                 );
             }
         }
+
         public bool PrintPallet(string PalletCode)
         {
             bool bRet = false;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuestPDF.Infrastructure;
+using System;
 using System.Windows.Forms;
 
 namespace VTP_Induction
@@ -11,6 +12,7 @@ namespace VTP_Induction
         [STAThread]
         static void Main()
         {
+            QuestPDF.Settings.License = LicenseType.Community;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new TForm());

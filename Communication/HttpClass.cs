@@ -16,6 +16,7 @@ namespace VTP_Induction
 
         public event Action<OrderTaskRequest> OrderReceived;
         public event Action<DonePalletRequest> PoReceived;
+        public event Action<CancelPalletRequest> CancelReceived;
         public event Action<string> Log;
 
         public WcsHttpServer(int port)
@@ -24,6 +25,7 @@ namespace VTP_Induction
 
             _listener.Prefixes.Add("http://+:" + port + "/ids/orderTask/");
             _listener.Prefixes.Add("http://+:" + port + "/ids/confirm_product/");
+            _listener.Prefixes.Add("http://+:" + port + "/ids/cancelTask/");
         }
 
         public void Start()
@@ -128,6 +130,11 @@ namespace VTP_Induction
                     await HandlePoOnly(body, res);
                     return;
                 }
+                else if (path == "/ids/canceltask")
+                {
+                    await HandleCancelPallet(body, res);
+                    return;
+                }
                 else
                 {
                     await WriteJsonAsync(res, 404, new { code = 1001, desc = "Not found" });
@@ -156,7 +163,7 @@ namespace VTP_Induction
             {
                 WriteJsonSync(res, 400, new { code = 1001, desc = "Invalid JSON" });
                 Log("Invalid JSON: " + exJson.Message);
-                return; 
+                return;
             }
 
             if (data == null || data.PO_ID <= 0)
@@ -177,11 +184,41 @@ namespace VTP_Induction
                     + ", Line=" + data.Line_ID
                     + ", Pallet=" + data.Pallet_ID
                     + ", Location=" + data.Location
+                    + ", Status=" + data.status
                     + ", From=" + data.fromSystem);
 
             if (PoReceived != null)
                 PoReceived(data);
 
+            await WriteJsonAsync(res, 200, new { code = 1000, desc = "SUCCESS" });
+        }
+
+        private async Task HandleCancelPallet(string body, HttpListenerResponse res)
+        {
+            CancelPalletRequest data;
+            try
+            {
+                data = JsonConvert.DeserializeObject<CancelPalletRequest>(body);
+            }
+            catch (Exception exJson)
+            {
+                WriteJsonSync(res, 400, new { code = 1001, desc = "Invalid JSON" });
+                Log("Invalid JSON: " + exJson.Message);
+                return;
+            }
+            if (data == null || string.IsNullOrWhiteSpace(data.Task_ID))
+            {
+                await WriteJsonAsync(res, 400, new { code = 1001, desc = "Task_ID invalid" });
+                return;
+            }
+            if (Log != null)
+                Log("Cancel Task_ID=" + data.Task_ID
+                    + ", PO=" + data.PO_ID
+                    + ", PO_Name=" + data.PO_Name
+                    + ", Line=" + data.Line_ID
+                    + ", From=" + data.fromSystem);
+            if (CancelReceived != null)
+                CancelReceived(data);
             await WriteJsonAsync(res, 200, new { code = 1000, desc = "SUCCESS" });
         }
 
@@ -191,7 +228,7 @@ namespace VTP_Induction
 
             try
             {
-                Common.Log.LogWrite(Globals.LogLv.Information,"Full body: " + body);
+                Common.Log.LogWrite(Globals.LogLv.Information, "Full body: " + body);
                 data = JsonConvert.DeserializeObject<OrderTaskRequest>(body);
             }
             catch (Exception exJson)

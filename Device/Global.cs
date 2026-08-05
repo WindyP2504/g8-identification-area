@@ -105,6 +105,7 @@ namespace VTP_Induction.Device
         public string CurrentWH_Code = "";
         public string CurrentItemCode = "";
         public string innerCtn = "";
+        public string CurrentTaskID = "";
 
         public int WeightCurrentValue = 0;
 
@@ -136,6 +137,7 @@ namespace VTP_Induction.Device
         {
             get { return g_sLogTemp + "MeasResult\\"; }
         }
+
         public string wmsUrl = "http://192.168.1.101:2005/graphql";
         public string ftpUrl = "ftp://induction@" + "";
         public string URL_XML_FILE = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Config\\config.xml";
@@ -176,10 +178,11 @@ namespace VTP_Induction.Device
         public int nPassItems = 0;
         public int nFailItems = 0;
         public int nTotalParcel = 30;
-        public int nTotalParcelAll   = 30;
+        public int nTotalParcelAll = 30;
         public int nParcelDone = 0;
         public int nTotalPallet = 4;
         public int nPalletDone = 0;
+        public int nTotalParcelDone = 0;
         public string g_sWipid = "";
         public int n_InductionNumber = 88;
         public Configure ConfigureDB = new Configure();
@@ -1039,7 +1042,7 @@ namespace VTP_Induction.Device
 
             public bool bPrintPallet = false;
 
-            public string[] sPositions = { "","","","","","" };
+            public string[] sPositions = { "", "", "", "", "", "" };
 
             public TBootUp()
             {

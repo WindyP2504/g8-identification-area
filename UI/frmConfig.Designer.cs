@@ -34,6 +34,28 @@
             this.tabControlConfig = new DevExpress.XtraTab.XtraTabControl();
             this.tabPageSystemConfig = new DevExpress.XtraTab.XtraTabPage();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.txtParcelType = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txtPalletNumber = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.txtParcelNumber = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBoxPasswordConfirm = new System.Windows.Forms.TextBox();
+            this.label49 = new System.Windows.Forms.Label();
+            this.label50 = new System.Windows.Forms.Label();
+            this.textBoxPassword = new System.Windows.Forms.TextBox();
+            this.buttonChangePassword = new System.Windows.Forms.Button();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.checkBoxSpecialMode = new System.Windows.Forms.CheckBox();
+            this.txtLengthOfBarcode = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.panelXXX = new System.Windows.Forms.Panel();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.checkBoxPrintPallet = new System.Windows.Forms.CheckBox();
+            this.label32 = new System.Windows.Forms.Label();
             this.grbPos = new System.Windows.Forms.GroupBox();
             this.txtPos6 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -47,17 +69,6 @@
             this.label6 = new System.Windows.Forms.Label();
             this.txtPos1 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.groupBox9 = new System.Windows.Forms.GroupBox();
-            this.checkBoxPrintPallet = new System.Windows.Forms.CheckBox();
-            this.label32 = new System.Windows.Forms.Label();
-            this.panelXXX = new System.Windows.Forms.Panel();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.txtParcelType = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.txtPalletNumber = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.txtParcelNumber = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.txbWeightStandard = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -65,17 +76,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txtScaleError = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.checkBoxSpecialMode = new System.Windows.Forms.CheckBox();
-            this.txtLengthOfBarcode = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.textBoxPasswordConfirm = new System.Windows.Forms.TextBox();
-            this.label49 = new System.Windows.Forms.Label();
-            this.label50 = new System.Windows.Forms.Label();
-            this.textBoxPassword = new System.Windows.Forms.TextBox();
-            this.buttonChangePassword = new System.Windows.Forms.Button();
             this.CONFIG = new System.Windows.Forms.GroupBox();
             this.comboBoxLanguage = new System.Windows.Forms.ComboBox();
             this.textBoxSoftwareName = new System.Windows.Forms.TextBox();
@@ -94,22 +94,19 @@
             this.txtPrintManual = new System.Windows.Forms.TextBox();
             this.buttonRefresh = new DevExpress.XtraEditors.SimpleButton();
             this.buttonOk = new DevExpress.XtraEditors.SimpleButton();
-            this.panel5 = new System.Windows.Forms.Panel();
-            this.dgvPalletHis = new System.Windows.Forms.DataGridView();
-            this.btnReloadTask = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabControlConfig)).BeginInit();
             this.tabControlConfig.SuspendLayout();
             this.tabPageSystemConfig.SuspendLayout();
             this.panel4.SuspendLayout();
-            this.grbPos.SuspendLayout();
-            this.groupBox9.SuspendLayout();
-            this.panelXXX.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.groupBox5.SuspendLayout();
-            this.groupBox4.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            this.panelXXX.SuspendLayout();
+            this.groupBox9.SuspendLayout();
+            this.grbPos.SuspendLayout();
+            this.groupBox5.SuspendLayout();
             this.CONFIG.SuspendLayout();
             this.tabPageCamera.SuspendLayout();
             this.panel39.SuspendLayout();
@@ -119,8 +116,6 @@
             this.xtraTabPageDB.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel57.SuspendLayout();
-            this.panel5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvPalletHis)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -187,7 +182,6 @@
             // 
             this.tabPageSystemConfig.Appearance.PageClient.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
             this.tabPageSystemConfig.Appearance.PageClient.Options.UseBackColor = true;
-            this.tabPageSystemConfig.Controls.Add(this.panel5);
             this.tabPageSystemConfig.Controls.Add(this.panel4);
             this.tabPageSystemConfig.Controls.Add(this.panelXXX);
             this.tabPageSystemConfig.Name = "tabPageSystemConfig";
@@ -199,208 +193,15 @@
             // panel4
             // 
             this.panel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.panel4.Controls.Add(this.grbPos);
-            this.panel4.Controls.Add(this.groupBox9);
-            this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel4.Location = new System.Drawing.Point(0, 127);
+            this.panel4.Controls.Add(this.groupBox2);
+            this.panel4.Controls.Add(this.groupBox1);
+            this.panel4.Controls.Add(this.groupBox4);
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel4.Location = new System.Drawing.Point(0, 406);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(1372, 171);
+            this.panel4.Size = new System.Drawing.Size(1372, 166);
             this.panel4.TabIndex = 4;
-            // 
-            // grbPos
-            // 
-            this.grbPos.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.grbPos.Controls.Add(this.txtPos6);
-            this.grbPos.Controls.Add(this.label10);
-            this.grbPos.Controls.Add(this.txtPos5);
-            this.grbPos.Controls.Add(this.label14);
-            this.grbPos.Controls.Add(this.txtPos4);
-            this.grbPos.Controls.Add(this.label15);
-            this.grbPos.Controls.Add(this.txtPos3);
-            this.grbPos.Controls.Add(this.label7);
-            this.grbPos.Controls.Add(this.txtPos2);
-            this.grbPos.Controls.Add(this.label6);
-            this.grbPos.Controls.Add(this.txtPos1);
-            this.grbPos.Controls.Add(this.label5);
-            this.grbPos.Dock = System.Windows.Forms.DockStyle.Left;
-            this.grbPos.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grbPos.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.grbPos.Location = new System.Drawing.Point(272, 0);
-            this.grbPos.Name = "grbPos";
-            this.grbPos.Size = new System.Drawing.Size(544, 171);
-            this.grbPos.TabIndex = 2;
-            this.grbPos.TabStop = false;
-            this.grbPos.Text = "[VỊ TRÍ SÀN]";
-            // 
-            // txtPos6
-            // 
-            this.txtPos6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txtPos6.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos6.Location = new System.Drawing.Point(337, 115);
-            this.txtPos6.Name = "txtPos6";
-            this.txtPos6.Size = new System.Drawing.Size(153, 23);
-            this.txtPos6.TabIndex = 58;
-            this.txtPos6.Text = "S01.121.01";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(280, 118);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(50, 16);
-            this.label10.TabIndex = 57;
-            this.label10.Text = "Vị trí 6:";
-            // 
-            // txtPos5
-            // 
-            this.txtPos5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txtPos5.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos5.Location = new System.Drawing.Point(337, 79);
-            this.txtPos5.Name = "txtPos5";
-            this.txtPos5.Size = new System.Drawing.Size(153, 23);
-            this.txtPos5.TabIndex = 56;
-            this.txtPos5.Text = "S01.121.01";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(280, 82);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(50, 16);
-            this.label14.TabIndex = 55;
-            this.label14.Text = "Vị trí 5:";
-            // 
-            // txtPos4
-            // 
-            this.txtPos4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txtPos4.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos4.Location = new System.Drawing.Point(337, 45);
-            this.txtPos4.Name = "txtPos4";
-            this.txtPos4.Size = new System.Drawing.Size(153, 23);
-            this.txtPos4.TabIndex = 54;
-            this.txtPos4.Text = "S01.121.01";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(280, 48);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(50, 16);
-            this.label15.TabIndex = 53;
-            this.label15.Text = "Vị trí 4:";
-            // 
-            // txtPos3
-            // 
-            this.txtPos3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txtPos3.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos3.Location = new System.Drawing.Point(73, 117);
-            this.txtPos3.Name = "txtPos3";
-            this.txtPos3.Size = new System.Drawing.Size(153, 23);
-            this.txtPos3.TabIndex = 52;
-            this.txtPos3.Text = "S01.121.01";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(16, 120);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(50, 16);
-            this.label7.TabIndex = 51;
-            this.label7.Text = "Vị trí 3:";
-            // 
-            // txtPos2
-            // 
-            this.txtPos2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txtPos2.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos2.Location = new System.Drawing.Point(73, 81);
-            this.txtPos2.Name = "txtPos2";
-            this.txtPos2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtPos2.Size = new System.Drawing.Size(153, 23);
-            this.txtPos2.TabIndex = 50;
-            this.txtPos2.Text = "S01.121.01";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(16, 84);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(50, 16);
-            this.label6.TabIndex = 49;
-            this.label6.Text = "Vị trí 2:";
-            // 
-            // txtPos1
-            // 
-            this.txtPos1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txtPos1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtPos1.Location = new System.Drawing.Point(73, 47);
-            this.txtPos1.Name = "txtPos1";
-            this.txtPos1.Size = new System.Drawing.Size(153, 23);
-            this.txtPos1.TabIndex = 48;
-            this.txtPos1.Text = "S01.121.01";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(16, 50);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(50, 16);
-            this.label5.TabIndex = 47;
-            this.label5.Text = "Vị trí 1:";
-            // 
-            // groupBox9
-            // 
-            this.groupBox9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.groupBox9.Controls.Add(this.checkBoxPrintPallet);
-            this.groupBox9.Controls.Add(this.label32);
-            this.groupBox9.Dock = System.Windows.Forms.DockStyle.Left;
-            this.groupBox9.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox9.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox9.Location = new System.Drawing.Point(0, 0);
-            this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(272, 171);
-            this.groupBox9.TabIndex = 1;
-            this.groupBox9.TabStop = false;
-            this.groupBox9.Text = "[IN PALLET]";
-            // 
-            // checkBoxPrintPallet
-            // 
-            this.checkBoxPrintPallet.AutoSize = true;
-            this.checkBoxPrintPallet.Location = new System.Drawing.Point(9, 62);
-            this.checkBoxPrintPallet.Name = "checkBoxPrintPallet";
-            this.checkBoxPrintPallet.Size = new System.Drawing.Size(90, 20);
-            this.checkBoxPrintPallet.TabIndex = 3;
-            this.checkBoxPrintPallet.Text = "Có | Không";
-            this.checkBoxPrintPallet.UseVisualStyleBackColor = true;
-            // 
-            // label32
-            // 
-            this.label32.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label32.Location = new System.Drawing.Point(6, 19);
-            this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(220, 41);
-            this.label32.TabIndex = 2;
-            this.label32.Text = "In mã pallet sau khi kết thúc:";
-            this.label32.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // panelXXX
-            // 
-            this.panelXXX.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.panelXXX.Controls.Add(this.groupBox2);
-            this.panelXXX.Controls.Add(this.groupBox5);
-            this.panelXXX.Controls.Add(this.groupBox4);
-            this.panelXXX.Controls.Add(this.groupBox1);
-            this.panelXXX.Controls.Add(this.CONFIG);
-            this.panelXXX.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelXXX.Location = new System.Drawing.Point(0, 0);
-            this.panelXXX.Name = "panelXXX";
-            this.panelXXX.Size = new System.Drawing.Size(1372, 127);
-            this.panelXXX.TabIndex = 3;
+            this.panel4.Visible = false;
             // 
             // groupBox2
             // 
@@ -414,12 +215,13 @@
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Left;
             this.groupBox2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox2.Location = new System.Drawing.Point(1088, 0);
+            this.groupBox2.Location = new System.Drawing.Point(544, 0);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(275, 127);
+            this.groupBox2.Size = new System.Drawing.Size(275, 166);
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "[THÔNG SỐ CÀI ĐẶT]";
+            this.groupBox2.Visible = false;
             // 
             // txtParcelType
             // 
@@ -478,6 +280,329 @@
             this.label13.TabIndex = 47;
             this.label13.Text = "Số hàng tiêu chuẩn:";
             // 
+            // groupBox1
+            // 
+            this.groupBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.groupBox1.Controls.Add(this.textBoxPasswordConfirm);
+            this.groupBox1.Controls.Add(this.label49);
+            this.groupBox1.Controls.Add(this.label50);
+            this.groupBox1.Controls.Add(this.textBoxPassword);
+            this.groupBox1.Controls.Add(this.buttonChangePassword);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.groupBox1.Location = new System.Drawing.Point(272, 0);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(272, 166);
+            this.groupBox1.TabIndex = 2;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "[MẬT KHẨU]";
+            this.groupBox1.Visible = false;
+            // 
+            // textBoxPasswordConfirm
+            // 
+            this.textBoxPasswordConfirm.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.textBoxPasswordConfirm.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxPasswordConfirm.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.textBoxPasswordConfirm.Location = new System.Drawing.Point(73, 69);
+            this.textBoxPasswordConfirm.Name = "textBoxPasswordConfirm";
+            this.textBoxPasswordConfirm.PasswordChar = '*';
+            this.textBoxPasswordConfirm.Size = new System.Drawing.Size(87, 23);
+            this.textBoxPasswordConfirm.TabIndex = 56;
+            // 
+            // label49
+            // 
+            this.label49.AutoSize = true;
+            this.label49.Location = new System.Drawing.Point(16, 37);
+            this.label49.Name = "label49";
+            this.label49.Size = new System.Drawing.Size(41, 16);
+            this.label49.TabIndex = 53;
+            this.label49.Text = "New: ";
+            // 
+            // label50
+            // 
+            this.label50.AutoSize = true;
+            this.label50.Location = new System.Drawing.Point(16, 69);
+            this.label50.Name = "label50";
+            this.label50.Size = new System.Drawing.Size(57, 16);
+            this.label50.TabIndex = 54;
+            this.label50.Text = "Confirm:";
+            // 
+            // textBoxPassword
+            // 
+            this.textBoxPassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.textBoxPassword.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxPassword.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.textBoxPassword.Location = new System.Drawing.Point(73, 34);
+            this.textBoxPassword.Name = "textBoxPassword";
+            this.textBoxPassword.Size = new System.Drawing.Size(87, 23);
+            this.textBoxPassword.TabIndex = 57;
+            // 
+            // buttonChangePassword
+            // 
+            this.buttonChangePassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
+            this.buttonChangePassword.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonChangePassword.Image = ((System.Drawing.Image)(resources.GetObject("buttonChangePassword.Image")));
+            this.buttonChangePassword.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonChangePassword.Location = new System.Drawing.Point(166, 34);
+            this.buttonChangePassword.Name = "buttonChangePassword";
+            this.buttonChangePassword.Size = new System.Drawing.Size(90, 58);
+            this.buttonChangePassword.TabIndex = 55;
+            this.buttonChangePassword.Tag = "Change";
+            this.buttonChangePassword.Text = "Change";
+            this.buttonChangePassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.buttonChangePassword.UseVisualStyleBackColor = false;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.groupBox4.Controls.Add(this.checkBoxSpecialMode);
+            this.groupBox4.Controls.Add(this.txtLengthOfBarcode);
+            this.groupBox4.Controls.Add(this.label9);
+            this.groupBox4.Controls.Add(this.label8);
+            this.groupBox4.Dock = System.Windows.Forms.DockStyle.Left;
+            this.groupBox4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox4.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.groupBox4.Location = new System.Drawing.Point(0, 0);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(272, 166);
+            this.groupBox4.TabIndex = 4;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "[MÁY ĐỌC BARCODE]";
+            this.groupBox4.Visible = false;
+            // 
+            // checkBoxSpecialMode
+            // 
+            this.checkBoxSpecialMode.AutoSize = true;
+            this.checkBoxSpecialMode.Location = new System.Drawing.Point(124, 30);
+            this.checkBoxSpecialMode.Name = "checkBoxSpecialMode";
+            this.checkBoxSpecialMode.Size = new System.Drawing.Size(140, 20);
+            this.checkBoxSpecialMode.TabIndex = 58;
+            this.checkBoxSpecialMode.Text = "Check Special Mode";
+            this.checkBoxSpecialMode.UseVisualStyleBackColor = true;
+            // 
+            // txtLengthOfBarcode
+            // 
+            this.txtLengthOfBarcode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txtLengthOfBarcode.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtLengthOfBarcode.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txtLengthOfBarcode.Location = new System.Drawing.Point(116, 65);
+            this.txtLengthOfBarcode.Name = "txtLengthOfBarcode";
+            this.txtLengthOfBarcode.Size = new System.Drawing.Size(140, 23);
+            this.txtLengthOfBarcode.TabIndex = 57;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 67);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(97, 16);
+            this.label9.TabIndex = 48;
+            this.label9.Text = "Độ dài mã code";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 31);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(110, 16);
+            this.label8.TabIndex = 46;
+            this.label8.Text = "Xóa ký tự đặc biệt";
+            // 
+            // panelXXX
+            // 
+            this.panelXXX.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.panelXXX.Controls.Add(this.groupBox9);
+            this.panelXXX.Controls.Add(this.grbPos);
+            this.panelXXX.Controls.Add(this.groupBox5);
+            this.panelXXX.Controls.Add(this.CONFIG);
+            this.panelXXX.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelXXX.Location = new System.Drawing.Point(0, 0);
+            this.panelXXX.Name = "panelXXX";
+            this.panelXXX.Size = new System.Drawing.Size(1372, 159);
+            this.panelXXX.TabIndex = 3;
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.groupBox9.Controls.Add(this.checkBoxPrintPallet);
+            this.groupBox9.Controls.Add(this.label32);
+            this.groupBox9.Dock = System.Windows.Forms.DockStyle.Left;
+            this.groupBox9.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox9.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.groupBox9.Location = new System.Drawing.Point(1088, 0);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(272, 159);
+            this.groupBox9.TabIndex = 1;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "[IN PALLET]";
+            // 
+            // checkBoxPrintPallet
+            // 
+            this.checkBoxPrintPallet.AutoSize = true;
+            this.checkBoxPrintPallet.Location = new System.Drawing.Point(9, 62);
+            this.checkBoxPrintPallet.Name = "checkBoxPrintPallet";
+            this.checkBoxPrintPallet.Size = new System.Drawing.Size(90, 20);
+            this.checkBoxPrintPallet.TabIndex = 3;
+            this.checkBoxPrintPallet.Text = "Có | Không";
+            this.checkBoxPrintPallet.UseVisualStyleBackColor = true;
+            // 
+            // label32
+            // 
+            this.label32.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label32.Location = new System.Drawing.Point(6, 19);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(220, 41);
+            this.label32.TabIndex = 2;
+            this.label32.Text = "In mã pallet sau khi kết thúc:";
+            this.label32.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // grbPos
+            // 
+            this.grbPos.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.grbPos.Controls.Add(this.txtPos6);
+            this.grbPos.Controls.Add(this.label10);
+            this.grbPos.Controls.Add(this.txtPos5);
+            this.grbPos.Controls.Add(this.label14);
+            this.grbPos.Controls.Add(this.txtPos4);
+            this.grbPos.Controls.Add(this.label15);
+            this.grbPos.Controls.Add(this.txtPos3);
+            this.grbPos.Controls.Add(this.label7);
+            this.grbPos.Controls.Add(this.txtPos2);
+            this.grbPos.Controls.Add(this.label6);
+            this.grbPos.Controls.Add(this.txtPos1);
+            this.grbPos.Controls.Add(this.label5);
+            this.grbPos.Dock = System.Windows.Forms.DockStyle.Left;
+            this.grbPos.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grbPos.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.grbPos.Location = new System.Drawing.Point(544, 0);
+            this.grbPos.Name = "grbPos";
+            this.grbPos.Size = new System.Drawing.Size(544, 159);
+            this.grbPos.TabIndex = 2;
+            this.grbPos.TabStop = false;
+            this.grbPos.Text = "[VỊ TRÍ SÀN]";
+            // 
+            // txtPos6
+            // 
+            this.txtPos6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txtPos6.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txtPos6.Location = new System.Drawing.Point(343, 94);
+            this.txtPos6.Name = "txtPos6";
+            this.txtPos6.Size = new System.Drawing.Size(153, 23);
+            this.txtPos6.TabIndex = 58;
+            this.txtPos6.Text = "S01.121.01";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(286, 97);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(50, 16);
+            this.label10.TabIndex = 57;
+            this.label10.Text = "Vị trí 6:";
+            // 
+            // txtPos5
+            // 
+            this.txtPos5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txtPos5.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txtPos5.Location = new System.Drawing.Point(343, 58);
+            this.txtPos5.Name = "txtPos5";
+            this.txtPos5.Size = new System.Drawing.Size(153, 23);
+            this.txtPos5.TabIndex = 56;
+            this.txtPos5.Text = "S01.121.01";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(286, 61);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(50, 16);
+            this.label14.TabIndex = 55;
+            this.label14.Text = "Vị trí 5:";
+            // 
+            // txtPos4
+            // 
+            this.txtPos4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txtPos4.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txtPos4.Location = new System.Drawing.Point(343, 24);
+            this.txtPos4.Name = "txtPos4";
+            this.txtPos4.Size = new System.Drawing.Size(153, 23);
+            this.txtPos4.TabIndex = 54;
+            this.txtPos4.Text = "S01.121.01";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label15.Location = new System.Drawing.Point(286, 27);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(50, 16);
+            this.label15.TabIndex = 53;
+            this.label15.Text = "Vị trí 4:";
+            // 
+            // txtPos3
+            // 
+            this.txtPos3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txtPos3.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txtPos3.Location = new System.Drawing.Point(79, 96);
+            this.txtPos3.Name = "txtPos3";
+            this.txtPos3.Size = new System.Drawing.Size(153, 23);
+            this.txtPos3.TabIndex = 52;
+            this.txtPos3.Text = "S01.121.01";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(22, 99);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(50, 16);
+            this.label7.TabIndex = 51;
+            this.label7.Text = "Vị trí 3:";
+            // 
+            // txtPos2
+            // 
+            this.txtPos2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txtPos2.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txtPos2.Location = new System.Drawing.Point(79, 60);
+            this.txtPos2.Name = "txtPos2";
+            this.txtPos2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtPos2.Size = new System.Drawing.Size(153, 23);
+            this.txtPos2.TabIndex = 50;
+            this.txtPos2.Text = "S01.121.01";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(22, 63);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(50, 16);
+            this.label6.TabIndex = 49;
+            this.label6.Text = "Vị trí 2:";
+            // 
+            // txtPos1
+            // 
+            this.txtPos1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
+            this.txtPos1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.txtPos1.Location = new System.Drawing.Point(79, 26);
+            this.txtPos1.Name = "txtPos1";
+            this.txtPos1.Size = new System.Drawing.Size(153, 23);
+            this.txtPos1.TabIndex = 48;
+            this.txtPos1.Text = "S01.121.01";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(22, 29);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(50, 16);
+            this.label5.TabIndex = 47;
+            this.label5.Text = "Vị trí 1:";
+            // 
             // groupBox5
             // 
             this.groupBox5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
@@ -490,9 +615,9 @@
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Left;
             this.groupBox5.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox5.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox5.Location = new System.Drawing.Point(816, 0);
+            this.groupBox5.Location = new System.Drawing.Point(272, 0);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(272, 127);
+            this.groupBox5.Size = new System.Drawing.Size(272, 159);
             this.groupBox5.TabIndex = 5;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "[CÂN ĐIỆN TỬ]";
@@ -554,133 +679,6 @@
             this.label3.TabIndex = 59;
             this.label3.Text = "Sai số cho phép:\r\n";
             // 
-            // groupBox4
-            // 
-            this.groupBox4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.groupBox4.Controls.Add(this.checkBoxSpecialMode);
-            this.groupBox4.Controls.Add(this.txtLengthOfBarcode);
-            this.groupBox4.Controls.Add(this.label9);
-            this.groupBox4.Controls.Add(this.label8);
-            this.groupBox4.Dock = System.Windows.Forms.DockStyle.Left;
-            this.groupBox4.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox4.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox4.Location = new System.Drawing.Point(544, 0);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(272, 127);
-            this.groupBox4.TabIndex = 4;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "[MÁY ĐỌC BARCODE]";
-            // 
-            // checkBoxSpecialMode
-            // 
-            this.checkBoxSpecialMode.AutoSize = true;
-            this.checkBoxSpecialMode.Location = new System.Drawing.Point(124, 30);
-            this.checkBoxSpecialMode.Name = "checkBoxSpecialMode";
-            this.checkBoxSpecialMode.Size = new System.Drawing.Size(140, 20);
-            this.checkBoxSpecialMode.TabIndex = 58;
-            this.checkBoxSpecialMode.Text = "Check Special Mode";
-            this.checkBoxSpecialMode.UseVisualStyleBackColor = true;
-            // 
-            // txtLengthOfBarcode
-            // 
-            this.txtLengthOfBarcode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.txtLengthOfBarcode.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtLengthOfBarcode.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtLengthOfBarcode.Location = new System.Drawing.Point(116, 65);
-            this.txtLengthOfBarcode.Name = "txtLengthOfBarcode";
-            this.txtLengthOfBarcode.Size = new System.Drawing.Size(140, 23);
-            this.txtLengthOfBarcode.TabIndex = 57;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 67);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(97, 16);
-            this.label9.TabIndex = 48;
-            this.label9.Text = "Độ dài mã code";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 31);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(110, 16);
-            this.label8.TabIndex = 46;
-            this.label8.Text = "Xóa ký tự đặc biệt";
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.groupBox1.Controls.Add(this.textBoxPasswordConfirm);
-            this.groupBox1.Controls.Add(this.label49);
-            this.groupBox1.Controls.Add(this.label50);
-            this.groupBox1.Controls.Add(this.textBoxPassword);
-            this.groupBox1.Controls.Add(this.buttonChangePassword);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.groupBox1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.groupBox1.Location = new System.Drawing.Point(272, 0);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(272, 127);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "[MẬT KHẨU]";
-            // 
-            // textBoxPasswordConfirm
-            // 
-            this.textBoxPasswordConfirm.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.textBoxPasswordConfirm.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxPasswordConfirm.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.textBoxPasswordConfirm.Location = new System.Drawing.Point(73, 69);
-            this.textBoxPasswordConfirm.Name = "textBoxPasswordConfirm";
-            this.textBoxPasswordConfirm.PasswordChar = '*';
-            this.textBoxPasswordConfirm.Size = new System.Drawing.Size(87, 23);
-            this.textBoxPasswordConfirm.TabIndex = 56;
-            // 
-            // label49
-            // 
-            this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(16, 37);
-            this.label49.Name = "label49";
-            this.label49.Size = new System.Drawing.Size(41, 16);
-            this.label49.TabIndex = 53;
-            this.label49.Text = "New: ";
-            // 
-            // label50
-            // 
-            this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(16, 69);
-            this.label50.Name = "label50";
-            this.label50.Size = new System.Drawing.Size(57, 16);
-            this.label50.TabIndex = 54;
-            this.label50.Text = "Confirm:";
-            // 
-            // textBoxPassword
-            // 
-            this.textBoxPassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(58)))), ((int)(((byte)(58)))));
-            this.textBoxPassword.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxPassword.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.textBoxPassword.Location = new System.Drawing.Point(73, 34);
-            this.textBoxPassword.Name = "textBoxPassword";
-            this.textBoxPassword.Size = new System.Drawing.Size(87, 23);
-            this.textBoxPassword.TabIndex = 57;
-            // 
-            // buttonChangePassword
-            // 
-            this.buttonChangePassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.buttonChangePassword.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonChangePassword.Image = ((System.Drawing.Image)(resources.GetObject("buttonChangePassword.Image")));
-            this.buttonChangePassword.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.buttonChangePassword.Location = new System.Drawing.Point(166, 34);
-            this.buttonChangePassword.Name = "buttonChangePassword";
-            this.buttonChangePassword.Size = new System.Drawing.Size(90, 58);
-            this.buttonChangePassword.TabIndex = 55;
-            this.buttonChangePassword.Tag = "Change";
-            this.buttonChangePassword.Text = "Change";
-            this.buttonChangePassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.buttonChangePassword.UseVisualStyleBackColor = false;
-            // 
             // CONFIG
             // 
             this.CONFIG.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
@@ -693,7 +691,7 @@
             this.CONFIG.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.CONFIG.Location = new System.Drawing.Point(0, 0);
             this.CONFIG.Name = "CONFIG";
-            this.CONFIG.Size = new System.Drawing.Size(272, 127);
+            this.CONFIG.Size = new System.Drawing.Size(272, 159);
             this.CONFIG.TabIndex = 1;
             this.CONFIG.TabStop = false;
             this.CONFIG.Text = "[PHẦN MỀM]";
@@ -806,7 +804,7 @@
             this.xtraTabPageCamera.Controls.Add(this.flowLayoutPanelDetector);
             this.xtraTabPageCamera.Name = "xtraTabPageCamera";
             this.xtraTabPageCamera.Size = new System.Drawing.Size(1372, 540);
-            this.xtraTabPageCamera.Text = "Device";
+            this.xtraTabPageCamera.Text = "Thiết bị";
             // 
             // flowLayoutPanelDetector
             // 
@@ -822,7 +820,7 @@
             this.xtraTabPageDB.Controls.Add(this.flowLayoutPanelDB);
             this.xtraTabPageDB.Name = "xtraTabPageDB";
             this.xtraTabPageDB.Size = new System.Drawing.Size(1372, 540);
-            this.xtraTabPageDB.Text = "Database";
+            this.xtraTabPageDB.Text = "Cơ sở dữ liệu";
             // 
             // flowLayoutPanelDB
             // 
@@ -926,39 +924,6 @@
             this.buttonOk.Text = "Apply";
             this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
             // 
-            // panel5
-            // 
-            this.panel5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.panel5.Controls.Add(this.btnReloadTask);
-            this.panel5.Controls.Add(this.dgvPalletHis);
-            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel5.Location = new System.Drawing.Point(0, 298);
-            this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(1372, 221);
-            this.panel5.TabIndex = 5;
-            // 
-            // dgvPalletHis
-            // 
-            this.dgvPalletHis.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvPalletHis.Dock = System.Windows.Forms.DockStyle.Left;
-            this.dgvPalletHis.Location = new System.Drawing.Point(0, 0);
-            this.dgvPalletHis.Name = "dgvPalletHis";
-            this.dgvPalletHis.Size = new System.Drawing.Size(816, 221);
-            this.dgvPalletHis.TabIndex = 0;
-            // 
-            // btnReloadTask
-            // 
-            this.btnReloadTask.BackColor = System.Drawing.Color.DodgerBlue;
-            this.btnReloadTask.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnReloadTask.ForeColor = System.Drawing.Color.White;
-            this.btnReloadTask.Location = new System.Drawing.Point(816, 182);
-            this.btnReloadTask.Name = "btnReloadTask";
-            this.btnReloadTask.Size = new System.Drawing.Size(93, 36);
-            this.btnReloadTask.TabIndex = 1;
-            this.btnReloadTask.Text = "Reload";
-            this.btnReloadTask.UseVisualStyleBackColor = false;
-            this.btnReloadTask.Click += new System.EventHandler(this.btnReloadTask_Click);
-            // 
             // frmConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -972,19 +937,19 @@
             this.tabControlConfig.ResumeLayout(false);
             this.tabPageSystemConfig.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
-            this.grbPos.ResumeLayout(false);
-            this.grbPos.PerformLayout();
-            this.groupBox9.ResumeLayout(false);
-            this.groupBox9.PerformLayout();
-            this.panelXXX.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            this.panelXXX.ResumeLayout(false);
+            this.groupBox9.ResumeLayout(false);
+            this.groupBox9.PerformLayout();
+            this.grbPos.ResumeLayout(false);
+            this.grbPos.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.CONFIG.ResumeLayout(false);
             this.CONFIG.PerformLayout();
             this.tabPageCamera.ResumeLayout(false);
@@ -996,8 +961,6 @@
             this.panel2.ResumeLayout(false);
             this.panel57.ResumeLayout(false);
             this.panel57.PerformLayout();
-            this.panel5.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvPalletHis)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1069,8 +1032,5 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txbWeightStandard;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.Button btnReloadTask;
-        private System.Windows.Forms.DataGridView dgvPalletHis;
     }
 }

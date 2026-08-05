@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 public class OrderTaskRequest
 {
@@ -8,6 +8,9 @@ public class OrderTaskRequest
 
     [JsonProperty("PO_ID")]
     public long PO_ID { get; set; }
+
+    [JsonProperty("PO_Name")]
+    public string PO_Name { get; set; }
 
     [JsonProperty("WH_Code")]
     public string WH_Code { get; set; }
@@ -39,6 +42,9 @@ public class InforDetail
     [JsonProperty("Carton_List")]
     public List<string> CartonList { get; set; }
 
+    [JsonProperty("MFG_Date")]
+    public string Date { get; set; }
+
     [JsonProperty("Ctn")]
     public int Ctn { get; set; }
 
@@ -52,7 +58,7 @@ public class InforDetail
     public int Inner_Carton { get; set; }
 
     [JsonProperty("Inner_Pallet")]
-    public int Inner_Pallet{ get; set; }
+    public int Inner_Pallet { get; set; }
 
     [JsonProperty("GW")]
     public float? Weight { get; set; }
@@ -64,6 +70,16 @@ public class DonePalletRequest
     public string Line_ID { get; set; }
     public string Pallet_ID { get; set; }
     public string Location { get; set; }
+    public string status { get; set; }
+    public string fromSystem { get; set; }
+}
+
+public class CancelPalletRequest
+{
+    public string Task_ID { get; set; }
+    public long PO_ID { get; set; }
+    public string PO_Name { get; set; }
+    public string Line_ID { get; set; }
     public string fromSystem { get; set; }
 }
 

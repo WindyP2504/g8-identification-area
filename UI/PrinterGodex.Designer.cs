@@ -69,7 +69,7 @@ namespace VTP_Induction.UI
             this.groupBoxDev.Size = new System.Drawing.Size(376, 140);
             this.groupBoxDev.TabIndex = 0;
             this.groupBoxDev.TabStop = false;
-            this.groupBoxDev.Text = "[PRINTER]";
+            this.groupBoxDev.Text = "[MÁY IN]";
             // 
             // txtPort
             // 

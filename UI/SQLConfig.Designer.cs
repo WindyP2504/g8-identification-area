@@ -56,6 +56,7 @@ namespace VTP_Induction.UI
             // cboType
             // 
             this.cboType.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cboType.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboType.ForeColor = System.Drawing.Color.White;
             this.cboType.FormattingEnabled = true;
             this.cboType.Items.AddRange(new object[] {
@@ -69,18 +70,19 @@ namespace VTP_Induction.UI
             "COM8",
             "COM9",
             "COM10"});
-            this.cboType.Location = new System.Drawing.Point(122, 31);
+            this.cboType.Location = new System.Drawing.Point(71, 25);
             this.cboType.Name = "cboType";
-            this.cboType.Size = new System.Drawing.Size(134, 21);
+            this.cboType.Size = new System.Drawing.Size(185, 29);
             this.cboType.TabIndex = 77;
             // 
             // txtConStr
             // 
             this.txtConStr.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.txtConStr.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtConStr.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.txtConStr.Location = new System.Drawing.Point(122, 70);
+            this.txtConStr.Location = new System.Drawing.Point(71, 64);
             this.txtConStr.Name = "txtConStr";
-            this.txtConStr.Size = new System.Drawing.Size(424, 20);
+            this.txtConStr.Size = new System.Drawing.Size(475, 29);
             this.txtConStr.TabIndex = 74;
             // 
             // label1
@@ -90,9 +92,9 @@ namespace VTP_Induction.UI
             this.label1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(7, 32);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(41, 16);
+            this.label1.Size = new System.Drawing.Size(39, 16);
             this.label1.TabIndex = 72;
-            this.label1.Text = "Type:";
+            this.label1.Text = "LOẠI:";
             // 
             // label12
             // 
@@ -100,9 +102,9 @@ namespace VTP_Induction.UI
             this.label12.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label12.Location = new System.Drawing.Point(7, 72);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(109, 14);
+            this.label12.Size = new System.Drawing.Size(58, 14);
             this.label12.TabIndex = 53;
-            this.label12.Text = "Connection String:";
+            this.label12.Text = "KẾT NỐI:";
             // 
             // SQLConfig
             // 
